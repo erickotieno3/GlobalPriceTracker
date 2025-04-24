@@ -410,6 +410,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Serve mobile app static assets - simplify to avoid path resolution issues
   app.use('/mobile-app', express.static('mobile-app'));
+  
+  // Serve mobile app assets directly
+  app.use('/assets', express.static('mobile-app/assets'));
 
   // Payment routes
   app.use("/api/payments", paymentRouter);
