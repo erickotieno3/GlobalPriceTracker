@@ -214,6 +214,99 @@ export async function registerRoutes(app: Express): Promise<Server> {
       ]
     });
   });
+  
+  // Simple HTML test endpoint (bypass React entirely)
+  app.get("/test-basic", (req, res) => {
+    const html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Direct Server HTML Test</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            color: #333;
+          }
+          
+          .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+          }
+          
+          h1 {
+            color: #00539f;
+          }
+          
+          .btn {
+            display: inline-block;
+            background: #00539f;
+            color: white;
+            padding: 8px 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+          }
+          
+          .btn-reset {
+            background: #e10600;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>Tesco Price Comparison - Direct Server Test</h1>
+          <p>This is a simple static HTML page served directly from Express.</p>
+          <p>If you can see this page, the server is working correctly.</p>
+          
+          <div id="counter-display">
+            <p>Counter: <span id="count">0</span></p>
+            <button class="btn" onclick="incrementCounter()">Increment</button>
+            <button class="btn btn-reset" onclick="resetCounter()">Reset</button>
+          </div>
+          
+          <p id="time">Current time: Loading...</p>
+        </div>
+
+        <script>
+          // Simple counter functionality
+          let count = 0;
+          const countDisplay = document.getElementById('count');
+          
+          function incrementCounter() {
+            count++;
+            countDisplay.textContent = count;
+          }
+          
+          function resetCounter() {
+            count = 0;
+            countDisplay.textContent = count;
+          }
+          
+          // Update time
+          function updateTime() {
+            document.getElementById('time').textContent = 'Current time: ' + new Date().toLocaleTimeString();
+          }
+          
+          // Initial time update and set interval
+          updateTime();
+          setInterval(updateTime, 1000);
+        </script>
+      </body>
+      </html>
+    `;
+    res.send(html);
+  });
 
   // Payment routes
   app.use("/api/payments", paymentRouter);
