@@ -48,13 +48,13 @@ export default function WebSocketTest() {
                   <div>
                     <Label htmlFor="productId">Product ID</Label>
                     <div className="flex mt-1">
-                      <Input
+                      <input
                         id="productId"
                         type="number"
                         placeholder="Enter product ID (e.g., 1)"
                         value={inputProductId}
                         onChange={(e) => setInputProductId(e.target.value)}
-                        className="mr-2"
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mr-2"
                       />
                       <Button onClick={handleProductSubscribe}>Subscribe</Button>
                     </div>
@@ -80,12 +80,13 @@ export default function WebSocketTest() {
                   <div>
                     <Label htmlFor="countryCode">Country Code</Label>
                     <div className="flex mt-1">
-                      <Input
+                      <input
                         id="countryCode"
+                        type="text"
                         placeholder="Enter country code (e.g., UK)"
                         value={inputCountryCode}
                         onChange={(e) => setInputCountryCode(e.target.value)}
-                        className="mr-2"
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mr-2"
                       />
                       <Button onClick={handleCountrySubscribe}>Subscribe</Button>
                     </div>

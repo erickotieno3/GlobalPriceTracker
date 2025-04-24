@@ -1,5 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
+// WebSocket readyState constants for cross-browser compatibility
+const WS_CONNECTING = 0;
+const WS_OPEN = 1;
+const WS_CLOSING = 2;
+const WS_CLOSED = 3;
+
 interface WebSocketStatusProps {
   productId?: number;
   countryCode?: string;
@@ -69,7 +75,7 @@ export default function WebSocketStatus({ productId, countryCode }: WebSocketSta
   
   // Function to send a test message
   const sendTestMessage = useCallback(() => {
-    if (socket && socket.readyState === WebSocket.OPEN) {
+    if (socket && socket.readyState === WS_OPEN) {
       socket.send(JSON.stringify({
         type: 'ping',
         timestamp: new Date().toISOString()
