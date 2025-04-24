@@ -185,6 +185,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch languages" });
     }
   });
+  
+  // Mobile app connectivity endpoint
+  app.get("/api/mobile/status", (req, res) => {
+    res.json({
+      status: "online",
+      version: "1.0.0",
+      serverTime: new Date().toISOString(),
+      message: "Server is running and ready to accept connections from mobile applications",
+      features: [
+        "price_comparison",
+        "store_locator",
+        "product_search",
+        "country_selection",
+        "multilingual_support"
+      ]
+    });
+  });
 
   // Payment routes
   app.use("/api/payments", paymentRouter);
