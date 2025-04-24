@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Search, ShoppingCart, Globe, Tag, RefreshCw } from 'lucide-react';
+import { formatPrice } from '@/lib/mock-pricing';
 
 interface MarketplaceProductResult {
   id: string;
@@ -45,12 +46,21 @@ export function MarketplaceComparison() {
 
   // Example marketplaces for the UI (these would come from an API in production)
   const marketplaces = [
-    { id: 'amazon', name: 'Amazon', logo: '/assets/marketplace-logos/amazon.svg' },
-    { id: 'ebay', name: 'eBay', logo: '/assets/marketplace-logos/ebay.svg' },
-    { id: 'aliexpress', name: 'AliExpress', logo: '/assets/marketplace-logos/aliexpress.svg' },
-    { id: 'jumia', name: 'Jumia', logo: '/assets/marketplace-logos/jumia.svg' },
-    { id: 'kilimall', name: 'Kilimall', logo: '/assets/marketplace-logos/kilimall.svg' },
+    { id: 'amazon', name: 'Amazon', logo: '/assets/marketplace-logos/amazon.svg', country: 'Global', countryCode: 'us' },
+    { id: 'ebay', name: 'eBay', logo: '/assets/marketplace-logos/ebay.svg', country: 'Global', countryCode: 'us' },
+    { id: 'aliexpress', name: 'AliExpress', logo: '/assets/marketplace-logos/aliexpress.svg', country: 'China', countryCode: 'cn' },
+    { id: 'jumia', name: 'Jumia', logo: '/assets/marketplace-logos/jumia.svg', country: 'Africa', countryCode: 'ke' },
+    { id: 'kilimall', name: 'Kilimall', logo: '/assets/marketplace-logos/kilimall.svg', country: 'Kenya', countryCode: 'ke' },
   ];
+  
+  // Map to get country info for each marketplace
+  const marketplaceCountryMap: Record<string, { country: string, countryCode: string }> = {
+    'amazon': { country: 'United States', countryCode: 'us' },
+    'ebay': { country: 'United States', countryCode: 'us' },
+    'aliexpress': { country: 'China', countryCode: 'cn' },
+    'jumia': { country: 'Kenya', countryCode: 'ke' },
+    'kilimall': { country: 'Kenya', countryCode: 'ke' }
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
@@ -100,7 +110,17 @@ export function MarketplaceComparison() {
                 alt={`${marketplace.name} logo`}
                 className="h-6 w-6 mr-2"
               />
-              <span>{marketplace.name}</span>
+              <div className="flex flex-col">
+                <span>{marketplace.name}</span>
+                <span className="text-xs text-gray-500 flex items-center">
+                  <img 
+                    src={`/assets/flags/${marketplace.countryCode}.svg`} 
+                    alt={marketplace.country}
+                    className="w-3 h-3 mr-1" 
+                  />
+                  {marketplace.country}
+                </span>
+              </div>
             </div>
           ))}
         </div>
@@ -126,14 +146,27 @@ export function MarketplaceComparison() {
                       alt={product.marketplace}
                       className="h-5 w-5 mr-2"
                     />
-                    <span className="text-sm text-gray-600">{product.marketplace}</span>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">{product.marketplace}</span>
+                      <span className="text-xs text-gray-500 flex items-center">
+                        <img 
+                          src={`/assets/flags/${marketplaceCountryMap[product.marketplace.toLowerCase()]?.countryCode || 'us'}.svg`}
+                          alt={marketplaceCountryMap[product.marketplace.toLowerCase()]?.country || 'United States'}
+                          className="w-3 h-3 mr-1"
+                        />
+                        {marketplaceCountryMap[product.marketplace.toLowerCase()]?.country || 'United States'}
+                      </span>
+                    </div>
                   </div>
                   
                   <h4 className="font-medium mb-2 line-clamp-2 h-12">{product.name}</h4>
                   
                   <div className="flex justify-between items-center mb-3">
-                    <div className="text-lg font-bold text-blue-600">
-                      {product.currency} {product.price.toFixed(2)}
+                    <div className="flex flex-col">
+                      <div className="text-lg font-bold text-blue-600">
+                        {formatPrice(product.price, product.currency)}
+                      </div>
+                      <div className="text-xs text-gray-500">{product.currency}</div>
                     </div>
                     {product.rating && (
                       <div className="flex items-center">
@@ -152,7 +185,7 @@ export function MarketplaceComparison() {
                     )}
                     {product.shipping !== undefined && !product.freeShipping && (
                       <div className="text-sm text-gray-600">
-                        Shipping: {product.currency} {product.shipping.toFixed(2)}
+                        Shipping: {formatPrice(product.shipping, product.currency)}
                       </div>
                     )}
                     <a
