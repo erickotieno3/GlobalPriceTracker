@@ -308,6 +308,98 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.send(html);
   });
 
+  // Special direct HTML rendering route - completely bypasses all complex rendering
+  app.get("/direct-html", (req, res) => {
+    res.send(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Direct HTML Response</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      margin: 0; 
+      padding: 20px; 
+      text-align: center;
+      background-color: #f0f0f0;
+      line-height: 1.6;
+    }
+    h1 { color: #00539f; margin-bottom: 20px; }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .counter {
+      background: #f8f8f8;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 20px 0;
+    }
+    button {
+      background: #00539f;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      margin: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .reset { background: #e10600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Tesco Price Comparison - Direct HTML Test</h1>
+    <p>This is a completely self-contained HTML page sent directly from the server with no external dependencies.</p>
+    
+    <div class="counter">
+      <h2>Interactive Counter</h2>
+      <p>Counter value: <span id="count">0</span></p>
+      <button onclick="increment()">Increment</button>
+      <button class="reset" onclick="reset()">Reset</button>
+    </div>
+    
+    <p id="time">Current time: Loading...</p>
+    
+    <script>
+      // No external dependencies - everything is inline
+      let count = 0;
+      
+      function increment() {
+        count++;
+        document.getElementById('count').textContent = count;
+      }
+      
+      function reset() {
+        count = 0;
+        document.getElementById('count').textContent = count;
+      }
+      
+      // Update time function
+      function updateTime() {
+        document.getElementById('time').textContent = 'Current time: ' + new Date().toLocaleTimeString();
+      }
+      
+      // Initial update and set interval
+      updateTime();
+      setInterval(updateTime, 1000);
+      
+      // Log to console for verification
+      console.log('Direct HTML test page loaded successfully!');
+    </script>
+  </div>
+</body>
+</html>
+    `);
+  });
+
   // Payment routes
   app.use("/api/payments", paymentRouter);
   
