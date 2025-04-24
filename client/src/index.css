@@ -1,83 +1,29 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-:root {
-  --background: 0 0% 100%;
-  --foreground: 20 14.3% 4.1%;
-  --muted: 60 4.8% 95.9%;
-  --muted-foreground: 25 5.3% 44.7%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 20 14.3% 4.1%;
-  --card: 0 0% 100%;
-  --card-foreground: 20 14.3% 4.1%;
-  --border: 20 5.9% 90%;
-  --input: 20 5.9% 90%;
-  --primary: 214 100% 50%; /* Tesco blue color from mobile UI */
-  --primary-foreground: 0 0% 100%;
-  --secondary: 0 0% 96.1%; /* Light gray for secondary bg */
-  --secondary-foreground: 24 9.8% 10%;
-  --accent: 25 100% 61%; /* Orange accent color */
-  --accent-foreground: 0 0% 100%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 60 9.1% 97.8%;
-  --ring: 214 100% 50%;
-  --radius: 0.5rem;
-  --success: 142 76% 36%;
-  --error: 0 84% 60%;
+/* Minimal CSS file */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #ffffff;
+  color: #333333;
 }
 
-.dark {
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --popover: 240 10% 3.9%;
-  --popover-foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --primary: 144 25% 48%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 240 3.7% 15.9%;
-  --secondary-foreground: 0 0% 98%;
-  --accent: 25 100% 61%;
-  --accent-foreground: 0 0% 100%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
-  --ring: 144 25% 48%;
-  --success: 142 76% 36%;
-  --error: 0 84% 60%;
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply antialiased bg-background text-foreground;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-bold;
-  }
+h1 {
+  color: #00539f;
+  margin-bottom: 20px;
 }
 
-/* Common custom classes */
-.container-custom {
-  @apply container mx-auto px-4;
+h2 {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
 }
 
-.section-padding {
-  @apply py-10 md:py-12;
-}
-
-.text-success {
-  @apply text-green-600;
-}
-
-.text-error {
-  @apply text-red-500;
+p {
+  margin-bottom: 10px;
+  line-height: 1.6;
 }
