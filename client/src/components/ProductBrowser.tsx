@@ -6,7 +6,7 @@ import {
   truncateText, 
   sortProductsByName 
 } from '@/lib/utils';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';

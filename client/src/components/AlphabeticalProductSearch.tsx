@@ -31,7 +31,7 @@ export default function AlphabeticalProductSearch({ onSelectProduct }: Alphabeti
 
   // Filter products by search term or selected letter
   const filteredProducts = React.useMemo(() => {
-    if (!allProducts || allProducts.length === 0) return [];
+    if (!allProducts || !Array.isArray(allProducts) || allProducts.length === 0) return [];
     
     let filtered = [...allProducts] as Product[];
     
@@ -50,7 +50,7 @@ export default function AlphabeticalProductSearch({ onSelectProduct }: Alphabeti
   
   // Grouped products by first letter
   const groupedProducts = React.useMemo(() => {
-    if (!allProducts || allProducts.length === 0) return {};
+    if (!allProducts || !Array.isArray(allProducts) || allProducts.length === 0) return {} as Record<string, Product[]>;
     
     return alphabet.reduce((acc, letter) => {
       acc[letter] = (allProducts as Product[]).filter(product => 
