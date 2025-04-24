@@ -6,7 +6,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { getMarketplacesByRegion, getMarketplacesByCategory, generateAffiliateLink, marketplaceAffiliates } from '../shared/marketplace-affiliates';
+import { getMarketplacesByRegion, getMarketplacesByCategory, generateAffiliateLink, marketplaceAffiliates, MarketplaceAffiliate } from '../shared/marketplace-affiliates';
 import axios from 'axios';
 import { storage } from './storage';
 
@@ -46,10 +46,12 @@ marketplaceRouter.get('/marketplaces', (req: Request, res: Response) => {
     data: marketplaceAffiliates.map(marketplace => ({
       id: marketplace.id,
       name: marketplace.name,
-      logo: marketplace.logo,
-      regions: marketplace.regions,
-      categories: marketplace.categories,
-      programUrl: marketplace.programUrl,
+      logoPath: marketplace.logoPath,
+      primaryRegions: marketplace.primaryRegions,
+      secondaryRegions: marketplace.secondaryRegions,
+      availableCategories: marketplace.availableCategories,
+      affiliateBaseUrl: marketplace.affiliateBaseUrl,
+      commissionRate: marketplace.commissionRate
     }))
   });
 });
@@ -66,9 +68,10 @@ marketplaceRouter.get('/marketplaces/region/:region', (req: Request, res: Respon
     data: marketplaces.map(marketplace => ({
       id: marketplace.id,
       name: marketplace.name,
-      logo: marketplace.logo,
-      categories: marketplace.categories,
-      programUrl: marketplace.programUrl,
+      logoPath: marketplace.logoPath,
+      availableCategories: marketplace.availableCategories,
+      affiliateBaseUrl: marketplace.affiliateBaseUrl,
+      commissionRate: marketplace.commissionRate
     }))
   });
 });
@@ -82,12 +85,13 @@ marketplaceRouter.get('/marketplaces/category/:category', (req: Request, res: Re
   
   res.json({
     success: true,
-    data: marketplaces.map(marketplace => ({
+    data: marketplaces.map((marketplace: MarketplaceAffiliate) => ({
       id: marketplace.id,
       name: marketplace.name,
-      logo: marketplace.logo,
-      regions: marketplace.regions,
-      programUrl: marketplace.programUrl,
+      logoPath: marketplace.logoPath,
+      primaryRegions: marketplace.primaryRegions,
+      secondaryRegions: marketplace.secondaryRegions,
+      affiliateBaseUrl: marketplace.affiliateBaseUrl
     }))
   });
 });
