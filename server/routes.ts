@@ -27,6 +27,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Serve static files from the public directory with highest priority
   app.use(express.static('public'));
   
+  // Custom health check endpoints for deployment
+  app.get('/health', (req, res) => {
+    res.status(200).json({
+      status: 'ok',
+      time: new Date().toISOString(),
+      env: process.env.NODE_ENV || 'development'
+    });
+  });
+  
+  app.get('/ping', (req, res) => {
+    res.status(200).send('pong');
+  });
+  
+  app.get('/barebones', (req, res) => {
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head><title>Tesco Price Comparison - Status Check</title></head>
+        <body>
+          <h1>Server is running!</h1>
+          <p>Status: Online</p>
+          <p>Time: ${new Date().toISOString()}</p>
+        </body>
+      </html>
+    `);
+  });
+  
+  // Domain validation endpoint for custom domains
+  app.get('/.well-known/custom-domain-verification', (req, res) => {
+    res.send('tesco-compare--hyrisecrown.repl.co domain verification');
+  });
+  
   // Serve mobile app static assets with high priority
   app.use('/mobile-app', express.static('mobile-app', { index: false }));
   
