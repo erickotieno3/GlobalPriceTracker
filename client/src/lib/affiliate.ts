@@ -1,128 +1,155 @@
 /**
- * Affiliate Marketing Service
+ * Affiliate Marketing Utilities
  * 
- * This file provides utilities for handling affiliate links and tracking
- * for all supported retailers in the Tesco Price Comparison platform.
+ * This module contains utilities for tracking affiliate marketing activity,
+ * managing affiliate IDs, and handling commission attribution.
  */
-
-// Store-specific affiliate IDs
-// These would be your actual affiliate IDs from each retailer program
-interface AffiliateIds {
-  [key: string]: string;
-}
-
-const AFFILIATE_IDS: AffiliateIds = {
-  tesco: 'TESCO_AFFILIATE_ID',
-  carrefour: 'CARREFOUR_AFFILIATE_ID',
-  aldi: 'ALDI_AFFILIATE_ID',
-  walmart: 'WALMART_AFFILIATE_ID',
-  sainsburys: 'SAINSBURYS_AFFILIATE_ID',
-  lidl: 'LIDL_AFFILIATE_ID',
-  coles: 'COLES_AFFILIATE_ID',
-  woolworths: 'WOOLWORTHS_AFFILIATE_ID',
-  nakumatt: 'NAKUMATT_AFFILIATE_ID'
-};
-
-// Import analytics for tracking
-import analytics from './analytics';
+import { apiRequest } from './queryClient';
 
 /**
- * Generate an affiliate link for a specific store and product
- * 
- * @param storeName The name of the store (e.g., 'tesco')
- * @param productId The ID of the product in our system
- * @param productUrl The direct URL to the product on the retailer's site
- * @returns Affiliate tracking URL
+ * Check if the current user accessed the site via an affiliate link
+ * and store the affiliate ID if present
  */
-export const getAffiliateUrl = (
-  storeName: string,
-  productId: number | string,
-  productUrl: string
-): string => {
-  const store = storeName.toLowerCase();
-  const affiliateId = AFFILIATE_IDS[store] || '';
-  
-  if (!affiliateId) {
-    console.warn(`No affiliate ID configured for store: ${storeName}`);
-    return productUrl;
-  }
-  
-  // Different stores have different affiliate URL patterns
-  switch (store) {
-    case 'tesco':
-      // Example: https://www.tesco.com/groceries/product/12345?affid=TESCO_AFFILIATE_ID
-      return `${productUrl}${productUrl.includes('?') ? '&' : '?'}affid=${affiliateId}&utm_source=tescocomparison&utm_medium=affiliate&utm_campaign=price_comparison`;
+export function checkAndStoreAffiliateId(): void {
+  try {
+    // Check URL parameters for affiliate ID
+    const urlParams = new URLSearchParams(window.location.search);
+    const affiliateId = urlParams.get('aff') || urlParams.get('affiliateId');
+    
+    if (affiliateId) {
+      // Store the affiliate ID for attribution
+      localStorage.setItem('affiliateId', affiliateId);
+      localStorage.setItem('affiliateTimestamp', Date.now().toString());
       
-    case 'walmart':
-      // Example: https://www.walmart.com/ip/12345?affp=WALMART_AFFILIATE_ID
-      return `${productUrl}${productUrl.includes('?') ? '&' : '?'}affp=${affiliateId}&utm_source=tescocomparison&utm_medium=affiliate`;
-
-    case 'carrefour':
-      // Example for Carrefour's affiliate program
-      return `${productUrl}${productUrl.includes('?') ? '&' : '?'}partner=${affiliateId}&utm_source=tescocomparison`;
+      // Record the referral
+      recordReferral(affiliateId);
       
-    // Add more retailers with their specific URL patterns
-    default:
-      // Generic pattern that works for most affiliate networks
-      return `${productUrl}${productUrl.includes('?') ? '&' : '?'}aff=${affiliateId}&utm_source=tescocomparison`;
+      // Clean up URL by removing affiliate parameters
+      // Only in production to avoid interfering with development
+      if (import.meta.env.PROD) {
+        const newUrl = removeAffiliateParamsFromUrl(window.location.href);
+        window.history.replaceState({}, document.title, newUrl);
+      }
+    }
+  } catch (error) {
+    console.error('Error processing affiliate ID:', error);
   }
-};
-
-/**
- * Track an affiliate link click
- * 
- * @param storeName The name of the store
- * @param productId The ID of the product
- * @param productName The name of the product
- * @returns The tracking URL
- */
-export const trackAffiliateClick = (
-  storeName: string,
-  productId: number | string,
-  productName: string,
-  productUrl: string
-): string => {
-  // Track the click in analytics
-  analytics.trackAffiliateClick(storeName, typeof productId === 'string' ? parseInt(productId, 10) : productId, productName);
-  
-  // Return the affiliate URL
-  return getAffiliateUrl(storeName, productId, productUrl);
-};
-
-/**
- * Affiliate link component props for React
- */
-export interface AffiliateClickProps {
-  storeName: string;
-  productId: number | string;
-  productName: string;
-  productUrl: string;
-  className?: string;
-  children: React.ReactNode;
 }
 
 /**
- * Check if all required affiliate IDs are configured
- * 
- * @returns Boolean indicating if all stores have affiliate IDs
+ * Record a referral from an affiliate
  */
-export const areAffiliateIdsConfigured = (): boolean => {
-  return Object.values(AFFILIATE_IDS).every(id => id && id !== 'PLACEHOLDER' && !id.includes('_AFFILIATE_ID'));
-};
+async function recordReferral(affiliateId: string): Promise<void> {
+  try {
+    await apiRequest('POST', '/api/affiliate/referral', {
+      affiliateId,
+      referrer: document.referrer || 'direct',
+      landingPage: window.location.href,
+      userAgent: navigator.userAgent,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('Error recording affiliate referral:', error);
+  }
+}
 
 /**
- * Get a warning message if affiliate IDs are not properly configured
+ * Get the current active affiliate ID
  */
-export const getAffiliateConfigWarning = (): string | null => {
-  if (!areAffiliateIdsConfigured()) {
-    return 'Some affiliate IDs are not configured. Affiliate links may not be properly tracked.';
+export function getAffiliateId(): string | null {
+  try {
+    const affiliateId = localStorage.getItem('affiliateId');
+    const timestamp = localStorage.getItem('affiliateTimestamp');
+    
+    // Check if the affiliate ID is still valid (30-day attribution window)
+    if (affiliateId && timestamp) {
+      const storedTime = parseInt(timestamp, 10);
+      const currentTime = Date.now();
+      const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
+      
+      if (currentTime - storedTime <= thirtyDaysInMs) {
+        return affiliateId;
+      } else {
+        // Clear expired affiliate ID
+        localStorage.removeItem('affiliateId');
+        localStorage.removeItem('affiliateTimestamp');
+        return null;
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error getting affiliate ID:', error);
+    return null;
   }
-  return null;
-};
+}
 
-export default {
-  getAffiliateUrl,
-  trackAffiliateClick,
-  areAffiliateIdsConfigured,
-  getAffiliateConfigWarning
-};
+/**
+ * Track a purchase for affiliate commission
+ */
+export async function trackAffiliatePurchase(
+  orderId: string,
+  amount: number,
+  currency: string
+): Promise<void> {
+  const affiliateId = getAffiliateId();
+  
+  if (affiliateId) {
+    try {
+      await apiRequest('POST', '/api/affiliate/conversion', {
+        affiliateId,
+        orderId,
+        amount,
+        currency,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error('Error tracking affiliate purchase:', error);
+    }
+  }
+}
+
+/**
+ * Remove affiliate parameters from a URL
+ */
+function removeAffiliateParamsFromUrl(url: string): string {
+  const urlObj = new URL(url);
+  urlObj.searchParams.delete('aff');
+  urlObj.searchParams.delete('affiliateId');
+  return urlObj.toString();
+}
+
+/**
+ * Initialize affiliate tracking
+ * Call this when the application starts
+ */
+export function initializeAffiliateTracking(): void {
+  // Check for affiliate ID in URL parameters
+  checkAndStoreAffiliateId();
+  
+  // Track page views for analytics
+  window.addEventListener('load', () => {
+    trackAffiliatePageView();
+  });
+}
+
+/**
+ * Track a page view for affiliate analytics
+ */
+async function trackAffiliatePageView(): Promise<void> {
+  const affiliateId = getAffiliateId();
+  
+  if (affiliateId) {
+    try {
+      await apiRequest('POST', '/api/affiliate/pageview', {
+        affiliateId,
+        path: window.location.pathname,
+        referrer: document.referrer || 'direct',
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      // Silent fail for pageview tracking
+      console.debug('Error tracking affiliate pageview:', error);
+    }
+  }
+}

@@ -4,44 +4,64 @@ import { ExternalLink, ShoppingCart } from 'lucide-react';
 import AffiliateLink from './AffiliateLink';
 
 interface ProductAffiliateButtonProps {
+  storeId: number;
+  productId: number;
   storeName: string;
-  productId: number | string;
   productName: string;
+  price: number;
+  currency: string;
   productUrl: string;
-  buttonText?: string;
-  variant?: 'default' | 'outline' | 'destructive' | 'secondary' | 'ghost' | 'link';
-  size?: 'default' | 'sm' | 'lg' | 'icon';
+  variant?: 'default' | 'primary' | 'secondary' | 'outline';
   className?: string;
 }
 
 /**
- * ProductAffiliateButton Component
+ * ProductAffiliateButton
  * 
- * A button that links to a product on a retailer's website with affiliate tracking.
+ * A call-to-action button that links to a product on a store website,
+ * with built-in affiliate tracking capabilities.
  */
-export default function ProductAffiliateButton({
-  storeName,
+const ProductAffiliateButton: React.FC<ProductAffiliateButtonProps> = ({
+  storeId,
   productId,
+  storeName,
   productName,
+  price,
+  currency,
   productUrl,
-  buttonText = 'Buy Now',
-  variant = 'default',
-  size = 'default',
-  className = '',
-}: ProductAffiliateButtonProps) {
+  variant = 'primary',
+  className = ''
+}) => {
+  // Format the price with the appropriate currency symbol
+  const formattedPrice = new Intl.NumberFormat('en-GB', {
+    style: 'currency',
+    currency: currency,
+    minimumFractionDigits: 2,
+  }).format(price);
+  
+  // Map our custom variant names to shadcn Button variants
+  const buttonVariant = 
+    variant === 'primary' ? 'default' :
+    variant === 'secondary' ? 'secondary' :
+    variant === 'outline' ? 'outline' : 'default';
+  
   return (
     <AffiliateLink
-      storeName={storeName}
+      to={productUrl}
+      storeId={storeId}
       productId={productId}
-      productName={productName}
-      productUrl={productUrl}
-      className={className}
+      openInNewTab={true}
     >
-      <Button variant={variant} size={size} className="w-full sm:w-auto">
-        <ShoppingCart className="mr-2 h-4 w-4" />
-        {buttonText}
-        <ExternalLink className="ml-2 h-4 w-4" />
+      <Button 
+        variant={buttonVariant} 
+        className={`gap-2 ${className}`}
+      >
+        <ShoppingCart className="h-4 w-4" />
+        <span>Buy for {formattedPrice} at {storeName}</span>
+        <ExternalLink className="h-4 w-4" />
       </Button>
     </AffiliateLink>
   );
-}
+};
+
+export default ProductAffiliateButton;

@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { z } from "zod";
 import { insertNewsletterSubscriberSchema } from "@shared/schema";
 import paymentRouter from "./payment-routes";
+import affiliateRouter from "./affiliate-routes";
 import ipBlocker from "./ip-blocker";
 import { WebSocketServer, WebSocket } from 'ws';
 import { initializeAutoUpdater } from "./auto-updater";
@@ -216,6 +217,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Payment routes
   app.use("/api/payments", paymentRouter);
+  
+  // Affiliate routes
+  app.use("/api/affiliate", affiliateRouter);
 
   const httpServer = createServer(app);
   

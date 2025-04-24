@@ -17,9 +17,12 @@ import MobileConnection from "@/pages/mobile-connection";
 import WebSocketTest from "@/pages/websocket-test";
 import ProductFinder from "@/pages/product-finder";
 import AlphabeticalSearch from "@/pages/alphabetical-search";
+import AffiliateDashboard from "@/pages/affiliate-dashboard";
+import AdvertisePage from "@/pages/advertise";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { initializeAdSense } from "@/lib/adsense";
+import { initializeAffiliateTracking } from "@/lib/affiliate";
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -50,6 +53,8 @@ function Router() {
       <Route path="/websocket-test" component={WebSocketTest} />
       <Route path="/product-finder" component={ProductFinder} />
       <Route path="/alphabetical-search" component={AlphabeticalSearch} />
+      <Route path="/affiliate-dashboard" component={AffiliateDashboard} />
+      <Route path="/advertise" component={AdvertisePage} />
       <Route path="/privacy" component={() => {
         window.location.href = "/legal/PRIVACY_POLICY.md";
         return null;
@@ -67,9 +72,10 @@ function App() {
     document.documentElement.lang = i18n.language;
   }, [i18n.language]);
   
-  // Initialize Google AdSense when the app loads
+  // Initialize Google AdSense and affiliate tracking when the app loads
   useEffect(() => {
     initializeAdSense();
+    initializeAffiliateTracking();
   }, []);
   
   return (
