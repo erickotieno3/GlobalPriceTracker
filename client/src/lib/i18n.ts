@@ -1,8 +1,6 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
-import { apiRequest } from "./queryClient";
-import { Language } from "@shared/schema";
 
 // Define the translation namespaces
 const namespaces = ["common", "home", "country", "store", "compare", "newsletter"];
@@ -26,7 +24,7 @@ const resources = {
       "startComparing": "Start Comparing",
     },
     home: {
-      "heroTitle": "Compare Supermarket Prices Globally",
+      "heroTitle": "Compare Supermarket Prices",
       "heroSubtitle": "Find the best deals across stores in multiple countries with real-time price comparisons",
       "selectCountry": "Select Your Country",
       "featuredStores": "Featured Stores",
@@ -90,51 +88,23 @@ const resources = {
   },
 };
 
-async function loadLanguages() {
-  try {
-    const response = await apiRequest("GET", "/api/languages");
-    const languages: Language[] = await response.json();
-    return languages;
-  } catch (error) {
-    console.error("Failed to load languages:", error);
-    return [];
-  }
-}
+// Initialize i18n
+i18n
+  .use(LanguageDetector)
+  .use(initReactI18next)
+  .init({
+    resources,
+    fallbackLng: "en",
+    supportedLngs: ["en", "sw", "fr", "de", "ar"],
+    ns: namespaces,
+    defaultNS: "common",
+    detection: {
+      order: ["localStorage", "navigator"],
+      caches: ["localStorage"],
+    },
+    interpolation: {
+      escapeValue: false,
+    },
+  });
 
-const i18nInstance = {
-  ...i18n,
-  async init() {
-    // Initialize with default English resources
-    await i18n
-      .use(LanguageDetector)
-      .use(initReactI18next)
-      .init({
-        resources,
-        fallbackLng: "en",
-        supportedLngs: ["en", "sw", "fr", "de", "ar"],
-        ns: namespaces,
-        defaultNS: "common",
-        detection: {
-          order: ["localStorage", "navigator"],
-          caches: ["localStorage"],
-        },
-        interpolation: {
-          escapeValue: false,
-        },
-      });
-    
-    // Load languages from the API
-    const languages = await loadLanguages();
-    
-    // Update supported languages based on API response
-    const languageCodes = languages.map(lang => lang.code);
-    if (languageCodes.length > 0) {
-      // Set supported languages dynamically
-      i18n.options.supportedLngs = languageCodes;
-    }
-    
-    return i18n;
-  }
-};
-
-export default i18nInstance;
+export default i18n;
