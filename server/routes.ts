@@ -413,6 +413,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile('public/mobile-redirect.html', { root: '.' });
   });
   
+  // Serve mobile app at the root path for reliability
+  app.get('/', (req, res) => {
+    res.sendFile('mobile-app/index.html', { root: '.' });
+  });
+  
   // Serve mobile app static assets - simplify to avoid path resolution issues
   app.use('/mobile-app', express.static('mobile-app'));
   
