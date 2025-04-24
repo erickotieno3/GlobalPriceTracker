@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { Search, ShoppingCart, Globe, Tag, RefreshCw } from 'lucide-react';
 
 interface MarketplaceProductResult {
@@ -19,15 +18,14 @@ interface MarketplaceProductResult {
 export function MarketplaceComparison() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<MarketplaceProductResult[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   
-  // This is a placeholder that would normally fetch from the API
-  const { data: searchResults, isLoading, refetch } = useQuery<MarketplaceProductResult[]>({
-    queryKey: ['/api/marketplace/search', searchQuery],
-    queryFn: async () => {
-      // We'll only fetch if the user has searched
-      if (!isSearching || !searchQuery.trim()) {
-        return [];
-      }
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      setIsSearching(true);
+      setIsLoading(true);
       
       try {
         const response = await fetch(`/api/marketplace/search?query=${encodeURIComponent(searchQuery)}`);
@@ -35,20 +33,13 @@ export function MarketplaceComparison() {
           throw new Error('Failed to search marketplaces');
         }
         const data = await response.json();
-        return data.results || [];
+        setSearchResults(data.results || []);
       } catch (error) {
         console.error('Error searching marketplaces:', error);
-        return [];
+        setSearchResults([]);
+      } finally {
+        setIsLoading(false);
       }
-    },
-    enabled: isSearching && searchQuery.trim().length > 0,
-  });
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      setIsSearching(true);
-      refetch();
     }
   };
 
