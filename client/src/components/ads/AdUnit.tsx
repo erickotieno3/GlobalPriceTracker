@@ -45,19 +45,20 @@ export function AdUnit({ position, format, className, style }: AdUnitProps) {
   
   return (
     <div className="ad-container" data-position={position}>
-      <ins
-        ref={adRef}
-        className={getAdClasses()}
-        style={{
-          display: 'block',
-          textAlign: 'center',
-          ...style
-        }}
-        data-ad-client={process.env.GOOGLE_ADSENSE_CLIENT_ID}
-        data-ad-slot={slotConfig.slotId}
-        data-ad-format={adFormat}
-        data-full-width-responsive="true"
-      />
+      <div ref={adRef}>
+        <ins
+          className={getAdClasses()}
+          style={{
+            display: 'block',
+            textAlign: 'center',
+            ...style
+          }}
+          data-ad-client={process.env.GOOGLE_ADSENSE_CLIENT_ID}
+          data-ad-slot={slotConfig.slotId}
+          data-ad-format={adFormat}
+          data-full-width-responsive="true"
+        />
+      </div>
       <div className="ad-label text-xs text-gray-400 text-center mt-1">Advertisement</div>
     </div>
   );

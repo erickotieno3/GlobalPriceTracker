@@ -6,6 +6,19 @@ import { queryClient } from "./lib/queryClient";
 import { I18nextProvider } from "react-i18next";
 import i18n from "./lib/i18n";
 
+// Register the service worker for PWA support
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
+        console.log('Service Worker registered with scope:', registration.scope);
+      })
+      .catch(error => {
+        console.error('Service Worker registration failed:', error);
+      });
+  });
+}
+
 // Render immediately since i18n is already initialized
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>

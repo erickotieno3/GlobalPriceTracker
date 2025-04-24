@@ -13,6 +13,9 @@ import ProductComparison from "@/components/sections/product-comparison";
 import CountriesSupport from "@/components/sections/countries-support";
 import AppDownload from "@/components/sections/app-download";
 import { useMobile } from "@/hooks/use-media-query";
+import { BannerAd, InArticleAd, ProductListAd } from "@/components/ads";
+import { AffiliateBanner } from "@/components/affiliate";
+import LegalDisclaimer from "@/components/LegalDisclaimer";
 
 export default function Home() {
   const { t } = useTranslation("home");
@@ -21,6 +24,11 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
+      
+      {/* Top Banner Ad */}
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+        <BannerAd />
+      </div>
       
       <main className="flex-grow">
         {/* Simple welcome section for testing */}
@@ -36,9 +44,32 @@ export default function Home() {
         
         <FeaturedStores />
         
+        {/* In-article Ad after the featured stores section */}
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+          <InArticleAd />
+        </div>
+        
         <SearchBar />
         
         <TrendingDeals />
+        
+        {/* Product List Ad integrated with trending deals */}
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+          <ProductListAd />
+        </div>
+        
+        {/* Affiliate Banner for Tesco - Promoted deal */}
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+          <AffiliateBanner 
+            storeName="Tesco"
+            productId="12345"
+            productName="Weekly Family Essentials Bundle"
+            productUrl="https://www.tesco.com/groceries/bundle/12345"
+            bannerText="Save 25% on your weekly family shop with our essential bundle. Perfect for families of 4-5 people."
+            bannerImage="/logos/tesco-banner.jpg"
+            className="mb-4"
+          />
+        </div>
         
         <HowItWorks />
         
@@ -46,10 +77,24 @@ export default function Home() {
         
         <ProductComparison />
         
+        {/* Another In-article Ad */}
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+          <InArticleAd />
+        </div>
+        
         <CountriesSupport />
         
         <AppDownload />
       </main>
+      
+      {/* Bottom Banner Ad and Legal Disclaimer */}
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-6">
+        <BannerAd />
+      </div>
+      
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+        <LegalDisclaimer />
+      </div>
       
       <Footer />
       
