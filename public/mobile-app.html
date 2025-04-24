@@ -458,22 +458,8 @@
   <!-- Hero Section -->
   <section class="hero">
     <h1>Compare Supermarket Prices</h1>
-    <a href="javascript:void(0)" class="button" id="startCompareButton">Start Comparing</a>
+    <a href="#compare" class="button" id="startCompareButton" onclick="event.preventDefault(); document.getElementById('compareModal').style.display='flex'; document.body.style.overflow='hidden';">Start Comparing</a>
   </section>
-  
-  <script>
-    // Add event listener after DOM is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-      // Hero section compare button
-      document.getElementById('startCompareButton').addEventListener('click', function() {
-        // Show the compare modal when the button is clicked
-        const compareModal = document.getElementById('compareModal');
-        if (compareModal) {
-          compareModal.style.display = 'flex';
-        }
-      });
-    });
-  </script>
   
   <!-- Country Selector -->
   <div class="country-selector">
@@ -539,9 +525,9 @@
       <div class="product-title">Sunlight Washing Powder 2kg</div>
       <div class="product-price">$4.99</div>
     </div>
-    <button class="compare-button" aria-label="Compare Prices">
+    <a href="#compare" class="compare-button" aria-label="Compare Prices">
       <span class="material-icons">search</span>
-    </button>
+    </a>
   </div>
   
   <div class="trending-deal">
@@ -550,9 +536,9 @@
       <div class="product-title">Fresh Milk 1L</div>
       <div class="product-price">$1.29</div>
     </div>
-    <button class="compare-button" aria-label="Compare Prices">
+    <a href="#compare" class="compare-button" aria-label="Compare Prices">
       <span class="material-icons">search</span>
-    </button>
+    </a>
   </div>
   
   <!-- Newsletter -->
@@ -567,43 +553,25 @@
   
   <!-- Bottom Navigation -->
   <nav class="bottom-nav">
-    <a href="/mobile" class="nav-item active">
+    <a href="#" class="nav-item active" id="homeNavLink">
       <span class="material-icons nav-icon">home</span>
       <span>Home</span>
     </a>
-    <a href="/mobile/search" class="nav-item" id="searchNavLink">
+    <a href="#search" class="nav-item" id="searchNavLink">
       <span class="material-icons nav-icon">search</span>
       <span>Search</span>
     </a>
-    <a href="/mobile/compare" class="nav-item" id="compareNavLink">
+    <a href="#compare" class="nav-item" id="compareNavLink">
       <span class="material-icons nav-icon">compare_arrows</span>
       <span>Compare</span>
     </a>
-    <a href="/mobile/account" class="nav-item" id="accountNavLink">
+    <a href="#account" class="nav-item" id="accountNavLink">
       <span class="material-icons nav-icon">person</span>
       <span>Account</span>
     </a>
   </nav>
   
-  <!-- JavaScript for handling navigation - temporary solution until proper routes are set up -->
-  <script>
-    // Prevent default navigation behavior and handle the navigation in JavaScript
-    document.getElementById('searchNavLink').addEventListener('click', function(e) {
-      e.preventDefault();
-      alert('Search feature will be available soon!');
-    });
-    
-    document.getElementById('compareNavLink').addEventListener('click', function(e) {
-      e.preventDefault();
-      alert('Compare feature will be available soon!');
-    });
-    
-    document.getElementById('accountNavLink').addEventListener('click', function(e) {
-      e.preventDefault();
-      // Open the account modal instead of navigating
-      showModal(accountModal);
-    });
-  </script>
+  <!-- Empty the redundant event listeners -->
   
   <!-- Compare Modal -->
   <div class="modal" id="compareModal">
@@ -801,21 +769,17 @@
       // Navigation event listeners
       navItems.forEach(item => {
         item.addEventListener('click', function(e) {
+          e.preventDefault(); // Prevent hash URL navigation
           navItems.forEach(navItem => navItem.classList.remove('active'));
           this.classList.add('active');
           
           const href = this.getAttribute('href');
-          // Only home navigation works directly - the rest need special handling
-          if (href !== '/mobile') {
-            e.preventDefault();
-            // Now we handle each page - code will be removed when proper pages are built
-            if (href === '/mobile/search') {
-              showModal(searchModal);
-            } else if (href === '/mobile/compare') {
-              showModal(compareModal);
-            } else if (href === '/mobile/account') {
-              showModal(accountModal);
-            }
+          if (href === '#search' || href === '#') {
+            showModal(searchModal);
+          } else if (href === '#compare') {
+            showModal(compareModal);
+          } else if (href === '#account') {
+            showModal(accountModal);
           }
         });
       });
@@ -829,7 +793,10 @@
       // Compare buttons
       const compareButtons = document.querySelectorAll('.compare-button');
       compareButtons.forEach(button => {
-        button.addEventListener('click', () => showModal(compareModal));
+        button.addEventListener('click', (e) => {
+          e.preventDefault(); // Prevent hash navigation
+          showModal(compareModal);
+        });
       });
       
       // Newsletter form

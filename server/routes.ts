@@ -13,15 +13,27 @@ import path from 'path';
 import { initializeAutoUpdater } from "./auto-updater";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Critical: Serve mobile app static assets first to ensure they are accessible
-  // Serve mobile app static assets - simplify to avoid path resolution issues
+  // Critical: Serve static assets first to ensure they are accessible
+  // Serve static files from the public directory with highest priority
+  app.use(express.static('public'));
+  
+  // Serve mobile app static assets with high priority
   app.use('/mobile-app', express.static('mobile-app', { index: false }));
   
   // Serve mobile app assets directly with high priority
   app.use('/assets', express.static('mobile-app/assets'));
   
-  // Serve public directory static files with high priority
-  app.use('/public', express.static('public'));
+  // Explicit route for mobile-app.html to ensure it works
+  app.get('/mobile-app.html', (req, res) => {
+    try {
+      const htmlFile = fs.readFileSync('./public/mobile-app.html', 'utf8');
+      res.set('Content-Type', 'text/html');
+      res.send(htmlFile);
+    } catch (err) {
+      console.error('Error serving mobile-app.html:', err);
+      res.status(500).send('Error loading mobile app');
+    }
+  });
   
   // Root mobile app (highest priority route)
   // Create a simple direct HTML response to check routing
