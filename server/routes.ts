@@ -624,12 +624,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
               // Fetch updated product prices
               const prices = await storage.compareProductPrices(productId);
               
+              // Update prices with correct currencies for each store country
+              const formattedPrices = prices.map(priceData => {
+                // Set appropriate currencies for each store based on country
+                if (priceData.store.name === "Naivas" || priceData.store.name.includes("Kenya")) {
+                  return {
+                    ...priceData,
+                    currency: "KSh",  // Kenyan Shilling
+                    price: Math.round(priceData.price * 129.5), // Convert to KSh
+                  };
+                } else if (priceData.store.name === "Tesco" || priceData.store.name.includes("UK")) {
+                  return {
+                    ...priceData,
+                    currency: "£", // British Pound
+                    price: Math.round(priceData.price * 0.78 * 100) / 100, // Convert to GBP
+                  };
+                } else if (priceData.store.name === "Carrefour" || priceData.store.name.includes("France")) {
+                  return {
+                    ...priceData,
+                    currency: "€", // Euro
+                    price: Math.round(priceData.price * 0.92 * 100) / 100, // Convert to EUR
+                  };
+                } else if (priceData.store.name === "Shoprite" || priceData.store.name.includes("South Africa")) {
+                  return {
+                    ...priceData,
+                    currency: "R", // South African Rand
+                    price: Math.round(priceData.price * 18.27), // Convert to ZAR
+                  };
+                }
+                return priceData;
+              });
+              
               // Send real-time price updates
               if (ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({
                   type: 'price_update',
                   productId,
-                  prices,
+                  prices: formattedPrices,
                   timestamp: new Date().toISOString()
                 }));
               }

@@ -294,7 +294,7 @@ function generateDemoResults(query: string, category?: string, region?: string) 
     {
       id: 'jum1',
       name: `${query} - African Edition`,
-      price: 15999,
+      price: 25999,
       currency: 'KSh',
       url: 'https://www.jumia.co.ke/catalog/',
       image: 'https://via.placeholder.com/300',
@@ -306,7 +306,7 @@ function generateDemoResults(query: string, category?: string, region?: string) 
     {
       id: 'kil1',
       name: `${query} - Standard Package`,
-      price: 12499,
+      price: 22499,
       currency: 'KSh',
       url: 'https://www.kilimall.co.ke/new/goods/',
       image: 'https://via.placeholder.com/300',
