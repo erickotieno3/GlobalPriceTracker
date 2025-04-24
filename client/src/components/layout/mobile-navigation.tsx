@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
-import { Home, Globe, Search, User } from "lucide-react";
+import { Home, Globe, Search, User, Download } from "lucide-react";
 
 export default function MobileNavigation() {
   const { t } = useTranslation("common");
@@ -29,6 +29,12 @@ export default function MobileNavigation() {
           <button className={`flex flex-col items-center p-2 ${isActive("/search")}`}>
             <Search className="h-5 w-5" />
             <span className="text-xs mt-1">{t("search")}</span>
+          </button>
+        </Link>
+        <Link href="/download-app">
+          <button className={`flex flex-col items-center p-2 ${isActive("/download-app")}`}>
+            <Download className="h-5 w-5" />
+            <span className="text-xs mt-1">{t("app", "App")}</span>
           </button>
         </Link>
         <Link href="/account">
