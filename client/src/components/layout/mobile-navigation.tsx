@@ -14,28 +14,28 @@ export default function MobileNavigation() {
     <div className="block md:hidden fixed bottom-0 left-0 right-0 bg-white shadow-lg z-50">
       <div className="flex justify-around items-center py-2">
         <Link href="/">
-          <a className={`flex flex-col items-center p-2 ${isActive("/")}`}>
+          <button className={`flex flex-col items-center p-2 ${isActive("/")}`}>
             <Home className="h-5 w-5" />
             <span className="text-xs mt-1">{t("home")}</span>
-          </a>
+          </button>
         </Link>
         <Link href="/countries">
-          <a className={`flex flex-col items-center p-2 ${isActive("/countries")}`}>
+          <button className={`flex flex-col items-center p-2 ${isActive("/countries")}`}>
             <Globe className="h-5 w-5" />
             <span className="text-xs mt-1">{t("countries")}</span>
-          </a>
+          </button>
         </Link>
         <Link href="/search">
-          <a className={`flex flex-col items-center p-2 ${isActive("/search")}`}>
+          <button className={`flex flex-col items-center p-2 ${isActive("/search")}`}>
             <Search className="h-5 w-5" />
             <span className="text-xs mt-1">{t("search")}</span>
-          </a>
+          </button>
         </Link>
         <Link href="/account">
-          <a className={`flex flex-col items-center p-2 ${isActive("/account")}`}>
+          <button className={`flex flex-col items-center p-2 ${isActive("/account")}`}>
             <User className="h-5 w-5" />
             <span className="text-xs mt-1">{t("account")}</span>
-          </a>
+          </button>
         </Link>
       </div>
     </div>

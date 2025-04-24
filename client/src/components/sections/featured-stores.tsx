@@ -37,9 +37,9 @@ export default function FeaturedStores() {
     
     return stores?.slice(0, 3).map((store) => (
       <Link key={store.id} href={`/store/${store.id}`}>
-        <a className="flex items-center justify-center">
+        <button className="flex items-center justify-center">
           <img src={store.logoUrl} alt={store.name} className="h-8 object-contain" />
-        </a>
+        </button>
       </Link>
     ));
   };
@@ -57,10 +57,10 @@ export default function FeaturedStores() {
           </div>
           
           <Link href="/stores">
-            <a className="flex items-center text-[#333333]">
+            <button className="flex items-center text-[#333333]">
               <span className="text-sm">All Stores</span>
               <ChevronRight className="h-4 w-4 ml-1" />
-            </a>
+            </button>
           </Link>
         </div>
       </div>

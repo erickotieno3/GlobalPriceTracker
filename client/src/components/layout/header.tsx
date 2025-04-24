@@ -10,7 +10,7 @@ export default function Header() {
       <div className="flex items-center justify-between max-w-7xl mx-auto">
         {/* Tesco Logo */}
         <Link href="/">
-          <a className="flex items-center">
+          <button className="flex items-center">
             <div className="text-[#EE1C2E] font-bold text-2xl">
               TESCO
             </div>
@@ -20,7 +20,7 @@ export default function Header() {
               <div className="bg-[#00539F] h-1 w-4 mb-0.5"></div>
               <div className="bg-[#00539F] h-1 w-4"></div>
             </div>
-          </a>
+          </button>
         </Link>
 
         {/* Navigation */}

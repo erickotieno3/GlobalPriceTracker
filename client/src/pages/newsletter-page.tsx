@@ -130,14 +130,14 @@ export default function NewsletterPage() {
           
           <div className="mt-8 space-y-4">
             <Link href="/compare">
-              <a className="block text-[#333333] font-medium">
+              <button className="block w-full text-[#333333] font-medium">
                 Start comparing prices
-              </a>
+              </button>
             </Link>
             <Link href="/">
-              <a className="block text-gray-500">
+              <button className="block w-full text-gray-500">
                 Skip
-              </a>
+              </button>
             </Link>
           </div>
         </div>
