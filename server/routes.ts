@@ -1,4 +1,5 @@
 import type { Express } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
@@ -8,6 +9,7 @@ import affiliateRouter from "./affiliate-routes";
 import ipBlocker from "./ip-blocker";
 import { WebSocketServer, WebSocket } from 'ws';
 import { initializeAutoUpdater } from "./auto-updater";
+import path from 'path';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API Routes
@@ -399,6 +401,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 </html>
     `);
   });
+  
+  // Serve mobile app directly from mobile-app directory
+  app.get('/mobile', (req, res) => {
+    // Simplify to avoid path resolution issues
+    res.sendFile('mobile-app/index.html', { root: '.' });
+  });
+  
+  // Serve mobile app static assets - simplify to avoid path resolution issues
+  app.use('/mobile-app', express.static('mobile-app'));
 
   // Payment routes
   app.use("/api/payments", paymentRouter);
