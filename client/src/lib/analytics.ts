@@ -1,11 +1,11 @@
 /**
- * Google Analytics Integration
+ * Analytics Service
  * 
- * This file provides functions for tracking user interactions and events
- * with Google Analytics 4 (GA4).
+ * This module provides analytics tracking capabilities for the application
+ * by integrating with Google Analytics and supporting custom event tracking.
  */
 
-// Define event types for type safety
+// Define event types that we'll track in the app
 export type AnalyticsEvent = 
   | 'page_view'
   | 'product_view'
@@ -18,7 +18,7 @@ export type AnalyticsEvent =
   | 'country_selection'
   | 'language_selection';
 
-// Define event parameters for different event types
+// Define parameter types that can be passed with events
 export interface AnalyticsEventParams {
   // Common parameters
   [key: string]: any;
@@ -40,6 +40,14 @@ export interface AnalyticsEventParams {
   affiliate_store?: string;
 }
 
+// Extend window interface to include Google Analytics
+declare global {
+  interface Window {
+    dataLayer: any[];
+    gtag: (...args: any[]) => void;
+  }
+}
+
 /**
  * Initialize Google Analytics
  * 
@@ -47,27 +55,26 @@ export interface AnalyticsEventParams {
  * @param measurementId Your GA4 measurement ID (G-XXXXXXXX)
  */
 export const initializeAnalytics = (measurementId: string): void => {
-  if (typeof window === 'undefined') return;
-  
-  // Add Google Analytics script to page
+  // Create script element for Google Analytics
   const script = document.createElement('script');
   script.async = true;
   script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
   document.head.appendChild(script);
   
-  // Initialize gtag
+  // Initialize the data layer and configure GA
   window.dataLayer = window.dataLayer || [];
-  window.gtag = function(...args: any[]) {
-    window.dataLayer.push(args);
+  window.gtag = function() {
+    window.dataLayer.push(arguments);
   };
   
-  // Configure GA with your measurement ID
-  window.gtag('js', new Date().toISOString());
+  window.gtag('js', new Date());
   window.gtag('config', measurementId, {
-    send_page_view: false // We'll track page views manually
+    send_page_view: false, // We'll handle page views manually
+    anonymize_ip: true,    // GDPR compliance
+    cookie_flags: 'SameSite=None;Secure', // For cross-site context
   });
   
-  console.log('Google Analytics initialized with ID:', measurementId);
+  console.log('Analytics initialized with ID:', measurementId);
 };
 
 /**
@@ -84,6 +91,8 @@ export const trackPageView = (path: string, title: string): void => {
     page_title: title,
     page_location: window.location.href
   });
+  
+  console.log('Page view tracked:', path);
 };
 
 /**
@@ -99,6 +108,7 @@ export const trackEvent = (
   if (typeof window === 'undefined' || !window.gtag) return;
   
   window.gtag('event', eventName, params);
+  console.log('Event tracked:', eventName, params);
 };
 
 /**
@@ -109,16 +119,18 @@ export const trackEvent = (
  * @param productName Optional product name if click is product-specific
  */
 export const trackAffiliateClick = (
-  storeName: string, 
-  productId?: number, 
-  productName?: string
+  storeName: string,
+  productId?: number,
+  productName?: string,
 ): void => {
-  trackEvent('affiliate_click', {
+  const params: AnalyticsEventParams = {
     affiliate_store: storeName,
-    product_id: productId,
-    product_name: productName,
-    timestamp: new Date().toISOString()
-  });
+  };
+  
+  if (productId) params.product_id = productId;
+  if (productName) params.product_name = productName;
+  
+  trackEvent('affiliate_click', params);
 };
 
 /**
@@ -127,10 +139,7 @@ export const trackAffiliateClick = (
  * @param platform 'android' or 'ios'
  */
 export const trackAppDownload = (platform: 'android' | 'ios'): void => {
-  trackEvent('app_download', {
-    platform,
-    timestamp: new Date().toISOString()
-  });
+  trackEvent('app_download', { platform });
 };
 
 /**
@@ -140,26 +149,20 @@ export const trackAppDownload = (platform: 'android' | 'ios'): void => {
  * @param properties Additional user properties
  */
 export const setUserProperties = (
-  userId: string, 
+  userId: string,
   properties: Record<string, any> = {}
 ): void => {
   if (typeof window === 'undefined' || !window.gtag) return;
   
-  // Set user ID for cross-platform tracking
-  window.gtag('set', 'user_id', userId);
+  window.gtag('set', 'user_properties', {
+    user_id: userId,
+    ...properties
+  });
   
-  // Set custom user properties
-  window.gtag('set', 'user_properties', properties);
+  console.log('User properties set for user:', userId);
 };
 
-// Add type definitions for the window object
-declare global {
-  interface Window {
-    dataLayer: any[];
-    gtag: (...args: any[]) => void;
-  }
-}
-
+// Export a default object with all functions
 export default {
   initializeAnalytics,
   trackPageView,
