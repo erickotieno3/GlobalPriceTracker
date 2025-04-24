@@ -458,8 +458,22 @@
   <!-- Hero Section -->
   <section class="hero">
     <h1>Compare Supermarket Prices</h1>
-    <a href="#compare" class="button">Start Comparing</a>
+    <a href="javascript:void(0)" class="button" id="startCompareButton">Start Comparing</a>
   </section>
+  
+  <script>
+    // Add event listener after DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      // Hero section compare button
+      document.getElementById('startCompareButton').addEventListener('click', function() {
+        // Show the compare modal when the button is clicked
+        const compareModal = document.getElementById('compareModal');
+        if (compareModal) {
+          compareModal.style.display = 'flex';
+        }
+      });
+    });
+  </script>
   
   <!-- Country Selector -->
   <div class="country-selector">
@@ -553,23 +567,43 @@
   
   <!-- Bottom Navigation -->
   <nav class="bottom-nav">
-    <a href="#home" class="nav-item active">
+    <a href="/mobile" class="nav-item active">
       <span class="material-icons nav-icon">home</span>
       <span>Home</span>
     </a>
-    <a href="#search" class="nav-item">
+    <a href="/mobile/search" class="nav-item" id="searchNavLink">
       <span class="material-icons nav-icon">search</span>
       <span>Search</span>
     </a>
-    <a href="#compare" class="nav-item">
+    <a href="/mobile/compare" class="nav-item" id="compareNavLink">
       <span class="material-icons nav-icon">compare_arrows</span>
       <span>Compare</span>
     </a>
-    <a href="#account" class="nav-item">
+    <a href="/mobile/account" class="nav-item" id="accountNavLink">
       <span class="material-icons nav-icon">person</span>
       <span>Account</span>
     </a>
   </nav>
+  
+  <!-- JavaScript for handling navigation - temporary solution until proper routes are set up -->
+  <script>
+    // Prevent default navigation behavior and handle the navigation in JavaScript
+    document.getElementById('searchNavLink').addEventListener('click', function(e) {
+      e.preventDefault();
+      alert('Search feature will be available soon!');
+    });
+    
+    document.getElementById('compareNavLink').addEventListener('click', function(e) {
+      e.preventDefault();
+      alert('Compare feature will be available soon!');
+    });
+    
+    document.getElementById('accountNavLink').addEventListener('click', function(e) {
+      e.preventDefault();
+      // Open the account modal instead of navigating
+      showModal(accountModal);
+    });
+  </script>
   
   <!-- Compare Modal -->
   <div class="modal" id="compareModal">
