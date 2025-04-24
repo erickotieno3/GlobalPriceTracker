@@ -31,6 +31,12 @@ export default function Header() {
             </button>
           </div>
           
+          <Link href="/download-app">
+            <button className="text-gray-800 font-medium">
+              Download App
+            </button>
+          </Link>
+          
           <div className="text-gray-800 font-medium">
             English
           </div>

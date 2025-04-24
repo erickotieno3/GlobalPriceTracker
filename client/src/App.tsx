@@ -8,6 +8,7 @@ import StorePage from "@/pages/store-page";
 import ComparePage from "@/pages/compare-page";
 import NewsletterPage from "@/pages/newsletter-page";
 import VendorDashboard from "@/pages/vendor-dashboard";
+import AppDownloadPage from "@/pages/app-download-page";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -30,6 +31,7 @@ function Router() {
       <Route path="/compare/:id?" component={ComparePage} />
       <Route path="/newsletter" component={NewsletterPage} />
       <Route path="/vendor-dashboard" component={VendorDashboard} />
+      <Route path="/download-app" component={AppDownloadPage} />
       <Route component={NotFound} />
     </Switch>
   );
