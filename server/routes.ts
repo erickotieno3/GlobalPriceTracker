@@ -6,13 +6,22 @@ import { z } from "zod";
 import { insertNewsletterSubscriberSchema } from "@shared/schema";
 import paymentRouter from "./payment-routes";
 import affiliateRouter from "./affiliate-routes";
+import adminRouter from "./admin-routes";
 import ipBlocker from "./ip-blocker";
 import { WebSocketServer, WebSocket } from 'ws';
 import fs from 'fs';
 import path from 'path';
 import { initializeAutoUpdater } from "./auto-updater";
+import cookieParser from "cookie-parser";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Body parser middleware
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  
+  // Cookie parser middleware for authentication
+  app.use(cookieParser());
+
   // Critical: Serve static assets first to ensure they are accessible
   // Serve static files from the public directory with highest priority
   app.use(express.static('public'));
@@ -551,6 +560,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Affiliate routes
   app.use("/api/affiliate", affiliateRouter);
+  
+  // Use the admin routes
+  app.use("/api/admin", adminRouter);
+  
+  // Special admin login routes
+  app.get('/admin-login.html', (req, res) => {
+    try {
+      const htmlFile = fs.readFileSync('./public/admin-login.html', 'utf8');
+      res.set('Content-Type', 'text/html');
+      res.send(htmlFile);
+    } catch (err) {
+      console.error('Error serving admin-login.html:', err);
+      res.status(500).send('Error loading admin login page');
+    }
+  });
+  
+  app.get('/admin-2fa.html', (req, res) => {
+    try {
+      const htmlFile = fs.readFileSync('./public/admin-2fa.html', 'utf8');
+      res.set('Content-Type', 'text/html');
+      res.send(htmlFile);
+    } catch (err) {
+      console.error('Error serving admin-2fa.html:', err);
+      res.status(500).send('Error loading admin 2FA page');
+    }
+  });
 
   const httpServer = createServer(app);
   
