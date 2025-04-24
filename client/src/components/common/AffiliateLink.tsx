@@ -1,5 +1,15 @@
 import React from 'react';
-import { trackAffiliateClick, type AffiliateClickProps } from '@/lib/affiliate';
+import { trackAffiliateClick } from '@/lib/analytics';
+
+// Define the props interface here since it's no longer imported
+interface AffiliateClickProps {
+  storeName: string;
+  productId?: number;
+  productName?: string;
+  productUrl: string;
+  className?: string;
+  children: React.ReactNode;
+}
 
 /**
  * AffiliateLink Component
@@ -15,16 +25,13 @@ const AffiliateLink: React.FC<AffiliateClickProps> = ({
   className = '',
   children
 }) => {
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleClick = () => {
     // Track the click with analytics
-    const trackingUrl = trackAffiliateClick(storeName, productId, productName, productUrl);
+    trackAffiliateClick(storeName, productId, productName);
     
     // Optional: You can open in a new window with specific dimensions
-    // window.open(trackingUrl, '_blank', 'width=1200,height=800');
-    // e.preventDefault();
-    
-    // Or you can just update the href in case JavaScript is disabled
-    e.currentTarget.href = trackingUrl;
+    // window.open(productUrl, '_blank', 'width=1200,height=800');
+    // return false; // Prevent default action
   };
 
   return (
