@@ -67,6 +67,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Additional mobile app routes - all of these serve the same index.html
+  // This ensures that our client-side navigation works correctly
+  app.get('/mobile/search', (req, res) => {
+    try {
+      const htmlFile = fs.readFileSync('./mobile-app/index.html', 'utf8');
+      res.set('Content-Type', 'text/html');
+      res.send(htmlFile);
+    } catch (err) {
+      console.error('Error serving mobile search page:', err);
+      res.status(500).send('Error loading mobile search page');
+    }
+  });
+  
+  app.get('/mobile/compare', (req, res) => {
+    try {
+      const htmlFile = fs.readFileSync('./mobile-app/index.html', 'utf8');
+      res.set('Content-Type', 'text/html');
+      res.send(htmlFile);
+    } catch (err) {
+      console.error('Error serving mobile compare page:', err);
+      res.status(500).send('Error loading mobile compare page');
+    }
+  });
+  
+  app.get('/mobile/account', (req, res) => {
+    try {
+      const htmlFile = fs.readFileSync('./mobile-app/index.html', 'utf8');
+      res.set('Content-Type', 'text/html');
+      res.send(htmlFile);
+    } catch (err) {
+      console.error('Error serving mobile account page:', err);
+      res.status(500).send('Error loading mobile account page');
+    }
+  });
+  
   app.get('/mobile-redirect', (req, res) => {
     try {
       const htmlFile = fs.readFileSync('./public/mobile-redirect.html', 'utf8');

@@ -657,7 +657,7 @@
           <div style="margin-top: 24px; text-align: center;">
             <div>Best savings at Tesco</div>
             <div style="font-size: 20px; font-weight: 700; color: var(--tesco-blue); margin: 8px 0;">Save up to $0.50</div>
-            <a href="#" class="button" style="background-color: var(--tesco-blue); color: white; width: 100%;">
+            <a href="javascript:void(0)" class="button" style="background-color: var(--tesco-blue); color: white; width: 100%;" id="buyAtTescoButton">
               Buy at Tesco <span class="material-icons" style="font-size: 16px; vertical-align: middle;">launch</span>
             </a>
           </div>
@@ -801,17 +801,21 @@
       // Navigation event listeners
       navItems.forEach(item => {
         item.addEventListener('click', function(e) {
-          e.preventDefault();
           navItems.forEach(navItem => navItem.classList.remove('active'));
           this.classList.add('active');
           
           const href = this.getAttribute('href');
-          if (href === '#search') {
-            showModal(searchModal);
-          } else if (href === '#compare') {
-            showModal(compareModal);
-          } else if (href === '#account') {
-            showModal(accountModal);
+          // Only home navigation works directly - the rest need special handling
+          if (href !== '/mobile') {
+            e.preventDefault();
+            // Now we handle each page - code will be removed when proper pages are built
+            if (href === '/mobile/search') {
+              showModal(searchModal);
+            } else if (href === '/mobile/compare') {
+              showModal(compareModal);
+            } else if (href === '/mobile/account') {
+              showModal(accountModal);
+            }
           }
         });
       });
@@ -884,6 +888,23 @@
           }
         }, 1500);
       });
+      
+      // Buy at Tesco button
+      const buyAtTescoButton = document.getElementById('buyAtTescoButton');
+      if (buyAtTescoButton) {
+        buyAtTescoButton.addEventListener('click', function() {
+          alert('You will be redirected to Tesco to complete your purchase.');
+          
+          // Track outbound link click with Google Analytics
+          if (window.gtag) {
+            window.gtag('event', 'outbound_link', {
+              'event_category': 'engagement',
+              'event_label': 'tesco_purchase',
+              'transport_type': 'beacon'
+            });
+          }
+        });
+      }
       
       // Country selector (simplified)
       const countrySelector = document.querySelector('.country-selector');
