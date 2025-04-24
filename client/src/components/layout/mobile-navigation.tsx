@@ -25,8 +25,8 @@ export default function MobileNavigation() {
             <span className="text-xs mt-1">{t("countries")}</span>
           </button>
         </Link>
-        <Link href="/search">
-          <button className={`flex flex-col items-center p-2 ${isActive("/search")}`}>
+        <Link href="/alphabetical-search">
+          <button className={`flex flex-col items-center p-2 ${isActive("/alphabetical-search")}`}>
             <Search className="h-5 w-5" />
             <span className="text-xs mt-1">{t("search")}</span>
           </button>

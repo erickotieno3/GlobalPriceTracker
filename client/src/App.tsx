@@ -159,7 +159,7 @@ function App() {
         <Switch>
           <Route path="/" component={HomePage} />
           <Route path="/marketplace-comparison" component={MarketplaceComparisonPage} />
-          <Route path="/search" component={SearchPage} />
+          <Route path="/alphabetical-search" component={AlphabeticalSearchPage} />
           <Route component={NotFound} />
         </Switch>
       </main>
