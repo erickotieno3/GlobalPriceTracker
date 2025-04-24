@@ -39,21 +39,21 @@ export default function Footer() {
           <div>
             <h3 className="font-inter font-semibold text-lg mb-4">Quick Links</h3>
             <ul className="space-y-2">
-              <li><Link href="/"><a className="text-gray-400 hover:text-white transition">Home</a></Link></li>
-              <li><Link href="/countries"><a className="text-gray-400 hover:text-white transition">Countries</a></Link></li>
-              <li><Link href="/stores"><a className="text-gray-400 hover:text-white transition">Stores</a></Link></li>
-              <li><Link href="/trending"><a className="text-gray-400 hover:text-white transition">Trending Deals</a></Link></li>
-              <li><Link href="/contact"><a className="text-gray-400 hover:text-white transition">Contact Us</a></Link></li>
+              <li><Link href="/" className="text-gray-400 hover:text-white transition">Home</Link></li>
+              <li><Link href="/countries" className="text-gray-400 hover:text-white transition">Countries</Link></li>
+              <li><Link href="/stores" className="text-gray-400 hover:text-white transition">Stores</Link></li>
+              <li><Link href="/trending" className="text-gray-400 hover:text-white transition">Trending Deals</Link></li>
+              <li><Link href="/contact" className="text-gray-400 hover:text-white transition">Contact Us</Link></li>
             </ul>
           </div>
           
           <div>
             <h3 className="font-inter font-semibold text-lg mb-4">For Vendors</h3>
             <ul className="space-y-2">
-              <li><Link href="/partners"><a className="text-gray-400 hover:text-white transition">Partner With Us</a></Link></li>
-              <li><Link href="/vendor-login"><a className="text-gray-400 hover:text-white transition">Vendor Login</a></Link></li>
-              <li><Link href="/upload-products"><a className="text-gray-400 hover:text-white transition">Upload Products</a></Link></li>
-              <li><Link href="/api-docs"><a className="text-gray-400 hover:text-white transition">API Documentation</a></Link></li>
+              <li><Link href="/partners" className="text-gray-400 hover:text-white transition">Partner With Us</Link></li>
+              <li><Link href="/vendor-login" className="text-gray-400 hover:text-white transition">Vendor Login</Link></li>
+              <li><Link href="/upload-products" className="text-gray-400 hover:text-white transition">Upload Products</Link></li>
+              <li><Link href="/api-docs" className="text-gray-400 hover:text-white transition">API Documentation</Link></li>
             </ul>
           </div>
           
@@ -81,7 +81,7 @@ export default function Footer() {
         
         <div className="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 mb-4 md:mb-0">
-            &copy; {currentYear} Tesco. All rights reserved. <Link href="/privacy"><a className="hover:text-white transition">Privacy Policy</a></Link> | <Link href="/terms"><a className="hover:text-white transition">Terms of Service</a></Link>
+            &copy; {currentYear} Tesco. All rights reserved. <Link href="/privacy" className="hover:text-white transition">Privacy Policy</Link> | <Link href="/terms" className="hover:text-white transition">Terms of Service</Link>
           </p>
           <div className="flex items-center">
             <span className="text-gray-400 mr-2">{t("language")}:</span>

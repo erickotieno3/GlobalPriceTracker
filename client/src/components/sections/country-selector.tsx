@@ -41,11 +41,9 @@ export default function CountrySelector() {
     <section className="py-4 bg-white">
       <div className="max-w-7xl mx-auto px-6">
         {selectedCountry && (
-          <Link href={`/country/${selectedCountry.code}`}>
-            <a className="flex items-center text-[#333333] font-medium">
-              <span>{selectedCountry.name}</span>
-              <ChevronRight className="h-5 w-5 ml-1" />
-            </a>
+          <Link href={`/country/${selectedCountry.code}`} className="flex items-center text-[#333333] font-medium">
+            <span>{selectedCountry.name}</span>
+            <ChevronRight className="h-5 w-5 ml-1" />
           </Link>
         )}
       </div>

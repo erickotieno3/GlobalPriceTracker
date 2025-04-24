@@ -57,12 +57,12 @@ export const initializeAnalytics = (measurementId: string): void => {
   
   // Initialize gtag
   window.dataLayer = window.dataLayer || [];
-  window.gtag = function() {
-    window.dataLayer.push(arguments);
+  window.gtag = function(...args: any[]) {
+    window.dataLayer.push(args);
   };
   
   // Configure GA with your measurement ID
-  window.gtag('js', new Date());
+  window.gtag('js', new Date().toISOString());
   window.gtag('config', measurementId, {
     send_page_view: false // We'll track page views manually
   });
