@@ -18,6 +18,35 @@ if (!fs.existsSync(logsDir)) {
 
 const app = express();
 
+// Enable CORS for all routes to support custom domain
+app.use((req, res, next) => {
+  // Allow your custom domain and Replit's domain
+  const allowedOrigins = [
+    'https://hyrisecrown.com', 
+    'https://www.hyrisecrown.com',
+    'https://tesco-compare--hyrisecrown.repl.co'
+  ];
+  
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else {
+    // For local development and other sources
+    res.header('Access-Control-Allow-Origin', '*');
+  }
+  
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+  
+  next();
+});
+
 // Apply security middleware
 app.use(security.securityHeadersMiddleware);
 app.use(security.rateLimitMiddleware);
