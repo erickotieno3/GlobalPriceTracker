@@ -15,6 +15,8 @@ import TestPage from "@/pages/test-page";
 import SimpleTest from "@/pages/simple-test";
 import MobileConnection from "@/pages/mobile-connection";
 import WebSocketTest from "@/pages/websocket-test";
+import ProductFinder from "@/pages/product-finder";
+import AlphabeticalSearch from "@/pages/alphabetical-search";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -45,6 +47,8 @@ function Router() {
       <Route path="/simple-test" component={SimpleTest} />
       <Route path="/mobile-connection" component={MobileConnection} />
       <Route path="/websocket-test" component={WebSocketTest} />
+      <Route path="/product-finder" component={ProductFinder} />
+      <Route path="/alphabetical-search" component={AlphabeticalSearch} />
       <Route path="/privacy" component={() => {
         window.location.href = "/legal/PRIVACY_POLICY.md";
         return null;
