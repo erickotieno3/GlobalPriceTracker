@@ -99,10 +99,8 @@ export default function TrendingDeals() {
           <h2 className="font-inter font-semibold text-2xl md:text-3xl">
             {t("common:trendingDeals")}
           </h2>
-          <Link href="/trending">
-            <a className="text-primary hover:underline">
-              {t("common:viewAll")}
-            </a>
+          <Link href="/trending" className="text-primary hover:underline">
+            {t("common:viewAll")}
           </Link>
         </div>
         
