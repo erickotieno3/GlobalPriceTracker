@@ -170,6 +170,13 @@ export class MemStorage implements IStorage {
       { name: "Organic Semi-Skimmed Milk 1L", description: "Organic semi-skimmed milk", imageUrl: "/products/milk.jpg", categoryId: 3, brand: "Aldi", active: true, featured: true },
       { name: "Fresh Mixed Fruit Pack 500g", description: "Mix of fresh seasonal fruits", imageUrl: "/products/fruits.jpg", categoryId: 2, brand: "Walmart", active: true, featured: true },
       { name: "Basmati Rice 1kg", description: "Long grain aromatic rice, perfect for curries and pilaf", imageUrl: "/products/rice.jpg", categoryId: 1, brand: "Tesco", active: true, featured: false },
+      
+      // Walmart products
+      { name: "Great Value Whole Milk", description: "Fresh whole milk", imageUrl: "/products/whole-milk.jpg", categoryId: 3, brand: "Walmart", active: true, featured: true },
+      { name: "Great Value White Bread", description: "Freshly baked white bread", imageUrl: "/products/white-bread.jpg", categoryId: 1, brand: "Walmart", active: true, featured: false },
+      { name: "Great Value Chicken Breast", description: "Fresh boneless chicken breast", imageUrl: "/products/chicken.jpg", categoryId: 2, brand: "Walmart", active: true, featured: true },
+      { name: "Great Value Toilet Paper", description: "Soft and strong toilet paper", imageUrl: "/products/toilet-paper.jpg", categoryId: 4, brand: "Walmart", active: true, featured: false },
+      { name: "Great Value Dishwashing Liquid", description: "Cleans tough grease and food", imageUrl: "/products/dish-soap.jpg", categoryId: 4, brand: "Walmart", active: true, featured: false },
     ];
     
     products.forEach(product => this.createProduct(product));
@@ -201,6 +208,21 @@ export class MemStorage implements IStorage {
       { productId: 5, storeId: 3, price: 2.15, currency: "EUR", originalPrice: null, discountPercentage: null, inStock: true },
       { productId: 5, storeId: 2, price: 2.49, currency: "EUR", originalPrice: null, discountPercentage: null, inStock: true },
       { productId: 5, storeId: 4, price: 2.99, currency: "USD", originalPrice: null, discountPercentage: null, inStock: false },
+      
+      // Walmart Great Value Whole Milk prices
+      { productId: 6, storeId: 4, price: 3.27, currency: "USD", originalPrice: 3.78, discountPercentage: 13, inStock: true },
+      
+      // Walmart Great Value White Bread prices
+      { productId: 7, storeId: 4, price: 0.88, currency: "USD", originalPrice: 1.00, discountPercentage: 12, inStock: true },
+      
+      // Walmart Great Value Chicken Breast prices
+      { productId: 8, storeId: 4, price: 2.97, currency: "USD", originalPrice: 3.48, discountPercentage: 15, inStock: true },
+      
+      // Walmart Great Value Toilet Paper prices
+      { productId: 9, storeId: 4, price: 4.97, currency: "USD", originalPrice: 5.97, discountPercentage: 17, inStock: true },
+      
+      // Walmart Great Value Dishwashing Liquid prices
+      { productId: 10, storeId: 4, price: 1.97, currency: "USD", originalPrice: 2.27, discountPercentage: 13, inStock: true },
     ];
     
     productPrices.forEach(price => this.createProductPrice(price));

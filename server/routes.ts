@@ -6,6 +6,7 @@ import { insertNewsletterSubscriberSchema } from "@shared/schema";
 import paymentRouter from "./payment-routes";
 import ipBlocker from "./ip-blocker";
 import { WebSocketServer, WebSocket } from 'ws';
+import { initializeAutoUpdater } from "./auto-updater";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API Routes
@@ -75,6 +76,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Products
+  app.get("/api/products", async (req, res) => {
+    try {
+      const products = await storage.getProducts();
+      res.json(products);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch products" });
+    }
+  });
+  
   app.get("/api/products/trending", async (req, res) => {
     try {
       const limitParam = req.query.limit;
@@ -211,6 +221,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // WebSocket server for real-time price updates
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  
+  // Initialize the product data auto-updater system
+  initializeAutoUpdater(wss);
   
   // WebSocket connection handler
   wss.on('connection', (ws) => {
