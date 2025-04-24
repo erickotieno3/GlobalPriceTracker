@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { StoreWithCountry } from "@shared/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, ChevronRight } from "lucide-react";
 
 export default function FeaturedStores() {
   const { t } = useTranslation("home");
@@ -15,11 +15,9 @@ export default function FeaturedStores() {
   
   const renderStores = () => {
     if (isLoading) {
-      return Array(8).fill(0).map((_, index) => (
-        <div key={index} className="flex flex-col items-center p-4">
-          <Skeleton className="h-16 w-16 rounded mb-3" />
-          <Skeleton className="h-5 w-24 mb-1" />
-          <Skeleton className="h-4 w-20" />
+      return Array(3).fill(0).map((_, index) => (
+        <div key={index} className="flex items-center justify-center">
+          <Skeleton className="h-10 w-24" />
         </div>
       ));
     }
@@ -37,29 +35,33 @@ export default function FeaturedStores() {
       );
     }
     
-    return stores?.map((store) => (
+    return stores?.slice(0, 3).map((store) => (
       <Link key={store.id} href={`/store/${store.id}`}>
-        <a className="store-card bg-white rounded-lg shadow hover:shadow-md transition p-4 flex flex-col items-center cursor-pointer">
-          <div className="w-16 h-16 mb-3 flex items-center justify-center">
-            <img src={store.logoUrl} alt={store.name} className="max-w-full max-h-full" />
-          </div>
-          <h3 className="font-medium text-center">{store.name}</h3>
-          <p className="text-sm text-gray-500 mt-1">{store.country.name}</p>
+        <a className="flex items-center justify-center">
+          <img src={store.logoUrl} alt={store.name} className="h-8 object-contain" />
         </a>
       </Link>
     ));
   };
   
   return (
-    <section className="py-10 bg-secondary">
-      <div className="container mx-auto px-4">
-        <h2 className="font-inter font-semibold text-2xl md:text-3xl text-center mb-2">
-          {t("featuredStores")}
+    <section className="py-6 bg-white">
+      <div className="max-w-7xl mx-auto px-6">
+        <h2 className="text-[#333333] font-semibold text-xl mb-6">
+          Featured Stores
         </h2>
-        <p className="text-center text-gray-600 mb-8">{t("featuredStoresSubtitle")}</p>
         
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {renderStores()}
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex space-x-12">
+            {renderStores()}
+          </div>
+          
+          <Link href="/stores">
+            <a className="flex items-center text-[#333333]">
+              <span className="text-sm">All Stores</span>
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </a>
+          </Link>
         </div>
       </div>
     </section>

@@ -64,7 +64,7 @@ export default function NewsletterPage() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header with Tesco logo */}
-      <header className="bg-[#6aaa84] py-4 px-6 flex justify-between items-center">
+      <header className="bg-[#6AAA84] py-4 px-6 flex justify-between items-center">
         <div className="font-bold text-2xl text-black">
           tesco
         </div>
@@ -72,16 +72,26 @@ export default function NewsletterPage() {
       </header>
       
       {/* Main content */}
-      <main className="flex-grow flex flex-col items-center justify-center p-6 bg-gray-50">
+      <main className="flex-grow flex flex-col items-center p-6 bg-white">
         <div className="w-full max-w-md text-center">
-          <h1 className="text-3xl font-bold mb-2">Sign Up for Our Newsletter</h1>
-          <p className="text-gray-600 mb-8">
+          <h1 className="text-4xl font-bold mb-2">Sign Up for Our Newsletter</h1>
+          <p className="text-gray-700 mb-8">
             Subscribe to receive the latest deals and updates from the app.
           </p>
           
           {/* Newsletter Icon */}
-          <div className="w-24 h-24 mx-auto mb-8">
-            <Mail className="w-full h-full stroke-1" />
+          <div className="w-32 h-32 mx-auto mb-8">
+            <svg 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              xmlns="http://www.w3.org/2000/svg" 
+              className="w-full h-full stroke-2"
+            >
+              <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" />
+              <path d="M2 7L12 14L22 7" stroke="currentColor" />
+              <line x1="6" y1="11" x2="12" y2="11" stroke="currentColor" />
+              <line x1="6" y1="14" x2="10" y2="14" stroke="currentColor" />
+            </svg>
           </div>
           
           {!isSubmitted ? (
@@ -95,7 +105,7 @@ export default function NewsletterPage() {
                       <FormControl>
                         <Input 
                           placeholder="Email address" 
-                          className="py-6 px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-dark w-full"
+                          className="py-4 px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#6AAA84] focus:border-transparent text-dark w-full"
                           {...field} 
                         />
                       </FormControl>
@@ -105,7 +115,7 @@ export default function NewsletterPage() {
                 />
                 <Button 
                   type="submit"
-                  className="w-full bg-[#6aaa84] hover:bg-[#5c9975] text-white font-bold py-4 px-8 rounded-lg transition"
+                  className="w-full bg-[#6AAA84] hover:bg-[#5c9975] text-white font-bold py-4 px-8 rounded-lg transition"
                   disabled={mutation.isPending}
                 >
                   Subscribe
@@ -120,7 +130,7 @@ export default function NewsletterPage() {
           
           <div className="mt-8 space-y-4">
             <Link href="/compare">
-              <a className="block text-primary font-medium">
+              <a className="block text-[#333333] font-medium">
                 Start comparing prices
               </a>
             </Link>
