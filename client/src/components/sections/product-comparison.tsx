@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Check, X } from "lucide-react";
+import { getPriceInStoreCurrency, formatPrice as formatCurrencyPrice } from "@/lib/mock-pricing";
 
 // Example product ID (Rice)
 const EXAMPLE_PRODUCT_ID = 5;
@@ -49,6 +50,59 @@ export default function ProductComparison() {
     } else {
       return t("daysAgo", { days: diffDays });
     }
+  };
+  
+  // Function to format price with currency symbol
+  const formatPrice = (price: number, currency: string) => {
+    return formatCurrencyPrice(price, currency);
+  };
+  
+  // Helper function to get country code from store
+  const getCountryCode = (store: Store) => {
+    // If store has countryCode property, use it
+    if ('countryCode' in store) {
+      return (store as any).countryCode.toLowerCase();
+    }
+    
+    // Otherwise determine based on store name
+    const storeCountryMap: Record<string, string> = {
+      'Tesco': 'gb',
+      'Carrefour': 'fr',
+      'Naivas': 'ke',
+      'Shoprite': 'za',
+      'Aldi': 'de',
+      'Lidl': 'de',
+      'Walmart': 'us',
+      'Kroger': 'us',
+      'Coles': 'au',
+      'Loblaws': 'ca'
+    };
+    
+    return storeCountryMap[store.name] || 'us';
+  };
+  
+  // Helper function to get country name from store
+  const getCountryName = (store: Store) => {
+    // If store has country property, use it
+    if ('country' in store) {
+      return (store as any).country;
+    }
+    
+    // Otherwise determine based on store name
+    const storeCountryMap: Record<string, string> = {
+      'Tesco': 'United Kingdom',
+      'Carrefour': 'France',
+      'Naivas': 'Kenya',
+      'Shoprite': 'South Africa',
+      'Aldi': 'Germany',
+      'Lidl': 'Germany',
+      'Walmart': 'United States',
+      'Kroger': 'United States',
+      'Coles': 'Australia',
+      'Loblaws': 'Canada'
+    };
+    
+    return storeCountryMap[store.name] || 'United States';
   };
   
   if (isLoading) {
@@ -128,11 +182,24 @@ export default function ProductComparison() {
                         <td className="py-3 px-4 border border-gray-300">
                           <div className="flex items-center">
                             <img src={item.store.logoUrl} alt={item.store.name} className="w-6 h-6 mr-2" />
-                            <span>{item.store.name}</span>
+                            <div className="flex flex-col">
+                              <span className="font-medium">{item.store.name}</span>
+                              <span className="text-xs text-gray-500 flex items-center">
+                                <img 
+                                  src={`/assets/flags/${getCountryCode(item.store)}.svg`} 
+                                  alt={getCountryName(item.store)} 
+                                  className="w-3 h-3 mr-1" 
+                                />
+                                {getCountryName(item.store)}
+                              </span>
+                            </div>
                           </div>
                         </td>
                         <td className="py-3 px-4 border border-gray-300 font-semibold">
-                          {item.currency} {item.price.toFixed(2)}
+                          <div className="flex flex-col">
+                            <span className="text-primary">{formatPrice(item.price, item.currency)}</span>
+                            <span className="text-xs text-gray-500">{item.currency}</span>
+                          </div>
                         </td>
                         <td className="py-3 px-4 border border-gray-300">
                           {item.inStock ? (
