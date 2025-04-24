@@ -369,6 +369,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
   
+  // Super simple connectivity test endpoint - absolute minimal dependencies
+  app.get("/ping", (req, res) => {
+    res.setHeader('Content-Type', 'text/plain');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.send('pong ' + new Date().toISOString());
+  });
+  
+  // Barebones HTML page for troubleshooting
+  app.get("/barebones", (req, res) => {
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <title>Barebones Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    .box { border: 1px solid #ccc; padding: 15px; margin: 15px 0; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <h1>Barebones Test Page</h1>
+  <p>This is an extremely simple HTML page with no external dependencies.</p>
+  
+  <div class="box">
+    <h2>Server Info</h2>
+    <p>Time: ${new Date().toISOString()}</p>
+    <p>Path: ${req.path}</p>
+    <p>Method: ${req.method}</p>
+  </div>
+
+  <div class="box">
+    <h2>Links to Test</h2>
+    <ul>
+      <li><a href="/ping">/ping</a> - Basic text response</li>
+      <li><a href="/test-basic">/test-basic</a> - HTML test with diagnostics</li>
+      <li><a href="/health-check">/health-check</a> - Health check page</li>
+    </ul>
+  </div>
+
+  <div class="box">
+    <h2>Client Info</h2>
+    <p>User Agent: ${req.headers['user-agent'] || 'Not available'}</p>
+    <p>IP Address: ${req.ip || req.connection.remoteAddress || 'Not available'}</p>
+    <div id="client-info">Loading client info...</div>
+  </div>
+
+  <script>
+    // Very simple inline script
+    document.getElementById('client-info').innerHTML = 
+      '<p>Window Size: ' + window.innerWidth + 'x' + window.innerHeight + '</p>' +
+      '<p>Browser Language: ' + navigator.language + '</p>';
+  </script>
+</body>
+</html>`;
+    res.setHeader('Content-Type', 'text/html');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.send(html);
+  });
+  
   // Simple HTML test endpoint (bypass React entirely)
   app.get("/test-basic", (req, res) => {
     const html = `
@@ -696,6 +755,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Handle messages from clients
     ws.on('message', async (message) => {
       try {
+        console.log('Received WebSocket message:', message.toString());
         const data = JSON.parse(message.toString());
         
         // Handle different message types
@@ -767,8 +827,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
             break;
             
+          case 'diagnostics':
+            // Echo back diagnostic information
+            console.log('Received diagnostics request:', data);
+            ws.send(JSON.stringify({
+              type: 'diagnostics_response',
+              message: 'Server received your diagnostic message',
+              originalMessage: data,
+              serverTime: new Date().toISOString(),
+              serverInfo: {
+                nodeVersion: process.version,
+                environment: process.env.NODE_ENV || 'development'
+              }
+            }));
+            break;
+            
           default:
             // Unknown message type
+            console.log('Received unknown message type:', data.type);
             ws.send(JSON.stringify({
               type: 'error',
               message: 'Unknown message type',
