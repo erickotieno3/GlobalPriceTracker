@@ -47,6 +47,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Admin dashboard
+  app.get('/admin-dashboard.html', (req, res) => {
+    try {
+      const htmlFile = fs.readFileSync('./public/admin-dashboard.html', 'utf8');
+      res.set('Content-Type', 'text/html');
+      res.send(htmlFile);
+    } catch (err) {
+      console.error('Error serving admin-dashboard.html:', err);
+      res.status(500).send('Error loading admin dashboard');
+    }
+  });
+  
+  // Alias for admin dashboard at /admin
+  app.get('/admin', (req, res) => {
+    res.redirect('/admin-dashboard.html');
+  });
+  
   // Root mobile app (highest priority route)
   // Create a simple direct HTML response to check routing
   app.get('/health-check', (req, res) => {

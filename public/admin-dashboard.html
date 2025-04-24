@@ -1016,6 +1016,9 @@
         
         // Store auth in localStorage
         localStorage.setItem('isLoggedIn', 'true');
+        
+        // Ensure first tab is active on login
+        showTabContent('dashboard');
       } else {
         // Show error
         errorElement.style.display = 'block';
@@ -1023,38 +1026,98 @@
       }
     });
     
+    // Function to show specific tab content
+    function showTabContent(tabName) {
+      // Update navigation active state
+      const navLinks = document.querySelectorAll('.nav-link');
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === '#' + tabName) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
+      });
+      
+      // Hide all content sections
+      document.querySelectorAll('.dashboard-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      // Show the selected content section
+      const contentId = tabName + 'Content';
+      const contentElement = document.getElementById(contentId);
+      if (contentElement) {
+        contentElement.classList.add('active');
+      }
+    }
+    
+    // Function to handle button actions
+    function handleButtonAction(action, itemId, itemType) {
+      console.log(`Action: ${action}, ID: ${itemId}, Type: ${itemType}`);
+      
+      switch(action) {
+        case 'edit':
+          alert(`Editing ${itemType} with ID: ${itemId}`);
+          break;
+        case 'delete':
+        case 'disable':
+          if (confirm(`Are you sure you want to ${action} this ${itemType}?`)) {
+            alert(`${itemType} ${action}d successfully`);
+          }
+          break;
+        default:
+          alert(`Unknown action: ${action}`);
+      }
+    }
+    
     // Check if already logged in
     document.addEventListener('DOMContentLoaded', function() {
       // Check if user is already logged in
       if (localStorage.getItem('isLoggedIn') === 'true') {
         document.getElementById('loginContainer').style.display = 'none';
         document.getElementById('dashboardContainer').style.display = 'block';
+        
+        // Set the default active tab
+        showTabContent('dashboard');
       }
       
-      // Sidebar navigation
-      const navLinks = document.querySelectorAll('.nav-link');
+      // Sidebar navigation - fix with proper event delegation
+      document.querySelector('.sidebar-menu').addEventListener('click', function(e) {
+        const link = e.target.closest('.nav-link');
+        if (!link) return;
+        
+        // Don't process logout link here
+        if (link.getAttribute('href') === '#logout') return;
+        
+        e.preventDefault();
+        
+        // Get tab name from href attribute
+        const tabName = link.getAttribute('href').substring(1);
+        showTabContent(tabName);
+      });
       
-      navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-          // Don't process logout link here
-          if (this.getAttribute('href') === '#logout') return;
+      // Add event handlers to all action buttons using event delegation
+      document.querySelectorAll('.card-body').forEach(card => {
+        card.addEventListener('click', function(e) {
+          const button = e.target.closest('button');
+          if (!button) return;
           
-          e.preventDefault();
-          
-          // Remove active class from all links
-          navLinks.forEach(navLink => navLink.classList.remove('active'));
-          
-          // Add active class to clicked link
-          this.classList.add('active');
-          
-          // Hide all content sections
-          document.querySelectorAll('.dashboard-content').forEach(content => {
-            content.classList.remove('active');
-          });
-          
-          // Show the corresponding content section
-          const contentId = this.getAttribute('href').substring(1) + 'Content';
-          document.getElementById(contentId).classList.add('active');
+          // Handle button clicks
+          if (button.classList.contains('btn-warning')) {
+            const row = button.closest('tr');
+            const id = row ? row.querySelector('td:first-child').textContent : '0';
+            const type = this.closest('.dashboard-content').id.replace('Content', '');
+            handleButtonAction('edit', id, type);
+          } else if (button.classList.contains('btn-danger')) {
+            const row = button.closest('tr');
+            const id = row ? row.querySelector('td:first-child').textContent : '0';
+            const type = this.closest('.dashboard-content').id.replace('Content', '');
+            const action = button.textContent.trim().toLowerCase();
+            handleButtonAction(action, id, type);
+          } else if (button.classList.contains('btn-primary') && !button.closest('form')) {
+            const type = this.closest('.dashboard-content').id.replace('Content', '');
+            alert(`Add new ${type} form will open`);
+          }
         });
       });
       
@@ -1074,13 +1137,10 @@
       });
       
       // User dropdown
-      document.getElementById('userDropdown').addEventListener('click', function() {
+      document.getElementById('userDropdown').addEventListener('click', function(e) {
+        e.stopPropagation();
         const dropdownMenu = document.getElementById('dropdownMenu');
-        if (dropdownMenu.style.display === 'block') {
-          dropdownMenu.style.display = 'none';
-        } else {
-          dropdownMenu.style.display = 'block';
-        }
+        dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
       });
       
       // Close dropdown when clicking outside
@@ -1099,30 +1159,36 @@
       });
       
       // Form submission handlers
-      document.getElementById('settingsForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        alert('Settings saved successfully!');
-      });
+      const settingsForm = document.getElementById('settingsForm');
+      if (settingsForm) {
+        settingsForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          alert('Settings saved successfully!');
+        });
+      }
       
-      document.getElementById('securityForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const currentPassword = document.getElementById('currentPassword').value;
-        const newPassword = document.getElementById('newPassword').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-        
-        if (currentPassword !== 'Tesco-Admin-2023!') {
-          alert('Current password is incorrect!');
-          return;
-        }
-        
-        if (newPassword !== confirmPassword) {
-          alert('New passwords do not match!');
-          return;
-        }
-        
-        alert('Password changed successfully!');
-        document.getElementById('securityForm').reset();
-      });
+      const securityForm = document.getElementById('securityForm');
+      if (securityForm) {
+        securityForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const currentPassword = document.getElementById('currentPassword').value;
+          const newPassword = document.getElementById('newPassword').value;
+          const confirmPassword = document.getElementById('confirmPassword').value;
+          
+          if (currentPassword !== 'Tesco-Admin-2023!') {
+            alert('Current password is incorrect!');
+            return;
+          }
+          
+          if (newPassword !== confirmPassword) {
+            alert('New passwords do not match!');
+            return;
+          }
+          
+          alert('Password changed successfully!');
+          this.reset();
+        });
+      }
     });
   </script>
 </body>
