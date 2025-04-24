@@ -1,5 +1,6 @@
 import { Route, Switch, Link } from "wouter";
 import MarketplaceComparisonPage from "@/pages/marketplace-comparison";
+import AlphabeticalSearchPage from "@/pages/alphabetical-search";
 
 function HomePage() {
   return (
@@ -67,6 +68,11 @@ function Header() {
               <li>
                 <Link href="/store-comparison">
                   <span className="hover:text-blue-600 cursor-pointer">Stores</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/alphabetical-search">
+                  <span className="hover:text-blue-600 cursor-pointer">Product Search</span>
                 </Link>
               </li>
             </ul>
@@ -153,6 +159,7 @@ function App() {
         <Switch>
           <Route path="/" component={HomePage} />
           <Route path="/marketplace-comparison" component={MarketplaceComparisonPage} />
+          <Route path="/search" component={SearchPage} />
           <Route component={NotFound} />
         </Switch>
       </main>
