@@ -8,8 +8,9 @@ import paymentRouter from "./payment-routes";
 import affiliateRouter from "./affiliate-routes";
 import ipBlocker from "./ip-blocker";
 import { WebSocketServer, WebSocket } from 'ws';
-import { initializeAutoUpdater } from "./auto-updater";
+import fs from 'fs';
 import path from 'path';
+import { initializeAutoUpdater } from "./auto-updater";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Critical: Serve mobile app static assets first to ensure they are accessible
@@ -23,17 +24,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/public', express.static('public'));
   
   // Root mobile app (highest priority route)
+  // Create a simple direct HTML response to check routing
+  app.get('/health-check', (req, res) => {
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Health Check</title>
+        </head>
+        <body>
+          <h1>Server is working!</h1>
+          <p>This is a direct response from Express.</p>
+          <p>Timestamp: ${new Date().toISOString()}</p>
+        </body>
+      </html>
+    `);
+  });
+
+  // Serve the mobile app at the root path - DIRECT HTML APPROACH
   app.get('/', (req, res) => {
-    res.sendFile(path.resolve('./mobile-app/index.html'));
+    // Read the file manually and serve it directly
+    try {
+      const htmlFile = fs.readFileSync('./mobile-app/index.html', 'utf8');
+      res.set('Content-Type', 'text/html');
+      res.send(htmlFile);
+    } catch (err) {
+      console.error('Error serving mobile app at root:', err);
+      res.status(500).send('Error loading mobile app');
+    }
   });
   
   // Mobile-specific routes with high priority
   app.get('/mobile', (req, res) => {
-    res.sendFile(path.resolve('./mobile-app/index.html'));
+    // Read the file manually and serve it directly
+    try {
+      const htmlFile = fs.readFileSync('./mobile-app/index.html', 'utf8');
+      res.set('Content-Type', 'text/html');
+      res.send(htmlFile);
+    } catch (err) {
+      console.error('Error serving mobile app:', err);
+      res.status(500).send('Error loading mobile app');
+    }
   });
   
   app.get('/mobile-redirect', (req, res) => {
-    res.sendFile(path.resolve('./public/mobile-redirect.html'));
+    try {
+      const htmlFile = fs.readFileSync('./public/mobile-redirect.html', 'utf8');
+      res.set('Content-Type', 'text/html');
+      res.send(htmlFile);
+    } catch (err) {
+      console.error('Error serving mobile redirect:', err);
+      res.status(500).send('Error loading mobile redirect page');
+    }
   });
 
   // API Routes
