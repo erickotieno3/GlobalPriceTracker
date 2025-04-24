@@ -16,7 +16,9 @@ export type AnalyticsEvent =
   | 'newsletter_signup'
   | 'search'
   | 'country_selection'
-  | 'language_selection';
+  | 'language_selection'
+  | 'payment_initiated'
+  | 'payment_completed';
 
 // Define parameter types that can be passed with events
 export interface AnalyticsEventParams {
@@ -63,11 +65,12 @@ export const initializeAnalytics = (measurementId: string): void => {
   
   // Initialize the data layer and configure GA
   window.dataLayer = window.dataLayer || [];
-  window.gtag = function() {
+  function gtag(...args: any[]) {
     window.dataLayer.push(arguments);
-  };
+  }
+  window.gtag = gtag;
   
-  window.gtag('js', new Date());
+  window.gtag('js', new Date().toISOString());
   window.gtag('config', measurementId, {
     send_page_view: false, // We'll handle page views manually
     anonymize_ip: true,    // GDPR compliance

@@ -9,6 +9,8 @@ import ComparePage from "@/pages/compare-page";
 import NewsletterPage from "@/pages/newsletter-page";
 import VendorDashboard from "@/pages/vendor-dashboard";
 import AppDownloadPage from "@/pages/app-download-page";
+import CheckoutPage from "@/pages/checkout-page";
+import PaymentConfirmation from "@/pages/payment-confirmation";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -32,6 +34,13 @@ function Router() {
       <Route path="/newsletter" component={NewsletterPage} />
       <Route path="/vendor-dashboard" component={VendorDashboard} />
       <Route path="/download-app" component={AppDownloadPage} />
+      <Route path="/app-download" component={AppDownloadPage} />
+      <Route path="/checkout" component={CheckoutPage} />
+      <Route path="/payment-confirmation" component={PaymentConfirmation} />
+      <Route path="/privacy" component={() => {
+        window.location.href = "/legal/PRIVACY_POLICY.md";
+        return null;
+      }} />
       <Route component={NotFound} />
     </Switch>
   );

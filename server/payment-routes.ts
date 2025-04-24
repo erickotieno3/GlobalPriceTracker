@@ -19,7 +19,7 @@ const paymentRouter = Router();
 let stripe: Stripe | null = null;
 if (process.env.STRIPE_SECRET_KEY) {
   stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2023-10-16',
+    apiVersion: '2025-03-31.basil',
   });
 }
 

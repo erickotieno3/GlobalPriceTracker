@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
 import { insertNewsletterSubscriberSchema } from "@shared/schema";
+import paymentRouter from "./payment-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API Routes
@@ -183,6 +184,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch languages" });
     }
   });
+
+  // Payment routes
+  app.use("/api/payments", paymentRouter);
 
   const httpServer = createServer(app);
   return httpServer;
