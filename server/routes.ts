@@ -408,11 +408,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile('mobile-app/index.html', { root: '.' });
   });
   
+  // Mobile redirect page
+  app.get('/mobile-redirect', (req, res) => {
+    res.sendFile('public/mobile-redirect.html', { root: '.' });
+  });
+  
   // Serve mobile app static assets - simplify to avoid path resolution issues
   app.use('/mobile-app', express.static('mobile-app'));
   
   // Serve mobile app assets directly
   app.use('/assets', express.static('mobile-app/assets'));
+  
+  // Serve public directory static files
+  app.use('/public', express.static('public'));
 
   // Payment routes
   app.use("/api/payments", paymentRouter);
