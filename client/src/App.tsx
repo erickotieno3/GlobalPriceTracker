@@ -14,6 +14,7 @@ import PaymentConfirmation from "@/pages/payment-confirmation";
 import TestPage from "@/pages/test-page";
 import SimpleTest from "@/pages/simple-test";
 import MobileConnection from "@/pages/mobile-connection";
+import WebSocketTest from "@/pages/websocket-test";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -43,6 +44,7 @@ function Router() {
       <Route path="/test" component={TestPage} />
       <Route path="/simple-test" component={SimpleTest} />
       <Route path="/mobile-connection" component={MobileConnection} />
+      <Route path="/websocket-test" component={WebSocketTest} />
       <Route path="/privacy" component={() => {
         window.location.href = "/legal/PRIVACY_POLICY.md";
         return null;

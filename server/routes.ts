@@ -5,6 +5,7 @@ import { z } from "zod";
 import { insertNewsletterSubscriberSchema } from "@shared/schema";
 import paymentRouter from "./payment-routes";
 import ipBlocker from "./ip-blocker";
+import { WebSocketServer, WebSocket } from 'ws';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API Routes
@@ -207,5 +208,95 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/payments", paymentRouter);
 
   const httpServer = createServer(app);
+  
+  // WebSocket server for real-time price updates
+  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  
+  // WebSocket connection handler
+  wss.on('connection', (ws) => {
+    console.log('WebSocket client connected');
+    
+    // Send welcome message
+    ws.send(JSON.stringify({
+      type: 'connection',
+      message: 'Connected to Tesco Price Comparison WebSocket server',
+      timestamp: new Date().toISOString()
+    }));
+    
+    // Handle messages from clients
+    ws.on('message', async (message) => {
+      try {
+        const data = JSON.parse(message.toString());
+        
+        // Handle different message types
+        switch (data.type) {
+          case 'subscribe_product':
+            if (data.productId) {
+              const productId = parseInt(data.productId);
+              
+              // Fetch updated product prices
+              const prices = await storage.compareProductPrices(productId);
+              
+              // Send real-time price updates
+              if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                  type: 'price_update',
+                  productId,
+                  prices,
+                  timestamp: new Date().toISOString()
+                }));
+              }
+            }
+            break;
+            
+          case 'subscribe_country':
+            if (data.countryCode) {
+              const country = await storage.getCountryByCode(data.countryCode);
+              const stores = country ? await storage.getStoresByCountry(country.id) : [];
+              
+              // Send country stores update
+              if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                  type: 'country_stores_update',
+                  countryCode: data.countryCode,
+                  stores,
+                  timestamp: new Date().toISOString()
+                }));
+              }
+            }
+            break;
+            
+          default:
+            // Unknown message type
+            ws.send(JSON.stringify({
+              type: 'error',
+              message: 'Unknown message type',
+              timestamp: new Date().toISOString()
+            }));
+        }
+      } catch (error) {
+        console.error('WebSocket message error:', error);
+        
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({
+            type: 'error',
+            message: 'Error processing message',
+            timestamp: new Date().toISOString()
+          }));
+        }
+      }
+    });
+    
+    // Handle client disconnection
+    ws.on('close', () => {
+      console.log('WebSocket client disconnected');
+    });
+    
+    // Error handling
+    ws.on('error', (error) => {
+      console.error('WebSocket error:', error);
+    });
+  });
+  
   return httpServer;
 }
