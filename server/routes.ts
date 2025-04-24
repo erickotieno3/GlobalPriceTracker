@@ -415,6 +415,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .btn-reset {
             background: #e10600;
           }
+          
+          .server-info {
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+          }
+          
+          pre {
+            text-align: left;
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+          }
         </style>
       </head>
       <body>
@@ -430,6 +444,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
           </div>
           
           <p id="time">Current time: Loading...</p>
+          
+          <div class="server-info">
+            <h2>Server Information</h2>
+            <p>Server time: ${new Date().toISOString()}</p>
+            <p>Node.js version: ${process.version}</p>
+            <p>Server environment: ${process.env.NODE_ENV || 'development'}</p>
+            
+            <h3>Server Diagnostics</h3>
+            <p>Headers received:</p>
+            <pre>${JSON.stringify(req.headers, null, 2)}</pre>
+            
+            <h3>Try These URLs:</h3>
+            <ul style="list-style: none; padding: 0;">
+              <li><a href="/health-check" target="_blank">/health-check</a> - Basic server health check</li>
+              <li><a href="/direct-html" target="_blank">/direct-html</a> - Simple HTML test</li>
+              <li><a href="/api/mobile/status" target="_blank">/api/mobile/status</a> - API status</li>
+              <li><a href="/mobile" target="_blank">/mobile</a> - Mobile app view</li>
+            </ul>
+            
+            <p>WebSocket test (check console):</p>
+            <button class="btn" onclick="testWebSocket()">Test WebSocket</button>
+            <div id="ws-status">WebSocket: Not tested</div>
+          </div>
         </div>
 
         <script>
@@ -455,6 +492,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Initial time update and set interval
           updateTime();
           setInterval(updateTime, 1000);
+          
+          // WebSocket test
+          function testWebSocket() {
+            const wsStatusEl = document.getElementById('ws-status');
+            wsStatusEl.textContent = 'WebSocket: Connecting...';
+            
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = protocol + '//' + window.location.host + '/ws';
+            console.log('Attempting to connect to WebSocket at:', wsUrl);
+            
+            const socket = new WebSocket(wsUrl);
+            
+            socket.onopen = function() {
+              console.log('WebSocket connection established');
+              wsStatusEl.textContent = 'WebSocket: Connected!';
+              wsStatusEl.style.color = 'green';
+              
+              // Send a test message
+              socket.send(JSON.stringify({
+                type: 'diagnostics',
+                message: 'Testing connection',
+                timestamp: new Date().toISOString()
+              }));
+            };
+            
+            socket.onmessage = function(event) {
+              console.log('WebSocket message received:', event.data);
+              try {
+                const data = JSON.parse(event.data);
+                wsStatusEl.textContent = 'WebSocket: Received data - ' + JSON.stringify(data).substring(0, 30) + '...';
+              } catch(e) {
+                wsStatusEl.textContent = 'WebSocket: Received: ' + event.data.substring(0, 30) + '...';
+              }
+            };
+            
+            socket.onerror = function(error) {
+              console.error('WebSocket error:', error);
+              wsStatusEl.textContent = 'WebSocket: Error occurred';
+              wsStatusEl.style.color = 'red';
+            };
+            
+            socket.onclose = function() {
+              console.log('WebSocket connection closed');
+              wsStatusEl.textContent = 'WebSocket: Connection closed';
+            };
+          }
         </script>
       </body>
       </html>
