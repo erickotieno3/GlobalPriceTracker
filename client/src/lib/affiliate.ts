@@ -5,6 +5,54 @@
  * managing affiliate IDs, and handling commission attribution.
  */
 import { apiRequest } from './queryClient';
+import { trackAffiliateClick as trackAffiliateClickAnalytics } from './analytics';
+
+// Define the affiliate click props interface
+export interface AffiliateClickProps {
+  storeName: string;
+  productId?: number;
+  productName?: string;
+  productUrl: string;
+  className?: string;
+  children: React.ReactNode;
+}
+
+/**
+ * Track affiliate clicks with affiliate ID and return tracking URL
+ */
+export function trackAffiliateClick(
+  storeName: string,
+  productId?: number,
+  productName?: string,
+  productUrl?: string
+): string {
+  // Track with analytics
+  trackAffiliateClickAnalytics(storeName, productId, productName);
+  
+  // If we have a URL, append affiliate tracking params
+  if (productUrl) {
+    const url = new URL(productUrl);
+    const affiliateId = getAffiliateId();
+    
+    // Add our tracking parameters
+    url.searchParams.append('utm_source', 'tesco-price-comparison');
+    url.searchParams.append('utm_medium', 'affiliate');
+    url.searchParams.append('utm_campaign', storeName.toLowerCase());
+    
+    if (affiliateId) {
+      url.searchParams.append('aff', affiliateId);
+    }
+    
+    if (productId) {
+      url.searchParams.append('pid', productId.toString());
+    }
+    
+    return url.toString();
+  }
+  
+  // If no URL provided, just return empty string
+  return '';
+}
 
 /**
  * Check if the current user accessed the site via an affiliate link

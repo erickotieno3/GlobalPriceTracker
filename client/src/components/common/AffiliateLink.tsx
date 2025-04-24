@@ -1,15 +1,5 @@
 import React from 'react';
-import { trackAffiliateClick } from '@/lib/analytics';
-
-// Define the props interface here since it's no longer imported
-interface AffiliateClickProps {
-  storeName: string;
-  productId?: number;
-  productName?: string;
-  productUrl: string;
-  className?: string;
-  children: React.ReactNode;
-}
+import { trackAffiliateClick, type AffiliateClickProps } from '@/lib/affiliate';
 
 /**
  * AffiliateLink Component
