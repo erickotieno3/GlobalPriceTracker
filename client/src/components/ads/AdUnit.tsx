@@ -53,7 +53,7 @@ export function AdUnit({ position, format, className, style }: AdUnitProps) {
             textAlign: 'center',
             ...style
           }}
-          data-ad-client={process.env.GOOGLE_ADSENSE_CLIENT_ID}
+          data-ad-client={import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID}
           data-ad-slot={slotConfig.slotId}
           data-ad-format={adFormat}
           data-full-width-responsive="true"

@@ -54,9 +54,14 @@ declare global {
  * Initialize Google Analytics
  * 
  * Call this function once when the application loads
- * @param measurementId Your GA4 measurement ID (G-XXXXXXXX)
  */
-export const initializeAnalytics = (measurementId: string): void => {
+export const initializeAnalytics = (): void => {
+  const measurementId = import.meta.env.VITE_GOOGLE_ANALYTICS_ID;
+  
+  if (!measurementId) {
+    console.warn('Google Analytics Measurement ID is not defined. Analytics will not be initialized.');
+    return;
+  }
   // Create script element for Google Analytics
   const script = document.createElement('script');
   script.async = true;

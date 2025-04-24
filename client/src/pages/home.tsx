@@ -61,12 +61,12 @@ export default function Home() {
         {/* Affiliate Banner for Tesco - Promoted deal */}
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
           <AffiliateBanner 
-            storeName="Tesco"
-            productId="12345"
-            productName="Weekly Family Essentials Bundle"
-            productUrl="https://www.tesco.com/groceries/bundle/12345"
-            bannerText="Save 25% on your weekly family shop with our essential bundle. Perfect for families of 4-5 people."
-            bannerImage="/logos/tesco-banner.jpg"
+            storeId={1}
+            productId={12345}
+            title="Weekly Family Essentials Bundle"
+            description="Save 25% on your weekly family shop with our essential bundle. Perfect for families of 4-5 people."
+            bannerUrl="https://www.tesco.com/groceries/bundle/12345"
+            discountPercentage={25}
             className="mb-4"
           />
         </div>

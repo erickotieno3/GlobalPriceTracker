@@ -6,7 +6,7 @@
  */
 
 // AdSense publisher ID from environment variables
-export const ADSENSE_CLIENT_ID = process.env.GOOGLE_ADSENSE_CLIENT_ID;
+export const ADSENSE_CLIENT_ID = import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID;
 
 // Common ad unit formats
 export enum AdFormat {
