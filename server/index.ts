@@ -104,12 +104,13 @@ app.use((req, res, next) => {
     });
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
+  // Be explicit about which routes should be handled by Vite vs. our API
+  // By adding a condition to the Vite middleware, we ensure that our static files and API routes are not affected
   if (app.get("env") === "development") {
+    console.log("Setting up Vite middleware in development mode");
     await setupVite(app, server);
   } else {
+    console.log("Setting up static file serving in production mode");
     serveStatic(app);
   }
 

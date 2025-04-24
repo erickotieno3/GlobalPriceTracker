@@ -12,6 +12,30 @@ import { initializeAutoUpdater } from "./auto-updater";
 import path from 'path';
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Critical: Serve mobile app static assets first to ensure they are accessible
+  // Serve mobile app static assets - simplify to avoid path resolution issues
+  app.use('/mobile-app', express.static('mobile-app', { index: false }));
+  
+  // Serve mobile app assets directly with high priority
+  app.use('/assets', express.static('mobile-app/assets'));
+  
+  // Serve public directory static files with high priority
+  app.use('/public', express.static('public'));
+  
+  // Root mobile app (highest priority route)
+  app.get('/', (req, res) => {
+    res.sendFile(path.resolve('./mobile-app/index.html'));
+  });
+  
+  // Mobile-specific routes with high priority
+  app.get('/mobile', (req, res) => {
+    res.sendFile(path.resolve('./mobile-app/index.html'));
+  });
+  
+  app.get('/mobile-redirect', (req, res) => {
+    res.sendFile(path.resolve('./public/mobile-redirect.html'));
+  });
+
   // API Routes
   
   // Countries
@@ -402,30 +426,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     `);
   });
   
-  // Serve mobile app directly from mobile-app directory
-  app.get('/mobile', (req, res) => {
-    // Simplify to avoid path resolution issues
-    res.sendFile('mobile-app/index.html', { root: '.' });
-  });
-  
-  // Mobile redirect page
-  app.get('/mobile-redirect', (req, res) => {
-    res.sendFile('public/mobile-redirect.html', { root: '.' });
-  });
-  
-  // Serve mobile app at the root path for reliability
-  app.get('/', (req, res) => {
-    res.sendFile('mobile-app/index.html', { root: '.' });
-  });
-  
-  // Serve mobile app static assets - simplify to avoid path resolution issues
-  app.use('/mobile-app', express.static('mobile-app'));
-  
-  // Serve mobile app assets directly
-  app.use('/assets', express.static('mobile-app/assets'));
-  
-  // Serve public directory static files
-  app.use('/public', express.static('public'));
+  // Delete the duplicated routes (they are already defined at the top of the file)
 
   // Payment routes
   app.use("/api/payments", paymentRouter);
