@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { z } from "zod";
 import { insertNewsletterSubscriberSchema } from "@shared/schema";
 import paymentRouter from "./payment-routes";
+import ipBlocker from "./ip-blocker";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API Routes

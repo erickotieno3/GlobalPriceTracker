@@ -1,10 +1,34 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import security from "./security";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Get directory name equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Ensure logs directory exists
+const logsDir = path.join(__dirname, "..", "logs");
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir, { recursive: true });
+}
 
 const app = express();
+
+// Apply security middleware
+app.use(security.securityHeadersMiddleware);
+app.use(security.rateLimitMiddleware);
+
+// Parse JSON and URL-encoded bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Apply CSRF and SQL injection protection
+app.use(security.csrfProtectionMiddleware);
+app.use(security.sqlInjectionProtectionMiddleware);
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -39,12 +63,45 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  // Add security error handler
+  app.use(security.securityErrorHandler);
+  
+  // General error handler
+  app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
-    res.status(status).json({ message });
-    throw err;
+    // Log error with IP for security tracking
+    const ip = security.getIpAddress(req);
+    const errorDetails = {
+      ip,
+      path: req.path,
+      method: req.method,
+      status,
+      message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    };
+    
+    console.error('Server error:', errorDetails);
+    
+    // Log to security log if it seems like a security-related error
+    if (status === 401 || status === 403 || status === 429) {
+      fs.appendFile(
+        path.join(logsDir, 'security.log'),
+        `${new Date().toISOString()} | IP: ${ip} | Error: ${message} | Path: ${req.path}\n`,
+        (error) => {
+          if (error) console.error('Failed to write to security log:', error);
+        }
+      );
+    }
+
+    // Send response but don't include sensitive error details in production
+    res.status(status).json({ 
+      message: process.env.NODE_ENV === 'production' && status >= 500
+        ? 'Internal Server Error' 
+        : message,
+      code: err.code || 'SERVER_ERROR'
+    });
   });
 
   // importantly only setup vite in development and after
