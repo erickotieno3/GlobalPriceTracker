@@ -23,6 +23,13 @@ export default function Home() {
       <Header />
       
       <main className="flex-grow">
+        {/* Simple welcome section for testing */}
+        <div className="py-12 bg-primary text-white text-center">
+          <h1 className="text-4xl font-bold mb-4">Welcome to Tesco Price Comparison</h1>
+          <p className="text-xl mb-6">Your global price comparison platform</p>
+          <p className="text-lg">Compare prices across multiple countries and stores</p>
+        </div>
+        
         <HeroBanner />
         
         <CountrySelector />

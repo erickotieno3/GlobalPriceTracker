@@ -11,6 +11,8 @@ import VendorDashboard from "@/pages/vendor-dashboard";
 import AppDownloadPage from "@/pages/app-download-page";
 import CheckoutPage from "@/pages/checkout-page";
 import PaymentConfirmation from "@/pages/payment-confirmation";
+import TestPage from "@/pages/test-page";
+import SimpleTest from "@/pages/simple-test";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -37,6 +39,7 @@ function Router() {
       <Route path="/app-download" component={AppDownloadPage} />
       <Route path="/checkout" component={CheckoutPage} />
       <Route path="/payment-confirmation" component={PaymentConfirmation} />
+      <Route path="/test" component={TestPage} />
       <Route path="/privacy" component={() => {
         window.location.href = "/legal/PRIVACY_POLICY.md";
         return null;
