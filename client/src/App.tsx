@@ -13,9 +13,9 @@ function HomePage() {
           <h2 className="text-2xl font-semibold mb-4">Store Comparison</h2>
           <p className="mb-4">Compare prices between supermarkets and chain stores</p>
           <Link href="/store-comparison">
-            <a className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 inline-block">
+            <span className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 inline-block cursor-pointer">
               Compare Stores
-            </a>
+            </span>
           </Link>
         </div>
         
@@ -23,9 +23,9 @@ function HomePage() {
           <h2 className="text-2xl font-semibold mb-4">Marketplace Comparison</h2>
           <p className="mb-4">Compare prices across global online marketplaces</p>
           <Link href="/marketplace-comparison">
-            <a className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 inline-block">
+            <span className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 inline-block cursor-pointer">
               Compare Marketplaces
-            </a>
+            </span>
           </Link>
         </div>
       </div>
@@ -49,24 +49,24 @@ function Header() {
       <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
           <Link href="/">
-            <a className="text-2xl font-bold text-blue-600">Tesco Compare</a>
+            <span className="text-2xl font-bold text-blue-600 cursor-pointer">Tesco Compare</span>
           </Link>
           
           <nav>
             <ul className="flex space-x-6">
               <li>
                 <Link href="/">
-                  <a className="hover:text-blue-600">Home</a>
+                  <span className="hover:text-blue-600 cursor-pointer">Home</span>
                 </Link>
               </li>
               <li>
                 <Link href="/marketplace-comparison">
-                  <a className="hover:text-blue-600">Marketplaces</a>
+                  <span className="hover:text-blue-600 cursor-pointer">Marketplaces</span>
                 </Link>
               </li>
               <li>
                 <Link href="/store-comparison">
-                  <a className="hover:text-blue-600">Stores</a>
+                  <span className="hover:text-blue-600 cursor-pointer">Stores</span>
                 </Link>
               </li>
             </ul>
@@ -94,12 +94,12 @@ function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link href="/marketplace-comparison">
-                  <a className="text-gray-600 hover:text-blue-600">Marketplace Comparison</a>
+                  <span className="text-gray-600 hover:text-blue-600 cursor-pointer">Marketplace Comparison</span>
                 </Link>
               </li>
               <li>
                 <Link href="/store-comparison">
-                  <a className="text-gray-600 hover:text-blue-600">Store Comparison</a>
+                  <span className="text-gray-600 hover:text-blue-600 cursor-pointer">Store Comparison</span>
                 </Link>
               </li>
             </ul>
@@ -110,12 +110,12 @@ function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link href="/terms">
-                  <a className="text-gray-600 hover:text-blue-600">Terms of Service</a>
+                  <span className="text-gray-600 hover:text-blue-600 cursor-pointer">Terms of Service</span>
                 </Link>
               </li>
               <li>
                 <Link href="/privacy">
-                  <a className="text-gray-600 hover:text-blue-600">Privacy Policy</a>
+                  <span className="text-gray-600 hover:text-blue-600 cursor-pointer">Privacy Policy</span>
                 </Link>
               </li>
             </ul>
@@ -136,9 +136,9 @@ function NotFound() {
       <h1 className="text-4xl font-bold mb-4">404 - Page Not Found</h1>
       <p className="text-xl mb-8">The page you are looking for does not exist.</p>
       <Link href="/">
-        <a className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
+        <span className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 inline-block cursor-pointer">
           Go Back Home
-        </a>
+        </span>
       </Link>
     </div>
   );

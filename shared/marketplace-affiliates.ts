@@ -21,87 +21,83 @@ export interface MarketplaceAffiliate {
 
 export const marketplaceAffiliates: MarketplaceAffiliate[] = [
   {
-    id: 'amazon',
-    name: 'Amazon',
-    logoPath: '/assets/marketplace-logos/amazon.svg',
-    baseUrl: 'https://www.amazon.com',
-    affiliateBaseUrl: 'https://www.amazon.com/?tag=',
-    primaryRegions: ['US', 'UK', 'DE', 'FR', 'IT', 'ES', 'CA', 'AU'],
-    secondaryRegions: ['IN', 'JP', 'MX', 'BR', 'NL', 'AE', 'SA', 'SG'],
-    affiliateParam: 'tag',
-    searchEndpoint: 'https://www.amazon.com/s',
-    commissionRate: '1-10%',
+    id: "amazon",
+    name: "Amazon",
+    logoPath: "/assets/marketplace-logos/amazon.svg",
+    baseUrl: "https://www.amazon.com",
+    primaryRegions: ["USA", "UK", "Germany", "Canada", "Japan", "Australia"],
+    secondaryRegions: ["France", "Italy", "Spain", "Netherlands", "Mexico", "Brazil", "UAE"],
+    affiliateParam: "tag",
+    searchEndpoint: "/s",
+    affiliateBaseUrl: "https://www.amazon.com/",
+    commissionRate: "1-10% depending on category",
     availableCategories: [
-      'Electronics', 'Computers', 'Smart Home', 
-      'Home & Kitchen', 'Clothing', 'Beauty', 'Books', 
-      'Movies', 'Music', 'Video Games', 'Toys', 'Health'
+      "Electronics", "Books", "Home & Kitchen", "Fashion", "Beauty", "Toys",
+      "Sports & Outdoors", "Automotive", "Health & Personal Care", "Grocery"
     ]
   },
   {
-    id: 'ebay-uk',
-    name: 'eBay UK',
-    logoPath: '/assets/marketplace-logos/ebay.svg',
-    baseUrl: 'https://www.ebay.co.uk',
-    affiliateBaseUrl: 'https://rover.ebay.com/rover/1/710-53481-19255-0/1?ff3=4&pub=5575085282&toolid=10001&campid=5338085282&customid=&mpre=',
-    primaryRegions: ['UK', 'DE', 'FR', 'IT', 'ES'],
-    secondaryRegions: ['US', 'CA', 'AU'],
-    affiliateParam: 'campid',
-    searchEndpoint: 'https://www.ebay.co.uk/sch/i.html',
-    commissionRate: '1-4%',
+    id: "ebay",
+    name: "eBay",
+    logoPath: "/assets/marketplace-logos/ebay.svg",
+    baseUrl: "https://www.ebay.com",
+    primaryRegions: ["USA", "UK", "Germany", "Australia", "Canada"],
+    secondaryRegions: ["France", "Italy", "Spain", "Hong Kong", "Singapore"],
+    affiliateParam: "campid",
+    searchEndpoint: "/sch/i.html",
+    affiliateBaseUrl: "https://rover.ebay.com/rover/1/",
+    commissionRate: "Up to 4% on most categories",
     availableCategories: [
-      'Electronics', 'Fashion', 'Home & Garden', 
-      'Sporting Goods', 'Toys & Hobbies', 'Motors', 
-      'Business & Industrial', 'Collectibles'
+      "Electronics", "Fashion", "Home & Garden", "Sporting Goods", "Collectibles",
+      "Business & Industrial", "Automotive", "Health & Beauty", "Media"
     ]
   },
   {
-    id: 'aliexpress',
-    name: 'AliExpress',
-    logoPath: '/assets/marketplace-logos/aliexpress.svg',
-    baseUrl: 'https://www.aliexpress.com',
-    affiliateBaseUrl: 'https://s.click.aliexpress.com/e/_',
-    primaryRegions: ['CN', 'RU', 'BR', 'ES', 'PL', 'FR', 'US', 'UK'],
-    secondaryRegions: ['KE', 'UG', 'TZ', 'ZA', 'SA', 'AE', 'IN', 'MY', 'PH', 'TH', 'VN', 'ID'],
-    searchEndpoint: 'https://www.aliexpress.com/wholesale',
-    commissionRate: '4-8%',
+    id: "aliexpress",
+    name: "AliExpress",
+    logoPath: "/assets/marketplace-logos/aliexpress.svg",
+    baseUrl: "https://www.aliexpress.com",
+    primaryRegions: ["Global", "China", "Russia", "Brazil", "Spain"],
+    secondaryRegions: ["USA", "France", "UK", "Italy", "Poland", "Saudi Arabia"],
+    affiliateParam: "aff_platform",
+    searchEndpoint: "/wholesale",
+    affiliateBaseUrl: "https://s.click.aliexpress.com/",
+    commissionRate: "Up to 50% depending on category",
     availableCategories: [
-      'Consumer Electronics', 'Computer & Office', 
-      'Home & Garden', 'Toys & Hobbies', 'Sports & Entertainment', 
-      'Beauty & Health', 'Automobiles & Motorcycles', 'Jewelry & Watches'
+      "Consumer Electronics", "Fashion", "Home & Garden", "Beauty", "Automotive",
+      "Sports & Entertainment", "Toys & Hobbies", "Health & Personal Care"
     ]
   },
   {
-    id: 'jumia',
-    name: 'Jumia',
-    logoPath: '/assets/marketplace-logos/jumia.svg',
-    baseUrl: 'https://www.jumia.co.ke',
-    affiliateBaseUrl: 'https://kep.jumia.is/aff_c?offer_id=128&aff_id=',
-    primaryRegions: ['KE', 'NG', 'EG', 'CI', 'GH', 'UG', 'TZ', 'ZA', 'MA', 'TN', 'SN', 'DZ'],
-    secondaryRegions: ['UK', 'US', 'DE', 'FR'],
-    affiliateParam: 'aff_id',
-    searchEndpoint: 'https://www.jumia.co.ke/catalog/',
-    commissionRate: '5-12%',
+    id: "jumia",
+    name: "Jumia",
+    logoPath: "/assets/marketplace-logos/jumia.svg",
+    baseUrl: "https://www.jumia.com",
+    primaryRegions: ["Nigeria", "Kenya", "Ghana", "Uganda", "Tanzania", "South Africa"],
+    secondaryRegions: ["Egypt", "Morocco", "Ivory Coast", "Senegal", "Tunisia"],
+    affiliateParam: "id",
+    searchEndpoint: "/catalog/",
+    affiliateBaseUrl: "https://kol.jumia.com/api/click/link/",
+    commissionRate: "8-12% depending on category",
     availableCategories: [
-      'Phones & Tablets', 'Electronics', 'Home & Office', 
-      'Groceries', 'Health & Beauty', 'Fashion', 
-      'Baby Products', 'Computing', 'Sporting Goods'
+      "Phones & Tablets", "Electronics", "Fashion", "Home & Kitchen", "Health & Beauty",
+      "Baby Products", "Sporting Goods", "Grocery", "Automotive"
     ]
   },
   {
-    id: 'kilimall',
-    name: 'Kilimall',
-    logoPath: '/assets/marketplace-logos/kilimall.svg',
-    baseUrl: 'https://www.kilimall.co.ke',
-    affiliateBaseUrl: 'https://www.kilimall.co.ke/?utm_source=affiliate&utm_medium=cps&utm_campaign=',
-    primaryRegions: ['KE', 'UG', 'NG', 'GH'],
-    secondaryRegions: ['TZ', 'ZA'],
-    affiliateParam: 'utm_campaign',
-    searchEndpoint: 'https://www.kilimall.co.ke/new/commoditysearch/search',
-    commissionRate: '5-10%',
+    id: "kilimall",
+    name: "Kilimall",
+    logoPath: "/assets/marketplace-logos/kilimall.svg",
+    baseUrl: "https://www.kilimall.co.ke",
+    primaryRegions: ["Kenya", "Uganda", "Nigeria"],
+    secondaryRegions: ["Tanzania", "Ethiopia", "Rwanda", "Ghana"],
+    affiliateParam: "share_mas_id",
+    searchEndpoint: "/c/",
+    affiliateBaseUrl: "https://www.kilimall.co.ke/",
+    commissionRate: "5-15% commission on sales",
     availableCategories: [
-      'Phones & Tablets', 'Electronics', 'Fashion', 
-      'Home & Living', 'Baby, Kids & Toys', 'Health & Beauty', 
-      'Sports & Outdoor', 'Automobiles'
+      "Electronics", "Fashion", "Home & Living", "Health & Beauty", "Baby Products",
+      "Sports & Outdoors", "Automotive", "Office Products"
     ]
   }
 ];
@@ -117,9 +113,8 @@ export function getMarketplaceById(id: string): MarketplaceAffiliate | undefined
  * Get marketplaces by region
  */
 export function getMarketplacesByRegion(region: string): MarketplaceAffiliate[] {
-  return marketplaceAffiliates.filter(marketplace => 
-    marketplace.primaryRegions.includes(region) || 
-    marketplace.secondaryRegions.includes(region)
+  return marketplaceAffiliates.filter(
+    marketplace => marketplace.primaryRegions.includes(region) || marketplace.secondaryRegions.includes(region)
   );
 }
 
@@ -127,10 +122,8 @@ export function getMarketplacesByRegion(region: string): MarketplaceAffiliate[] 
  * Get marketplaces by category
  */
 export function getMarketplacesByCategory(category: string): MarketplaceAffiliate[] {
-  return marketplaceAffiliates.filter(marketplace => 
-    marketplace.availableCategories?.some(cat => 
-      cat.toLowerCase().includes(category.toLowerCase())
-    )
+  return marketplaceAffiliates.filter(
+    marketplace => marketplace.availableCategories?.includes(category)
   );
 }
 
@@ -138,44 +131,18 @@ export function getMarketplacesByCategory(category: string): MarketplaceAffiliat
  * Generate an affiliate link for a marketplace product
  */
 export function generateAffiliateLink(
-  marketplaceId: string, 
-  productUrl: string, 
+  marketplaceId: string,
+  productUrl: string,
   affiliateId: string
 ): string {
   const marketplace = getMarketplaceById(marketplaceId);
   
-  if (!marketplace) {
-    // If marketplace not found, return original URL
+  if (!marketplace || !marketplace.affiliateParam) {
     return productUrl;
   }
   
-  // Different marketplaces have different affiliate link structures
-  switch (marketplaceId) {
-    case 'amazon':
-      // Amazon uses a simple tag parameter
-      const url = new URL(productUrl);
-      url.searchParams.set('tag', affiliateId);
-      return url.toString();
-      
-    case 'ebay-uk':
-      // eBay uses a redirection system
-      return `https://rover.ebay.com/rover/1/710-53481-19255-0/1?ff3=4&pub=5575085282&toolid=10001&campid=${affiliateId}&customid=&mpre=${encodeURIComponent(productUrl)}`;
-      
-    case 'aliexpress':
-      // AliExpress uses a shortened URL system, which would require API integration
-      // For now, just return the base affiliate URL + product part
-      return `${marketplace.affiliateBaseUrl}${productUrl.split('/').pop()}`;
-      
-    case 'jumia':
-      // Jumia uses an affiliate ID parameter
-      return `${marketplace.affiliateBaseUrl}${affiliateId}&url=${encodeURIComponent(productUrl)}`;
-      
-    case 'kilimall':
-      // Kilimall uses UTM parameters
-      return `${productUrl}${productUrl.includes('?') ? '&' : '?'}utm_source=affiliate&utm_medium=cps&utm_campaign=${affiliateId}`;
-      
-    default:
-      // For unsupported marketplaces, return original URL
-      return productUrl;
-  }
+  const url = new URL(productUrl);
+  url.searchParams.set(marketplace.affiliateParam, affiliateId);
+  
+  return url.toString();
 }

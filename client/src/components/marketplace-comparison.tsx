@@ -1,14 +1,6 @@
-import { useState, useEffect } from 'react';
-import { marketplaceAffiliates, getMarketplacesByRegion } from '@shared/marketplace-affiliates';
-import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
-import { Search, ShoppingBag, Filter, ArrowUpDown } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Search, ShoppingCart, Globe, Tag, RefreshCw } from 'lucide-react';
 
 interface MarketplaceProductResult {
   id: string;
@@ -26,321 +18,187 @@ interface MarketplaceProductResult {
 
 export function MarketplaceComparison() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [category, setCategory] = useState('');
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
-  const [results, setResults] = useState<MarketplaceProductResult[]>([]);
-  const [selectedMarketplaces, setSelectedMarketplaces] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [sortBy, setSortBy] = useState('price_asc');
-  const [region, setRegion] = useState('UK');
-  const { toast } = useToast();
-
-  // Get available marketplaces for the selected region
-  const availableMarketplaces = getMarketplacesByRegion(region);
-
-  // Handle search form submission
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!searchQuery.trim()) {
-      toast({
-        title: 'Search query required',
-        description: 'Please enter a product to search for',
-        variant: 'destructive'
-      });
-      return;
-    }
-    
-    setIsLoading(true);
-    setResults([]);
-    
-    try {
-      const marketplacesParam = selectedMarketplaces.length > 0 
-        ? selectedMarketplaces.join(',') 
-        : availableMarketplaces.map(m => m.id).join(',');
-      
-      const params = new URLSearchParams({
-        query: searchQuery,
-        marketplaces: marketplacesParam
-      });
-      
-      if (category) params.append('category', category);
-      if (minPrice) params.append('minPrice', minPrice);
-      if (maxPrice) params.append('maxPrice', maxPrice);
-      
-      const response = await apiRequest('GET', `/api/marketplace/search?${params.toString()}`);
-      const data = await response.json();
-      
-      if (data.success && data.data) {
-        setResults(data.data);
-      } else {
-        toast({
-          title: 'Search failed',
-          description: data.message || 'Unable to search products at this time',
-          variant: 'destructive'
-        });
+  const [isSearching, setIsSearching] = useState(false);
+  
+  // This is a placeholder that would normally fetch from the API
+  const { data: searchResults, isLoading, refetch } = useQuery<MarketplaceProductResult[]>({
+    queryKey: ['/api/marketplace/search', searchQuery],
+    queryFn: async () => {
+      // We'll only fetch if the user has searched
+      if (!isSearching || !searchQuery.trim()) {
+        return [];
       }
-    } catch (error) {
-      console.error('Marketplace search error:', error);
-      toast({
-        title: 'Search error',
-        description: 'An error occurred while searching. Please try again.',
-        variant: 'destructive'
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Handle marketplace selection
-  const toggleMarketplace = (marketplaceId: string) => {
-    if (selectedMarketplaces.includes(marketplaceId)) {
-      setSelectedMarketplaces(selectedMarketplaces.filter(id => id !== marketplaceId));
-    } else {
-      setSelectedMarketplaces([...selectedMarketplaces, marketplaceId]);
-    }
-  };
-
-  // Handle region change
-  const handleRegionChange = (newRegion: string) => {
-    setRegion(newRegion);
-    setSelectedMarketplaces([]);
-  };
-
-  // Sort the results based on the selected sort option
-  const sortedResults = [...results].sort((a, b) => {
-    switch (sortBy) {
-      case 'price_asc':
-        return a.price - b.price;
-      case 'price_desc':
-        return b.price - a.price;
-      case 'rating_desc':
-        return (b.rating || 0) - (a.rating || 0);
-      default:
-        return 0;
-    }
+      
+      try {
+        const response = await fetch(`/api/marketplace/search?query=${encodeURIComponent(searchQuery)}`);
+        if (!response.ok) {
+          throw new Error('Failed to search marketplaces');
+        }
+        const data = await response.json();
+        return data.results || [];
+      } catch (error) {
+        console.error('Error searching marketplaces:', error);
+        return [];
+      }
+    },
+    enabled: isSearching && searchQuery.trim().length > 0,
   });
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      setIsSearching(true);
+      refetch();
+    }
+  };
+
+  // Example marketplaces for the UI (these would come from an API in production)
+  const marketplaces = [
+    { id: 'amazon', name: 'Amazon', logo: '/assets/marketplace-logos/amazon.svg' },
+    { id: 'ebay', name: 'eBay', logo: '/assets/marketplace-logos/ebay.svg' },
+    { id: 'aliexpress', name: 'AliExpress', logo: '/assets/marketplace-logos/aliexpress.svg' },
+    { id: 'jumia', name: 'Jumia', logo: '/assets/marketplace-logos/jumia.svg' },
+    { id: 'kilimall', name: 'Kilimall', logo: '/assets/marketplace-logos/kilimall.svg' },
+  ];
+
   return (
-    <div className="container mx-auto py-8">
-      <h2 className="text-3xl font-bold mb-6">Marketplace Product Search</h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="md:col-span-1">
-          <Card>
-            <CardHeader>
-              <CardTitle>Filters</CardTitle>
-              <CardDescription>Refine your search</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">Region</label>
-                  <Select value={region} onValueChange={handleRegionChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select region" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="UK">United Kingdom</SelectItem>
-                      <SelectItem value="US">United States</SelectItem>
-                      <SelectItem value="KE">Kenya</SelectItem>
-                      <SelectItem value="UG">Uganda</SelectItem>
-                      <SelectItem value="TZ">Tanzania</SelectItem>
-                      <SelectItem value="ZA">South Africa</SelectItem>
-                      <SelectItem value="DE">Germany</SelectItem>
-                      <SelectItem value="FR">France</SelectItem>
-                      <SelectItem value="IT">Italy</SelectItem>
-                      <SelectItem value="CA">Canada</SelectItem>
-                      <SelectItem value="AU">Australia</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium">Marketplaces</label>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {availableMarketplaces.map(marketplace => (
-                      <Badge 
-                        key={marketplace.id}
-                        variant={selectedMarketplaces.includes(marketplace.id) ? "default" : "outline"}
-                        className="cursor-pointer"
-                        onClick={() => toggleMarketplace(marketplace.id)}
-                      >
-                        {marketplace.name}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium">Category</label>
-                  <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All Categories" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">All Categories</SelectItem>
-                      <SelectItem value="Electronics">Electronics</SelectItem>
-                      <SelectItem value="Computers">Computers</SelectItem>
-                      <SelectItem value="Home">Home & Kitchen</SelectItem>
-                      <SelectItem value="Clothing">Clothing</SelectItem>
-                      <SelectItem value="Beauty">Beauty</SelectItem>
-                      <SelectItem value="Toys">Toys</SelectItem>
-                      <SelectItem value="Sports">Sports</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium">Price Range</label>
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    <Input
-                      type="number"
-                      placeholder="Min"
-                      value={minPrice}
-                      onChange={(e) => setMinPrice(e.target.value)}
-                    />
-                    <Input
-                      type="number"
-                      placeholder="Max"
-                      value={maxPrice}
-                      onChange={(e) => setMaxPrice(e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button 
-                className="w-full" 
-                onClick={handleSearch}
-                disabled={isLoading}
-              >
-                {isLoading ? 'Searching...' : 'Search'}
-              </Button>
-            </CardFooter>
-          </Card>
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <form onSubmit={handleSearch} className="mb-8">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-grow relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search for products across all marketplaces"
+              className="w-full py-3 px-4 pr-12 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          </div>
+          <button
+            type="submit"
+            className="bg-blue-600 text-white py-3 px-6 rounded-md hover:bg-blue-700 flex items-center justify-center"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <RefreshCw className="animate-spin mr-2" size={20} />
+            ) : (
+              <Search className="mr-2" size={20} />
+            )}
+            Compare Prices
+          </button>
         </div>
-        
-        <div className="md:col-span-3">
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>Search Results</CardTitle>
-                <div className="flex items-center space-x-2">
-                  <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Sort by" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="price_asc">Price: Low to High</SelectItem>
-                      <SelectItem value="price_desc">Price: High to Low</SelectItem>
-                      <SelectItem value="rating_desc">Best Rating</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <form onSubmit={handleSearch} className="flex gap-2">
-                <Input
-                  type="text"
-                  placeholder="Search for products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1"
-                />
-                <Button type="submit" disabled={isLoading}>
-                  <Search className="mr-2 h-4 w-4" />
-                  Search
-                </Button>
-              </form>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="flex justify-center my-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                </div>
-              ) : sortedResults.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {sortedResults.map((product, index) => {
-                    const marketplace = marketplaceAffiliates.find(m => m.id === product.marketplace);
-                    
-                    return (
-                      <Card key={index} className="overflow-hidden h-full flex flex-col">
-                        <div className="aspect-video relative bg-gray-100 flex items-center justify-center">
-                          {product.image ? (
-                            <img 
-                              src={product.image} 
-                              alt={product.name} 
-                              className="object-contain w-full h-full" 
-                            />
-                          ) : (
-                            <ShoppingBag className="h-12 w-12 text-gray-400" />
-                          )}
-                          {marketplace && (
-                            <div className="absolute top-2 left-2">
-                              <Badge variant="secondary">
-                                {marketplace.name}
-                              </Badge>
-                            </div>
-                          )}
-                        </div>
-                        <CardContent className="flex-1 flex flex-col py-4">
-                          <h3 className="font-medium line-clamp-2 mb-2">{product.name}</h3>
-                          <div className="mt-auto">
-                            <div className="text-xl font-bold">
-                              {product.currency} {product.price.toFixed(2)}
-                            </div>
-                            {product.rating && (
-                              <div className="flex items-center text-sm text-yellow-500">
-                                {'★'.repeat(Math.round(product.rating))}
-                                {'☆'.repeat(5 - Math.round(product.rating))}
-                                {product.reviews && (
-                                  <span className="text-gray-500 ml-1">({product.reviews})</span>
-                                )}
-                              </div>
-                            )}
-                            {product.shipping !== undefined && (
-                              <div className="text-sm text-gray-500">
-                                {product.freeShipping ? 'Free shipping' : `Shipping: ${product.currency} ${product.shipping.toFixed(2)}`}
-                              </div>
-                            )}
-                          </div>
-                        </CardContent>
-                        <CardFooter className="pt-0">
-                          <Button 
-                            className="w-full" 
-                            variant="outline"
-                            onClick={() => window.open(product.url, '_blank')}
-                          >
-                            View Product
-                          </Button>
-                        </CardFooter>
-                      </Card>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  {searchQuery ? (
-                    <div>
-                      <ShoppingBag className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                      <p className="text-lg font-medium">No products found</p>
-                      <p className="text-gray-500">Try adjusting your search or filters</p>
-                    </div>
-                  ) : (
-                    <div>
-                      <Search className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                      <p className="text-lg font-medium">Start searching</p>
-                      <p className="text-gray-500">Enter a product name to search across marketplaces</p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+      </form>
+
+      <div className="mb-8">
+        <h3 className="text-lg font-semibold mb-4">Marketplaces Included</h3>
+        <div className="flex flex-wrap gap-4">
+          {marketplaces.map((marketplace) => (
+            <div key={marketplace.id} className="flex items-center bg-gray-50 px-4 py-2 rounded-md">
+              <img
+                src={marketplace.logo}
+                alt={`${marketplace.name} logo`}
+                className="h-6 w-6 mr-2"
+              />
+              <span>{marketplace.name}</span>
+            </div>
+          ))}
         </div>
       </div>
+
+      {isSearching && searchResults && searchResults.length > 0 ? (
+        <div>
+          <h3 className="text-xl font-semibold mb-4">Search Results</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {searchResults.map((product) => (
+              <div key={product.id} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+                <div className="h-48 bg-gray-100 flex items-center justify-center overflow-hidden">
+                  <img 
+                    src={product.image} 
+                    alt={product.name} 
+                    className="w-full h-full object-contain p-4"
+                  />
+                </div>
+                <div className="p-4">
+                  <div className="flex items-center mb-2">
+                    <img 
+                      src={`/assets/marketplace-logos/${product.marketplace.toLowerCase()}.svg`}
+                      alt={product.marketplace}
+                      className="h-5 w-5 mr-2"
+                    />
+                    <span className="text-sm text-gray-600">{product.marketplace}</span>
+                  </div>
+                  
+                  <h4 className="font-medium mb-2 line-clamp-2 h-12">{product.name}</h4>
+                  
+                  <div className="flex justify-between items-center mb-3">
+                    <div className="text-lg font-bold text-blue-600">
+                      {product.currency} {product.price.toFixed(2)}
+                    </div>
+                    {product.rating && (
+                      <div className="flex items-center">
+                        <span className="text-amber-500">★</span>
+                        <span className="text-sm ml-1">{product.rating.toFixed(1)}</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex flex-col gap-2">
+                    {product.freeShipping && (
+                      <div className="text-sm text-green-600 flex items-center">
+                        <Tag size={14} className="mr-1" />
+                        Free Shipping
+                      </div>
+                    )}
+                    {product.shipping !== undefined && !product.freeShipping && (
+                      <div className="text-sm text-gray-600">
+                        Shipping: {product.currency} {product.shipping.toFixed(2)}
+                      </div>
+                    )}
+                    <a
+                      href={product.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 bg-blue-600 text-white text-center py-2 px-4 rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center"
+                    >
+                      <ShoppingCart size={16} className="mr-2" />
+                      View on {product.marketplace}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : isSearching && searchQuery.trim() ? (
+        <div className="text-center py-8">
+          <Globe className="mx-auto text-gray-400 mb-4" size={48} />
+          <h3 className="text-xl font-medium mb-2">No products found</h3>
+          <p className="text-gray-600">
+            Try different keywords or check your spelling
+          </p>
+        </div>
+      ) : null}
+      
+      {!isSearching && (
+        <div className="text-center py-8 border border-gray-200 rounded-lg bg-gray-50">
+          <Search className="mx-auto text-gray-400 mb-4" size={48} />
+          <h3 className="text-xl font-medium mb-2">Search Across Global Marketplaces</h3>
+          <p className="text-gray-600 mb-4">
+            Enter a product name above to compare prices across multiple online marketplaces
+          </p>
+          <ul className="flex flex-wrap justify-center gap-2 max-w-md mx-auto mb-4">
+            <li className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm">Electronics</li>
+            <li className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm">Fashion</li>
+            <li className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm">Home & Garden</li>
+            <li className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm">Sports</li>
+            <li className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm">Beauty</li>
+          </ul>
+          <p className="text-sm text-gray-500">
+            Popular searches: iPhone, Laptop, Running Shoes, Coffee Maker
+          </p>
+        </div>
+      )}
     </div>
   );
 }
