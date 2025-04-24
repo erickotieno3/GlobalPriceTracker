@@ -7,6 +7,7 @@ import { insertNewsletterSubscriberSchema } from "@shared/schema";
 import paymentRouter from "./payment-routes";
 import affiliateRouter from "./affiliate-routes";
 import adminRouter from "./admin-routes";
+import marketplaceRouter from "./marketplace-routes";
 import ipBlocker from "./ip-blocker";
 import { WebSocketServer, WebSocket } from 'ws';
 import fs from 'fs';
@@ -563,6 +564,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Use the admin routes
   app.use("/api/admin", adminRouter);
+  
+  // Use the marketplace routes
+  app.use("/api/marketplace", marketplaceRouter);
   
   // Special admin login routes
   app.get('/admin-login.html', (req, res) => {
