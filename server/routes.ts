@@ -35,6 +35,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Security bypass page for handling certificate warnings
+  app.get('/secure', (req, res) => {
+    try {
+      const htmlFile = fs.readFileSync('./public/secure-redirect.html', 'utf8');
+      res.set('Content-Type', 'text/html');
+      res.send(htmlFile);
+    } catch (err) {
+      console.error('Error serving secure-redirect.html:', err);
+      res.status(500).send('Error loading secure redirect page');
+    }
+  });
+  
   // Root mobile app (highest priority route)
   // Create a simple direct HTML response to check routing
   app.get('/health-check', (req, res) => {
