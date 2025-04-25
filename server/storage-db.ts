@@ -37,6 +37,49 @@ import {
   type InsertAutoPilotLog,
 } from "@shared/schema";
 
+// Types for AI features
+interface UserPreferences {
+  id: string;
+  preferredCategories: string[];
+  preferredStores: string[];
+  priceAlertThreshold: number;
+  interests: string[];
+}
+
+interface ShoppingHistoryItem {
+  productId: number;
+  productName: string;
+  storeName: string;
+  price: number;
+  purchaseDate: Date;
+  quantity: number;
+}
+
+interface PriceInsight {
+  averagePrice: number;
+  lowestPrice: number;
+  highestPrice: number;
+  priceVolatility: number;
+  bestStoreToBuy: string;
+  bestDayToBuy: string;
+  isTrendingDown: boolean;
+}
+
+interface ProductComparison {
+  categories: string[];
+  priceDifference: number;
+  cheaperOption: string;
+  featureComparison: Record<string, any>;
+  overallRecommendation: string;
+}
+
+interface ShoppingGuide {
+  recommendedProducts: any[];
+  savingTips: string[];
+  bestStores: string[];
+  weeklyPlan: any;
+}
+
 export class DatabaseStorage implements IStorage {
   async getCountries(): Promise<Country[]> {
     return await db.select().from(countries);
@@ -361,5 +404,352 @@ export class DatabaseStorage implements IStorage {
       .from(autoPilotLogs)
       .where(eq(autoPilotLogs.featureId, featureId))
       .orderBy(desc(autoPilotLogs.startTime));
+  }
+
+  // ------------- AI SERVICES METHODS ------------- //
+
+  // Get recommended products based on category or related product
+  async getRecommendedProducts(categoryName?: string, relatedProductId?: number): Promise<Product[]> {
+    try {
+      if (relatedProductId) {
+        // Get related products based on same category
+        const product = await this.getProduct(relatedProductId);
+        if (product) {
+          return await db
+            .select()
+            .from(products)
+            .where(
+              and(
+                eq(products.categoryId, product.categoryId),
+                sql`${products.id} != ${relatedProductId}`
+              )
+            )
+            .limit(5);
+        }
+      }
+      
+      if (categoryName) {
+        // Search for category by name if it's a string
+        const lowerCategoryName = categoryName.toLowerCase();
+        const [category] = await db
+          .select()
+          .from(categories)
+          .where(sql`LOWER(${categories.name}) = ${lowerCategoryName}`);
+          
+        if (category) {
+          return await this.getProductsByCategory(category.id);
+        }
+      }
+      
+      // Fallback to featured products
+      return await this.getFeaturedProducts();
+    } catch (error) {
+      console.error('Error getting recommended products:', error);
+      return [];
+    }
+  }
+
+  // Enhanced product search with AI-generated parameters
+  async enhancedProductSearch(searchParams: any): Promise<Product[]> {
+    try {
+      // Start with a base query
+      let query = db
+        .select()
+        .from(products);
+      
+      // Add filters based on searchParams
+      const filters = [];
+      
+      // Add keyword search
+      if (searchParams.keywords?.length) {
+        const keywordConditions = searchParams.keywords.map((keyword: string) => 
+          sql`LOWER(${products.name}) LIKE ${`%${keyword.toLowerCase()}%`} OR LOWER(${products.description}) LIKE ${`%${keyword.toLowerCase()}%`}`
+        );
+        
+        if (keywordConditions.length > 0) {
+          filters.push(sql`(${sql.join(keywordConditions, sql` OR `)})`);
+        }
+      }
+      
+      // Add category filter
+      if (searchParams.mainCategory) {
+        // Find category ID by name
+        const lowerCategoryName = searchParams.mainCategory.toLowerCase();
+        const [category] = await db
+          .select()
+          .from(categories)
+          .where(sql`LOWER(${categories.name}) = ${lowerCategoryName}`);
+          
+        if (category) {
+          filters.push(eq(products.categoryId, category.id));
+        }
+      }
+      
+      // Add brand filter if available
+      if (searchParams.brands?.length) {
+        const brandConditions = searchParams.brands.map((brand: string) => 
+          sql`LOWER(${products.brand}) LIKE ${`%${brand.toLowerCase()}%`}`
+        );
+        
+        if (brandConditions.length > 0) {
+          filters.push(sql`(${sql.join(brandConditions, sql` OR `)})`);
+        }
+      }
+      
+      // Apply filters
+      if (filters.length > 0) {
+        query = query.where(sql.join(filters, sql` AND `));
+      }
+      
+      // Apply sorting if specified
+      if (searchParams.sortBy) {
+        if (searchParams.sortBy === 'price_asc') {
+          // This would be more complex in real app as prices are in another table
+          // Simplified here without actual price sorting
+          query = query.orderBy(products.name);
+        } else if (searchParams.sortBy === 'price_desc') {
+          query = query.orderBy(desc(products.name));
+        } else if (searchParams.sortBy === 'name_asc') {
+          query = query.orderBy(products.name);
+        } else if (searchParams.sortBy === 'name_desc') {
+          query = query.orderBy(desc(products.name));
+        }
+      }
+      
+      return await query.limit(20);
+    } catch (error) {
+      console.error('Error in enhanced product search:', error);
+      return this.searchProducts(searchParams.keywords?.join(' ') || '');
+    }
+  }
+
+  // Get product price history
+  async getProductPriceHistory(productId: number): Promise<ProductPrice[]> {
+    try {
+      // In a real application, we would have a separate table for price history
+      // Here we'll just return current prices as if they were history
+      return await this.getProductPrices(productId);
+    } catch (error) {
+      console.error('Error getting product price history:', error);
+      return [];
+    }
+  }
+
+  // Get basic price insights without AI
+  async getBasicPriceInsights(productId: number): Promise<PriceInsight> {
+    try {
+      const prices = await this.getProductPrices(productId);
+      
+      if (prices.length === 0) {
+        throw new Error('No prices available for this product');
+      }
+      
+      // Calculate some basic statistics
+      const priceValues = prices.map(p => p.price);
+      const avgPrice = priceValues.reduce((sum, price) => sum + price, 0) / priceValues.length;
+      const lowestPrice = Math.min(...priceValues);
+      const highestPrice = Math.max(...priceValues);
+      
+      // Find store with lowest price
+      const lowestPriceItem = prices.find(p => p.price === lowestPrice);
+      let bestStore = 'Unknown';
+      
+      if (lowestPriceItem) {
+        const store = await this.getStore(lowestPriceItem.storeId);
+        if (store) {
+          bestStore = store.name;
+        }
+      }
+      
+      return {
+        averagePrice: avgPrice,
+        lowestPrice,
+        highestPrice,
+        priceVolatility: (highestPrice - lowestPrice) / avgPrice,
+        bestStoreToBuy: bestStore,
+        bestDayToBuy: 'Any day', // We don't have day-based data here
+        isTrendingDown: false // Cannot determine trend without historical data
+      };
+    } catch (error) {
+      console.error('Error calculating price insights:', error);
+      
+      return {
+        averagePrice: 0,
+        lowestPrice: 0,
+        highestPrice: 0,
+        priceVolatility: 0,
+        bestStoreToBuy: 'Unknown',
+        bestDayToBuy: 'Unknown',
+        isTrendingDown: false
+      };
+    }
+  }
+
+  // Basic comparison of two products
+  async getBasicProductComparison(product1Id: number, product2Id: number): Promise<ProductComparison> {
+    try {
+      const product1 = await this.getProduct(product1Id);
+      const product2 = await this.getProduct(product2Id);
+      
+      if (!product1 || !product2) {
+        throw new Error('One or more products not found');
+      }
+      
+      // Get prices for both products
+      const prices1 = await this.getProductPrices(product1Id);
+      const prices2 = await this.getProductPrices(product2Id);
+      
+      // Get minimum prices for comparison
+      const minPrice1 = prices1.length > 0 ? Math.min(...prices1.map(p => p.price)) : 0;
+      const minPrice2 = prices2.length > 0 ? Math.min(...prices2.map(p => p.price)) : 0;
+      
+      // Get categories for both products
+      const category1 = product1.categoryId ? await this.getCategory(product1.categoryId) : null;
+      const category2 = product2.categoryId ? await this.getCategory(product2.categoryId) : null;
+      
+      const categories = [
+        category1?.name || 'Unknown',
+        category2?.name || 'Unknown'
+      ].filter((value, index, self) => self.indexOf(value) === index); // Unique categories
+      
+      return {
+        categories,
+        priceDifference: Math.abs(minPrice1 - minPrice2),
+        cheaperOption: minPrice1 < minPrice2 ? product1.name : minPrice2 < minPrice1 ? product2.name : 'Same price',
+        featureComparison: {
+          [product1.name]: { price: minPrice1, category: category1?.name || 'Unknown' },
+          [product2.name]: { price: minPrice2, category: category2?.name || 'Unknown' }
+        },
+        overallRecommendation: minPrice1 < minPrice2 ? 
+          `${product1.name} is cheaper by ${(minPrice2 - minPrice1).toFixed(2)}` : 
+          `${product2.name} is cheaper by ${(minPrice1 - minPrice2).toFixed(2)}`
+      };
+    } catch (error) {
+      console.error('Error comparing products:', error);
+      
+      return {
+        categories: [],
+        priceDifference: 0,
+        cheaperOption: 'Unknown',
+        featureComparison: {},
+        overallRecommendation: 'Comparison failed'
+      };
+    }
+  }
+
+  // Get basic user preferences (mock implementation)
+  async getUserPreferences(userId: string): Promise<UserPreferences | null> {
+    // In a real application, this would fetch from a user preferences table
+    // Here we return a mock object for demonstration
+    return {
+      id: userId,
+      preferredCategories: ['Electronics', 'Food', 'Household'],
+      preferredStores: ['Tesco', 'Walmart'],
+      priceAlertThreshold: 15, // Percentage
+      interests: ['discounts', 'organic food', 'electronics']
+    };
+  }
+
+  // Get user shopping history (mock implementation)
+  async getUserShoppingHistory(userId: string): Promise<ShoppingHistoryItem[]> {
+    // In a real application, this would fetch from a shopping history table
+    // Here we return an empty array for demonstration
+    return [];
+  }
+
+  // Get basic shopping guide (mock implementation)
+  async getBasicShoppingGuide(userId: string): Promise<ShoppingGuide> {
+    // In a real application, this would generate based on user data
+    // Here we return a simple object for demonstration
+    const featuredProducts = await this.getFeaturedProducts();
+    
+    return {
+      recommendedProducts: featuredProducts.slice(0, 3).map(p => ({ 
+        id: p.id, 
+        name: p.name,
+        reason: 'Popular item'
+      })),
+      savingTips: [
+        'Compare prices across multiple stores',
+        'Look for seasonal discounts'
+      ],
+      bestStores: ['Tesco', 'Walmart', 'Carrefour'],
+      weeklyPlan: {
+        Monday: 'Grocery shopping',
+        Wednesday: 'Check for new deals',
+        Sunday: 'Meal planning'
+      }
+    };
+  }
+
+  // Enhance AI recommendations with real product data
+  async enhanceRecommendations(aiRecommendations: any[]): Promise<any[]> {
+    try {
+      if (!aiRecommendations || !Array.isArray(aiRecommendations)) {
+        return [];
+      }
+      
+      const enhancedRecommendations = [];
+      
+      for (const rec of aiRecommendations) {
+        if (!rec.name) continue;
+        
+        // Try to find a matching product
+        const matchingProducts = await db
+          .select()
+          .from(products)
+          .where(sql`LOWER(${products.name}) LIKE ${`%${rec.name.toLowerCase()}%`}`)
+          .limit(1);
+          
+        if (matchingProducts.length > 0) {
+          // Found a matching product, enhance with real data
+          const product = matchingProducts[0];
+          const prices = await this.getProductPrices(product.id);
+          const category = product.categoryId ? await this.getCategory(product.categoryId) : null;
+          
+          enhancedRecommendations.push({
+            ...rec,
+            id: product.id,
+            name: product.name,
+            imageUrl: product.imageUrl,
+            category: category?.name || rec.category || 'Unknown',
+            price: prices.length > 0 ? Math.min(...prices.map(p => p.price)) : null,
+            description: product.description,
+            isRealProduct: true
+          });
+        } else {
+          // No matching product, return as-is with flag
+          enhancedRecommendations.push({
+            ...rec,
+            isRealProduct: false
+          });
+        }
+      }
+      
+      return enhancedRecommendations;
+    } catch (error) {
+      console.error('Error enhancing recommendations:', error);
+      return aiRecommendations;
+    }
+  }
+
+  // Get a country by string (code or name)
+  async getCountry(idOrCode: number | string): Promise<Country | undefined> {
+    if (typeof idOrCode === 'number') {
+      return this.getCountry(idOrCode);
+    } else {
+      // Try as country code first
+      const countryByCode = await this.getCountryByCode(idOrCode);
+      if (countryByCode) return countryByCode;
+      
+      // Try by name if code doesn't match
+      const lowerName = idOrCode.toLowerCase();
+      const [country] = await db
+        .select()
+        .from(countries)
+        .where(sql`LOWER(${countries.name}) = ${lowerName}`);
+        
+      return country;
+    }
   }
 }
