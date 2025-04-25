@@ -5,20 +5,23 @@
 
 import { db } from './db';
 import { 
-  product,
-  store,
-  price,
+  products,
+  stores,
+  productPrices,
+  type Product,
+  type Store,
+  type ProductPrice
+} from '../shared/schema';
+
+import {
   productRevision,
   storeRevision,
   priceRevision,
   type ProductRevision,
   type StoreRevision,
-  type PriceRevision,
-  type Product,
-  type Store,
-  type ProductPrice
-} from '../shared/schema';
-import { eq } from 'drizzle-orm';
+  type PriceRevision
+} from '../shared/schema-revisions';
+import { eq, lt } from 'drizzle-orm';
 
 /**
  * Save a revision of a product
@@ -27,11 +30,11 @@ export async function saveProductRevision(product: Product): Promise<void> {
   // Create a revision record
   const revision: Omit<ProductRevision, 'id'> = {
     productId: product.id,
-    title: product.title,
+    title: product.name,
     description: product.description || null,
-    image: product.image || null,
+    image: product.imageUrl || null,
     categoryId: product.categoryId,
-    countryId: product.countryId,
+    countryId: null, // Not in original schema
     createdAt: new Date()
   };
 
@@ -51,10 +54,10 @@ export async function saveStoreRevision(store: Store): Promise<void> {
   const revision: Omit<StoreRevision, 'id'> = {
     storeId: store.id,
     name: store.name,
-    description: store.description || null,
-    logo: store.logo || null,
-    website: store.website || null,
-    featured: store.featured || false,
+    description: null, // Not in original schema
+    logo: store.logoUrl || null,
+    website: store.websiteUrl || null,
+    featured: false, // Not in original schema
     countryId: store.countryId,
     createdAt: new Date()
   };
@@ -161,22 +164,21 @@ export async function restoreProductRevision(revisionId: number): Promise<Produc
     
     // Update the product with revision data
     await db
-      .update(product)
+      .update(products)
       .set({
-        title: revision.title,
+        name: revision.title,
         description: revision.description,
-        image: revision.image,
-        categoryId: revision.categoryId,
-        countryId: revision.countryId,
-        updatedAt: new Date()
+        imageUrl: revision.image,
+        categoryId: revision.categoryId
+        // Note: real schema doesn't have countryId and updatedAt
       })
-      .where(eq(product.id, revision.productId));
+      .where(eq(products.id, revision.productId));
     
     // Get the updated product
     const [updatedProduct] = await db
       .select()
-      .from(product)
-      .where(eq(product.id, revision.productId));
+      .from(products)
+      .where(eq(products.id, revision.productId));
     
     return updatedProduct;
   } catch (error) {
@@ -202,23 +204,21 @@ export async function restoreStoreRevision(revisionId: number): Promise<Store | 
     
     // Update the store with revision data
     await db
-      .update(store)
+      .update(stores)
       .set({
         name: revision.name,
-        description: revision.description,
-        logo: revision.logo,
-        website: revision.website,
-        featured: revision.featured,
-        countryId: revision.countryId,
-        updatedAt: new Date()
+        logoUrl: revision.logo,
+        websiteUrl: revision.website,
+        countryId: revision.countryId
+        // Note: real schema doesn't have description, featured or updatedAt
       })
-      .where(eq(store.id, revision.storeId));
+      .where(eq(stores.id, revision.storeId));
     
     // Get the updated store
     const [updatedStore] = await db
       .select()
-      .from(store)
-      .where(eq(store.id, revision.storeId));
+      .from(stores)
+      .where(eq(stores.id, revision.storeId));
     
     return updatedStore;
   } catch (error) {
@@ -244,7 +244,7 @@ export async function restorePriceRevision(revisionId: number): Promise<ProductP
     
     // Update the price with revision data
     await db
-      .update(price)
+      .update(productPrices)
       .set({
         productId: revision.productId,
         storeId: revision.storeId,
@@ -252,13 +252,13 @@ export async function restorePriceRevision(revisionId: number): Promise<ProductP
         currency: revision.currency,
         lastUpdated: revision.lastUpdated
       })
-      .where(eq(price.id, revision.priceId));
+      .where(eq(productPrices.id, revision.priceId));
     
     // Get the updated price
     const [updatedPrice] = await db
       .select()
-      .from(price)
-      .where(eq(price.id, revision.priceId));
+      .from(productPrices)
+      .where(eq(productPrices.id, revision.priceId));
     
     return updatedPrice;
   } catch (error) {
@@ -283,17 +283,17 @@ export async function cleanupOldRevisions(retentionDays: number): Promise<void> 
     // Delete old product revisions
     await db
       .delete(productRevision)
-      .where(db.lt(productRevision.createdAt, cutoffDate));
+      .where(lt(productRevision.createdAt, cutoffDate));
       
     // Delete old store revisions
     await db
       .delete(storeRevision)
-      .where(db.lt(storeRevision.createdAt, cutoffDate));
+      .where(lt(storeRevision.createdAt, cutoffDate));
       
     // Delete old price revisions
     await db
       .delete(priceRevision)
-      .where(db.lt(priceRevision.createdAt, cutoffDate));
+      .where(lt(priceRevision.createdAt, cutoffDate));
       
   } catch (error) {
     console.error('Error cleaning up old revisions:', error);

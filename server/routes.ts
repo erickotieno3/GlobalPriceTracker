@@ -13,6 +13,7 @@ import { socialMediaRouter } from "./social-media";
 import { savingsChallengeRouter } from "./savings-challenge-routes";
 import ipBlocker from "./ip-blocker";
 import { WebSocketServer, WebSocket } from 'ws';
+import { revisionRouter } from "./revision-routes";
 import fs from 'fs';
 import path from 'path';
 import { initializeAutoUpdater } from "./auto-updater";
@@ -877,6 +878,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register savings challenge routes
   app.use("/api/savings-challenge", savingsChallengeRouter);
+  
+  // Register revision management routes
+  app.use("/api/revisions", revisionRouter);
   
   // Special admin login routes
   app.get('/admin-login.html', (req, res) => {

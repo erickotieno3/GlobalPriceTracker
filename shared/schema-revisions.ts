@@ -4,14 +4,14 @@
 
 import { pgTable, serial, integer, text, boolean, timestamp, date, pgEnum } from 'drizzle-orm/pg-core';
 import { createInsertSchema } from 'drizzle-zod';
-import { product, store, price } from './schema';
+import { products, stores, productPrices } from './schema';
 
 /**
  * Product Revision Table
  */
 export const productRevision = pgTable('product_revision', {
   id: serial('id').primaryKey(),
-  productId: integer('product_id').notNull().references(() => product.id),
+  productId: integer('product_id').notNull().references(() => products.id),
   title: text('title').notNull(),
   description: text('description'),
   image: text('image'),
@@ -29,7 +29,7 @@ export type InsertProductRevision = typeof insertProductRevisionSchema._type;
  */
 export const storeRevision = pgTable('store_revision', {
   id: serial('id').primaryKey(),
-  storeId: integer('store_id').notNull().references(() => store.id),
+  storeId: integer('store_id').notNull().references(() => stores.id),
   name: text('name').notNull(),
   description: text('description'),
   logo: text('logo'),
@@ -48,7 +48,7 @@ export type InsertStoreRevision = typeof insertStoreRevisionSchema._type;
  */
 export const priceRevision = pgTable('price_revision', {
   id: serial('id').primaryKey(),
-  priceId: integer('price_id').notNull().references(() => price.id),
+  priceId: integer('price_id').notNull().references(() => productPrices.id),
   productId: integer('product_id').notNull(),
   storeId: integer('store_id').notNull(),
   price: integer('price').notNull(),
