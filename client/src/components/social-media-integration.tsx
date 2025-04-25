@@ -45,14 +45,20 @@ interface SocialShareLinkObject {
 export const SocialMediaShare: React.FC<SocialShareProps> = ({
   productId,
   productName,
-  url = window.location.href,
+  url,
   title = 'Check out this great deal!',
   description = 'I found a great price comparison on HyriseCrown'
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [shareLinks, setShareLinks] = useState<SocialShareLinkObject | null>(null);
   const [customMessage, setCustomMessage] = useState('');
+  const [currentUrl, setCurrentUrl] = useState<string>('');
   const { toast } = useToast();
+  
+  // Set the current URL safely on client-side only
+  useEffect(() => {
+    setCurrentUrl(window.location.href);
+  }, []);
 
   useEffect(() => {
     // If productId is provided, fetch share links from the API
@@ -92,7 +98,7 @@ export const SocialMediaShare: React.FC<SocialShareProps> = ({
 
     // Otherwise construct a share URL
     const shareText = encodeURIComponent(customMessage || title);
-    const shareUrl = encodeURIComponent(url);
+    const shareUrl = encodeURIComponent(url || currentUrl);
     
     let shareLink = '';
     
@@ -143,7 +149,7 @@ export const SocialMediaShare: React.FC<SocialShareProps> = ({
   };
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(url);
+    navigator.clipboard.writeText(url || currentUrl);
     toast({
       title: "Link copied!",
       description: "Link copied to clipboard",
@@ -213,7 +219,7 @@ export const SocialMediaShare: React.FC<SocialShareProps> = ({
           </div>
           
           <div className="flex items-center space-x-2">
-            <Input className="flex-1" value={url} readOnly />
+            <Input className="flex-1" value={url || currentUrl} readOnly />
             <Button variant="secondary" onClick={handleCopyLink}>Copy</Button>
           </div>
         </div>
