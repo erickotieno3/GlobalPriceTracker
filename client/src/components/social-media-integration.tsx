@@ -7,7 +7,15 @@ import { SiTiktok, SiSnapchat, SiWhatsapp, SiTelegram } from 'react-icons/si';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger 
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
@@ -41,7 +49,7 @@ export const SocialMediaShare: React.FC<SocialShareProps> = ({
   title = 'Check out this great deal!',
   description = 'I found a great price comparison on HyriseCrown'
 }) => {
-  const [open, setOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [shareLinks, setShareLinks] = useState<SocialShareLinkObject | null>(null);
   const [customMessage, setCustomMessage] = useState('');
   const { toast } = useToast();
@@ -143,86 +151,89 @@ export const SocialMediaShare: React.FC<SocialShareProps> = ({
     });
   };
 
-  return (
-    <>
-      <Button onClick={() => setOpen(true)} className="flex items-center space-x-2">
-        <Share2Icon className="w-4 h-4" />
-        <span>Share</span>
-      </Button>
-      
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Share {productName || 'this page'}</DialogTitle>
-            <DialogDescription>
-              Share this {productId ? 'product' : 'page'} across your favorite social platforms
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="p-4">
-            <div className="mb-4">
-              <Input
-                placeholder="Add a custom message (optional)"
-                value={customMessage}
-                onChange={(e) => setCustomMessage(e.target.value)}
-              />
-            </div>
-            
-            <div className="grid grid-cols-4 gap-4 mb-4">
-              <Button variant="outline" className="flex flex-col items-center p-3" onClick={() => handleShare('facebook')}>
-                <FacebookIcon className="h-6 w-6 text-blue-600 mb-1" />
-                <span className="text-xs">Facebook</span>
-              </Button>
-              
-              <Button variant="outline" className="flex flex-col items-center p-3" onClick={() => handleShare('twitter')}>
-                <TwitterIcon className="h-6 w-6 text-sky-500 mb-1" />
-                <span className="text-xs">Twitter</span>
-              </Button>
-              
-              <Button variant="outline" className="flex flex-col items-center p-3" onClick={() => handleShare('linkedin')}>
-                <LinkedinIcon className="h-6 w-6 text-blue-700 mb-1" />
-                <span className="text-xs">LinkedIn</span>
-              </Button>
-              
-              <Button variant="outline" className="flex flex-col items-center p-3" onClick={() => handleShare('whatsapp')}>
-                <SiWhatsapp className="h-6 w-6 text-green-500 mb-1" />
-                <span className="text-xs">WhatsApp</span>
-              </Button>
-              
-              <Button variant="outline" className="flex flex-col items-center p-3" onClick={() => handleShare('telegram')}>
-                <SiTelegram className="h-6 w-6 text-blue-500 mb-1" />
-                <span className="text-xs">Telegram</span>
-              </Button>
-              
-              <Button variant="outline" className="flex flex-col items-center p-3" onClick={() => handleShare('instagram')}>
-                <InstagramIcon className="h-6 w-6 text-pink-600 mb-1" />
-                <span className="text-xs">Instagram</span>
-              </Button>
-              
-              <Button variant="outline" className="flex flex-col items-center p-3" onClick={() => handleShare('tiktok')}>
-                <SiTiktok className="h-6 w-6 text-black mb-1" />
-                <span className="text-xs">TikTok</span>
-              </Button>
-              
-              <Button variant="outline" className="flex flex-col items-center p-3" onClick={() => handleShare('snapchat')}>
-                <SiSnapchat className="h-6 w-6 text-yellow-400 mb-1" />
-                <span className="text-xs">Snapchat</span>
-              </Button>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Input className="flex-1" value={url} readOnly />
-              <Button variant="secondary" onClick={handleCopyLink}>Copy</Button>
-            </div>
+  const SocialShareDialog = () => (
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Share {productName || 'this page'}</DialogTitle>
+          <DialogDescription>
+            Share this {productId ? 'product' : 'page'} across your favorite social platforms
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="p-4">
+          <div className="mb-4">
+            <Input
+              placeholder="Add a custom message (optional)"
+              value={customMessage}
+              onChange={(e) => setCustomMessage(e.target.value)}
+            />
           </div>
           
-          <DialogFooter className="sm:justify-start">
-            <DialogTrigger asChild>
-              <Button type="button" variant="secondary">Close</Button>
-            </DialogTrigger>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          <div className="grid grid-cols-4 gap-4 mb-4">
+            <Button variant="outline" className="flex flex-col items-center p-3" onClick={() => handleShare('facebook')}>
+              <FacebookIcon className="h-6 w-6 text-blue-600 mb-1" />
+              <span className="text-xs">Facebook</span>
+            </Button>
+            
+            <Button variant="outline" className="flex flex-col items-center p-3" onClick={() => handleShare('twitter')}>
+              <TwitterIcon className="h-6 w-6 text-sky-500 mb-1" />
+              <span className="text-xs">Twitter</span>
+            </Button>
+            
+            <Button variant="outline" className="flex flex-col items-center p-3" onClick={() => handleShare('linkedin')}>
+              <LinkedinIcon className="h-6 w-6 text-blue-700 mb-1" />
+              <span className="text-xs">LinkedIn</span>
+            </Button>
+            
+            <Button variant="outline" className="flex flex-col items-center p-3" onClick={() => handleShare('whatsapp')}>
+              <SiWhatsapp className="h-6 w-6 text-green-500 mb-1" />
+              <span className="text-xs">WhatsApp</span>
+            </Button>
+            
+            <Button variant="outline" className="flex flex-col items-center p-3" onClick={() => handleShare('telegram')}>
+              <SiTelegram className="h-6 w-6 text-blue-500 mb-1" />
+              <span className="text-xs">Telegram</span>
+            </Button>
+            
+            <Button variant="outline" className="flex flex-col items-center p-3" onClick={() => handleShare('instagram')}>
+              <InstagramIcon className="h-6 w-6 text-pink-600 mb-1" />
+              <span className="text-xs">Instagram</span>
+            </Button>
+            
+            <Button variant="outline" className="flex flex-col items-center p-3" onClick={() => handleShare('tiktok')}>
+              <SiTiktok className="h-6 w-6 text-black mb-1" />
+              <span className="text-xs">TikTok</span>
+            </Button>
+            
+            <Button variant="outline" className="flex flex-col items-center p-3" onClick={() => handleShare('snapchat')}>
+              <SiSnapchat className="h-6 w-6 text-yellow-400 mb-1" />
+              <span className="text-xs">Snapchat</span>
+            </Button>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Input className="flex-1" value={url} readOnly />
+            <Button variant="secondary" onClick={handleCopyLink}>Copy</Button>
+          </div>
+        </div>
+        
+        <DialogFooter className="sm:justify-start">
+          <Button type="button" variant="secondary" onClick={() => setIsDialogOpen(false)}>
+            Close
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+
+  return (
+    <>
+      <Button onClick={() => setIsDialogOpen(true)} className="flex items-center space-x-2">
+        <Share2Icon className="w-4 h-4 mr-2" />
+        <span>Share</span>
+      </Button>
+      <SocialShareDialog />
     </>
   );
 };
