@@ -451,11 +451,11 @@ const SavingsChallengePage: React.FC = () => {
                         {/* Challenge progress */}
                         <div className="mb-4">
                           <div className="flex justify-between mb-1 text-sm">
-                            <span>Progress: £{challenge.currentAmount}</span>
+                            <span>Progress: £{challenge.currentAmount || 0}</span>
                             <span>Target: £{challenge.targetAmount}</span>
                           </div>
                           <Progress 
-                            value={(challenge.currentAmount / challenge.targetAmount) * 100} 
+                            value={((challenge.currentAmount || 0) / challenge.targetAmount) * 100} 
                             className={
                               challenge.status === 'completed' ? 'h-2 bg-green-100' : 
                               challenge.status === 'failed' ? 'h-2 bg-red-100' : 
@@ -472,12 +472,12 @@ const SavingsChallengePage: React.FC = () => {
                           </div>
                           <div className="flex items-center gap-1">
                             <Gift className="h-4 w-4 text-gray-500" />
-                            <span>{challenge.rewards.length} rewards</span>
+                            <span>{challenge.rewards ? challenge.rewards.length : 0} rewards</span>
                           </div>
                         </div>
                         
                         {/* Challenge rewards preview */}
-                        {challenge.rewards.length > 0 && (
+                        {challenge.rewards && challenge.rewards.length > 0 && (
                           <div className="mb-4">
                             <h4 className="text-sm font-medium mb-2">Rewards:</h4>
                             <div className="flex gap-2">
@@ -517,7 +517,7 @@ const SavingsChallengePage: React.FC = () => {
                               variant="outline" 
                               size="sm"
                               className="w-full"
-                              onClick={() => updateChallengeProgress(challenge.id, 5)}
+                              onClick={() => handleProgressUpdate(challenge.id, 5)}
                             >
                               Add £5
                             </Button>
@@ -525,7 +525,7 @@ const SavingsChallengePage: React.FC = () => {
                               variant="default" 
                               size="sm"
                               className="w-full"
-                              onClick={() => updateChallengeProgress(challenge.id, 10)}
+                              onClick={() => handleProgressUpdate(challenge.id, 10)}
                             >
                               Add £10
                             </Button>
