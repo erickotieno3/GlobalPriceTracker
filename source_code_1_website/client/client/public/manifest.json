@@ -1,0 +1,109 @@
+{
+  "name": "Tesco Price Comparison",
+  "short_name": "TescoPrices",
+  "description": "Compare supermarket prices globally across Tesco, Walmart, and more.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#00539F",
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "en-US",
+  "dir": "ltr",
+  "prefer_related_applications": true,
+  "related_applications": [
+    {
+      "platform": "play",
+      "id": "com.hyrisecrown.tescopricecomparison",
+      "url": "https://play.google.com/store/apps/details?id=com.hyrisecrown.tescopricecomparison"
+    },
+    {
+      "platform": "itunes",
+      "url": "https://apps.apple.com/app/tesco-price-comparison/id1234567890"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Compare Prices",
+      "short_name": "Compare",
+      "description": "Compare prices for a specific product",
+      "url": "/compare",
+      "icons": [{ "src": "/icons/compare-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Trending Deals",
+      "short_name": "Deals",
+      "description": "View trending deals from all stores",
+      "url": "/trending",
+      "icons": [{ "src": "/icons/deals-192x192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/home-screenshot.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Homescreen of Tesco Price Comparison"
+    },
+    {
+      "src": "/screenshots/compare-screenshot.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Product comparison across multiple stores"
+    }
+  ],
+  "categories": ["shopping", "utilities", "finance"],
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7"
+}
