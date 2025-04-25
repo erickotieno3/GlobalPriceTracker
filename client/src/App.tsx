@@ -1,6 +1,7 @@
 import { Route, Switch, Link } from "wouter";
 import MarketplaceComparisonPage from "@/pages/marketplace-comparison";
 import AlphabeticalSearchPage from "@/pages/alphabetical-search";
+import AutoPilotDashboardPage from "@/pages/auto-pilot-dashboard";
 
 function HomePage() {
   return (
@@ -73,6 +74,11 @@ function Header() {
               <li>
                 <Link href="/alphabetical-search">
                   <span className="hover:text-blue-600 cursor-pointer">Product Search</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/auto-pilot-dashboard">
+                  <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded hover:bg-amber-200 cursor-pointer">Admin</span>
                 </Link>
               </li>
             </ul>
@@ -160,6 +166,7 @@ function App() {
           <Route path="/" component={HomePage} />
           <Route path="/marketplace-comparison" component={MarketplaceComparisonPage} />
           <Route path="/alphabetical-search" component={AlphabeticalSearchPage} />
+          <Route path="/auto-pilot-dashboard" component={AutoPilotDashboardPage} />
           <Route component={NotFound} />
         </Switch>
       </main>
