@@ -289,6 +289,7 @@ export const userRewards = pgTable("user_rewards", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
   rewardId: integer("reward_id").notNull(),
+  challengeId: integer("challenge_id").notNull(), // Added to track which challenge earned the reward
   earnedAt: timestamp("earned_at").defaultNow().notNull(),
   usedAt: timestamp("used_at"),
 });
@@ -323,6 +324,10 @@ export const userRewardsRelations = relations(userRewards, ({ one }) => ({
   reward: one(rewards, {
     fields: [userRewards.rewardId],
     references: [rewards.id],
+  }),
+  challenge: one(savingsChallenges, {
+    fields: [userRewards.challengeId],
+    references: [savingsChallenges.id],
   }),
 }));
 

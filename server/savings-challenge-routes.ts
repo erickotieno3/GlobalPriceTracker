@@ -156,7 +156,7 @@ savingsChallengeRouter.get('/challenges/:id', async (req: Request, res: Response
       .where(eq(rewards.challengeId, challengeId));
     
     let userProgress;
-    let unlockedRewards = [];
+    let unlockedRewards: number[] = [];
     
     // If user is authenticated, get their progress
     if (req.user?.id) {
@@ -372,7 +372,7 @@ savingsChallengeRouter.post('/challenges/:id/progress', async (req: Request, res
       .returning();
     
     // If challenge completed, unlock rewards
-    let unlockedRewards = [];
+    let unlockedRewards: any[] = [];
     if (isCompleted) {
       // Get all rewards for this challenge
       const challengeRewards = await db.select().from(rewards)
@@ -446,7 +446,7 @@ savingsChallengeRouter.get('/rewards', async (req: Request, res: Response) => {
     // Get reward details
     const rewardIds = userRewardData.map(ur => ur.rewardId);
     const rewardDetails = await db.select().from(rewards)
-      .where(({ id }) => id.in(rewardIds));
+      .where(inArray(rewards.id, rewardIds));
     
     // Combine data
     const userRewardsWithDetails = rewardDetails.map(reward => {
@@ -494,17 +494,16 @@ savingsChallengeRouter.post('/challenges/custom', async (req: Request, res: Resp
       title,
       description,
       targetAmount,
-      deadline,
+      deadline: new Date(deadline),
       category,
       difficultyLevel: 'medium',
-      createdAt: new Date().toISOString(),
       isCustom: true,
       createdBy: req.user.id
     };
     
     // Insert challenge
     const [challenge] = await db.insert(savingsChallenges)
-      .values(newChallenge)
+      .values([newChallenge])
       .returning();
     
     // Create a default reward for custom challenges
@@ -517,7 +516,7 @@ savingsChallengeRouter.post('/challenges/custom', async (req: Request, res: Resp
       createdAt: new Date().toISOString()
     };
     
-    await db.insert(rewards).values(defaultReward);
+    await db.insert(rewards).values([defaultReward]);
     
     res.status(201).json({ 
       success: true,
