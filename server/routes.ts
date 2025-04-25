@@ -857,7 +857,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Use the marketplace routes
   app.use("/api/marketplace", marketplaceRouter);
   
-  // Use the AI routes
+  // Register AI routes for AI-powered features
   app.use("/api/ai", aiRouter);
   
   // Special admin login routes

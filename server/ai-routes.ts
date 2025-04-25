@@ -10,10 +10,10 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { OpenAI } from 'openai';
+import OpenAI from 'openai';
 import { storage } from './storage';
 
-// Initialize the OpenAI client
+// Initialize OpenAI client
 let openai: OpenAI | null = null;
 try {
   if (process.env.OPENAI_API_KEY) {
@@ -22,13 +22,12 @@ try {
     });
     console.log('OpenAI client initialized successfully');
   } else {
-    console.warn('OPENAI_API_KEY not provided. AI features will be limited.');
+    console.warn('OPENAI_API_KEY not set. AI features will use fallback mechanisms.');
   }
 } catch (error) {
   console.error('Failed to initialize OpenAI client:', error);
 }
 
-// Create router
 export const aiRouter = Router();
 
 /**
@@ -36,84 +35,94 @@ export const aiRouter = Router();
  */
 aiRouter.get('/recommendations', async (req: Request, res: Response) => {
   try {
+    // Extract query parameters
     const { userId, productId, category } = req.query;
-    
-    // If OpenAI is not available, return basic recommendations from database
-    if (!openai) {
-      const recommendedProducts = await storage.getRecommendedProducts(
-        category as string,
-        productId ? parseInt(productId as string) : undefined
-      );
-      
-      return res.json({
-        recommendations: recommendedProducts,
-        source: 'database',
-        message: 'AI-powered recommendations not available, showing popular items instead',
-      });
-    }
-    
-    // Get basic product info for context if productId is provided
-    let productContext = '';
-    if (productId) {
-      const product = await storage.getProduct(parseInt(productId as string));
-      if (product) {
-        productContext = `Based on user interest in ${product.name} (${product.description || 'No description'}).`;
-      }
-    }
-    
-    // Query category info if provided
-    let categoryContext = '';
+
+    // Fetch data needed for recommendations
+    let products = [];
     if (category) {
-      const categoryInfo = await storage.getCategory(parseInt(category as string) || category as string);
-      if (categoryInfo) {
-        categoryContext = `For the category ${categoryInfo.name}.`;
+      const categories = await storage.getCategoriesByName(category as string);
+      if (categories?.length) {
+        const categoryId = categories[0].id;
+        products = await storage.getProductsByCategory(categoryId);
       }
+    } else {
+      products = await storage.getRecentProducts(20);
     }
-    
-    // Get user preferences if available
-    let userContext = '';
-    if (userId) {
-      const userPreferences = await storage.getUserPreferences(userId as string);
-      if (userPreferences) {
-        userContext = `User typically shops for ${userPreferences.preferredCategories.join(', ')}.`;
-      }
+
+    // If no products found, return empty recommendations
+    if (!products || products.length === 0) {
+      return res.json({ recommendations: [] });
     }
-    
-    // Generate AI recommendations
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "You are a product recommendation specialist. Generate relevant product recommendations in JSON format based on the user context provided."
-        },
-        {
-          role: "user",
-          content: `Please provide product recommendations as a JSON array of objects with 'name', 'category', and 'reason' fields.
-          ${productContext} ${categoryContext} ${userContext}`
+
+    // If OpenAI is available, use it for personalized recommendations
+    if (openai) {
+      // Limited subset of products to reduce token usage
+      const productSubset = products.slice(0, 5).map(p => ({
+        id: p.id,
+        name: p.name,
+        category: p.categoryId,
+        description: p.description?.substring(0, 100)
+      }));
+
+      // Generate recommendations context
+      let context = `Based on ${category ? `the ${category} category` : 'recent products'}`;
+      if (userId) context += ` and user ${userId}'s preferences`;
+      if (productId) context += ` and similarity to product ID ${productId}`;
+
+      // Get AI-powered recommendations
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",  // the newest OpenAI model is "gpt-4o" which was released May 13, 2024
+        messages: [
+          {
+            role: "system",
+            content: "You are a product recommendation assistant. Generate useful, relevant product recommendations based on the context provided."
+          },
+          {
+            role: "user",
+            content: `${context}, recommend products from this list: ${JSON.stringify(productSubset)}. For each product, provide a reason for the recommendation. Return the response as a JSON array with objects containing id, reason fields.`
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 500
+      });
+
+      if (response.choices && response.choices.length > 0) {
+        try {
+          const aiRecommendations = JSON.parse(response.choices[0].message?.content || '[]');
+          
+          // Map AI recommendations to actual product data
+          const recommendedProducts = aiRecommendations.map((rec: any) => {
+            const product = products.find(p => p.id === rec.id);
+            if (!product) return null;
+            
+            return {
+              ...product,
+              reason: rec.reason
+            };
+          }).filter(Boolean);
+          
+          return res.json({ recommendations: recommendedProducts });
+        } catch (parseError) {
+          console.error('Failed to parse OpenAI response:', parseError);
+          // Fall through to fallback
         }
-      ],
-      response_format: { type: "json_object" },
-      max_tokens: 500,
-    });
-    
-    const responseData = JSON.parse(completion.choices[0].message.content);
-    
-    // Enhance AI recommendations with actual database data
-    const enhancedRecommendations = await storage.enhanceRecommendations(responseData.recommendations);
-    
-    res.json({
-      recommendations: enhancedRecommendations,
-      source: 'ai',
-      message: 'AI-powered recommendations',
-    });
+      }
+    }
+
+    // Fallback: Return random selection of products without AI enhancement
+    const shuffled = [...products].sort(() => 0.5 - Math.random());
+    const recommendations = shuffled.slice(0, 3).map(product => ({
+      ...product,
+      reason: category 
+        ? `Popular item in ${category}`
+        : 'Currently trending product'
+    }));
+
+    return res.json({ recommendations });
   } catch (error) {
-    console.error('Error generating recommendations:', error);
-    res.status(500).json({ 
-      error: 'Failed to generate recommendations',
-      message: error instanceof Error ? error.message : 'Unknown error',
-      recommendations: [] 
-    });
+    console.error('Error in AI recommendations:', error);
+    res.status(500).json({ error: 'Failed to generate recommendations' });
   }
 });
 
@@ -122,69 +131,97 @@ aiRouter.get('/recommendations', async (req: Request, res: Response) => {
  */
 aiRouter.get('/search', async (req: Request, res: Response) => {
   try {
-    const { query, country } = req.query;
+    const query = req.query.q as string;
     
-    if (!query) {
-      return res.status(400).json({ error: 'Search query is required' });
+    if (!query || query.trim() === '') {
+      return res.status(400).json({ error: 'Query parameter is required' });
     }
+
+    // Fetch products to search through
+    const products = await storage.getAllProducts();
     
-    // If OpenAI is not available, perform basic text search
-    if (!openai) {
-      const searchResults = await storage.searchProducts(query as string, country as string);
-      
-      return res.json({
-        results: searchResults,
-        source: 'database',
-        message: 'Basic text search results (AI search not available)',
+    if (!products || products.length === 0) {
+      return res.json({ results: [] });
+    }
+
+    // If OpenAI is available, use it for semantic search
+    if (openai) {
+      // Generate search context with simplified product data to reduce token usage
+      const productData = products.map(p => ({
+        id: p.id,
+        name: p.name,
+        description: p.description?.substring(0, 100) || '',
+        category: p.categoryId,
+        brand: p.brand
+      }));
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024
+        messages: [
+          {
+            role: "system",
+            content: "You are a product search assistant. Find the most relevant products based on the user's natural language query."
+          },
+          {
+            role: "user",
+            content: `Search for products matching: "${query}". Return the most relevant products from this list: ${JSON.stringify(productData.slice(0, 50))}. Return JSON array with only product IDs.`
+          }
+        ],
+        temperature: 0.3,
+        max_tokens: 250
       });
-    }
-    
-    // Prepare search context
-    let countryContext = '';
-    if (country) {
-      const countryInfo = await storage.getCountry(country as string);
-      if (countryInfo) {
-        countryContext = `Results should be relevant to shoppers in ${countryInfo.name}.`;
+
+      if (response.choices && response.choices.length > 0) {
+        try {
+          const productIds = JSON.parse(response.choices[0].message?.content || '[]');
+          
+          // Map product IDs to actual product data
+          const results = productIds
+            .map((id: number) => products.find(p => p.id === id))
+            .filter(Boolean);
+          
+          if (results.length > 0) {
+            return res.json({ results });
+          }
+          // Fall through to fallback if no results
+        } catch (parseError) {
+          console.error('Failed to parse OpenAI search response:', parseError);
+          // Fall through to fallback
+        }
       }
     }
+
+    // Fallback: Simple keyword search
+    const keywords = query.toLowerCase().split(' ').filter(word => word.length > 2);
     
-    // Generate structured search query using AI
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "You are a search query analyzer. Extract search parameters from natural language queries."
-        },
-        {
-          role: "user",
-          content: `Convert this natural language query into structured search parameters as JSON with fields: 
-            'mainCategory', 'subCategory', 'keywords', 'priceRange', 'brands', 'sortBy'.
-            Query: "${query}" ${countryContext}`
+    // Score products based on keyword matches
+    const scoredProducts = products.map(product => {
+      let score = 0;
+      const productText = `${product.name} ${product.description || ''} ${product.brand || ''}`.toLowerCase();
+      
+      keywords.forEach(keyword => {
+        if (productText.includes(keyword)) {
+          score += 1;
+          // Bonus points for matches in name or brand
+          if (product.name.toLowerCase().includes(keyword)) score += 2;
+          if (product.brand?.toLowerCase().includes(keyword)) score += 1;
         }
-      ],
-      response_format: { type: "json_object" },
-      max_tokens: 400,
+      });
+      
+      return { product, score };
     });
     
-    const searchParams = JSON.parse(completion.choices[0].message.content);
+    // Return products with any matches, sorted by score
+    const results = scoredProducts
+      .filter(item => item.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10)
+      .map(item => item.product);
     
-    // Perform enhanced search with AI-parsed parameters
-    const searchResults = await storage.enhancedProductSearch(searchParams);
-    
-    res.json({
-      results: searchResults,
-      source: 'ai',
-      message: 'AI-enhanced search results',
-      searchParameters: searchParams
-    });
+    res.json({ results });
   } catch (error) {
-    console.error('Error performing AI search:', error);
-    res.status(500).json({ 
-      error: 'Failed to perform search',
-      message: error instanceof Error ? error.message : 'Unknown error',
-      results: [] 
-    });
+    console.error('Error in natural language search:', error);
+    res.status(500).json({ error: 'Failed to perform search' });
   }
 });
 
@@ -193,67 +230,107 @@ aiRouter.get('/search', async (req: Request, res: Response) => {
  */
 aiRouter.get('/price-insights/:productId', async (req: Request, res: Response) => {
   try {
-    const { productId } = req.params;
+    const productId = parseInt(req.params.productId);
     
-    if (!productId) {
-      return res.status(400).json({ error: 'Product ID is required' });
+    if (isNaN(productId)) {
+      return res.status(400).json({ error: 'Valid product ID is required' });
     }
-    
-    // Get historical price data
-    const priceHistory = await storage.getProductPriceHistory(parseInt(productId));
-    
-    if (!priceHistory || priceHistory.length === 0) {
-      return res.status(404).json({ error: 'No price history found for this product' });
+
+    // Fetch product and price history
+    const product = await storage.getProduct(productId);
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
     }
+
+    const priceHistory = await storage.getProductPriceHistory(productId);
     
-    // If OpenAI is not available, return basic statistical analysis
-    if (!openai) {
-      const basicInsights = await storage.getBasicPriceInsights(parseInt(productId));
-      
-      return res.json({
-        insights: basicInsights,
-        source: 'database',
-        message: 'Basic price analysis (AI insights not available)',
+    // If OpenAI is available, use it for price trend analysis
+    if (openai && priceHistory && priceHistory.length > 0) {
+      // Format price history for analysis
+      const formattedHistory = priceHistory.map(record => ({
+        date: record.lastUpdated.toISOString().split('T')[0],
+        price: record.price,
+        currency: record.currency,
+        store: record.storeId
+      }));
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024
+        messages: [
+          {
+            role: "system",
+            content: "You are a price analysis assistant. Analyze price trends and provide insights."
+          },
+          {
+            role: "user",
+            content: `Analyze the price history for ${product.name}: ${JSON.stringify(formattedHistory)}. Provide insights on price trends, when to buy, and price predictions. Return as JSON with fields: summary, priceRange, trend, bestTimeToBuy, prediction.`
+          }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.5,
+        max_tokens: 350
       });
-    }
-    
-    // Get product details for context
-    const product = await storage.getProduct(parseInt(productId));
-    
-    // Generate AI insights on price trends
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "You are a price analysis expert. Analyze price trends and provide insights in JSON format."
-        },
-        {
-          role: "user",
-          content: `Analyze this price history data for ${product?.name || 'a product'} and provide insights as JSON with 'summary', 'trend', 'bestTimeToBuy', 'priceRange', and 'prediction' fields.
-          Price History: ${JSON.stringify(priceHistory)}`
+
+      if (response.choices && response.choices.length > 0) {
+        try {
+          const insights = JSON.parse(response.choices[0].message.content || '{}');
+          return res.json({ 
+            product,
+            priceHistory,
+            insights
+          });
+        } catch (parseError) {
+          console.error('Failed to parse OpenAI price insights:', parseError);
+          // Fall through to fallback
         }
-      ],
-      response_format: { type: "json_object" },
-      max_tokens: 600,
-    });
+      }
+    }
+
+    // Fallback: Generate basic insights without AI
+    let insights = {};
     
-    const insights = JSON.parse(completion.choices[0].message.content);
-    
-    res.json({
-      productId: parseInt(productId),
-      productName: product?.name,
-      insights,
-      priceHistory,
-      source: 'ai',
-      message: 'AI-powered price insights',
+    if (priceHistory && priceHistory.length > 0) {
+      const prices = priceHistory.map(h => h.price);
+      const minPrice = Math.min(...prices);
+      const maxPrice = Math.max(...prices);
+      const currentPrice = priceHistory[0].price;
+      
+      // Determine if price is trending up, down or stable
+      let trend = "stable";
+      if (priceHistory.length > 1) {
+        const recentPrices = priceHistory.slice(0, Math.min(3, priceHistory.length));
+        const oldestRecent = recentPrices[recentPrices.length - 1].price;
+        const percentChange = ((currentPrice - oldestRecent) / oldestRecent) * 100;
+        
+        if (percentChange > 5) trend = "rising";
+        else if (percentChange < -5) trend = "falling";
+      }
+      
+      insights = {
+        summary: `The price of this product ranges from ${minPrice} to ${maxPrice} ${priceHistory[0].currency}.`,
+        priceRange: `${minPrice} - ${maxPrice} ${priceHistory[0].currency}`,
+        trend: trend === "rising" ? "Prices are trending up" : trend === "falling" ? "Prices are trending down" : "Prices are relatively stable",
+        bestTimeToBuy: trend === "falling" ? "Consider waiting as prices are falling" : "Current price is a fair value",
+        prediction: "Prices expected to remain within the current range"
+      };
+    } else {
+      insights = {
+        summary: "Not enough price data to provide insights.",
+        priceRange: "Unknown",
+        trend: "Unknown",
+        bestTimeToBuy: "Not enough data",
+        prediction: "Insufficient data for prediction"
+      };
+    }
+
+    return res.json({
+      product,
+      priceHistory: priceHistory || [],
+      insights
     });
   } catch (error) {
     console.error('Error generating price insights:', error);
-    res.status(500).json({ 
-      error: 'Failed to generate price insights',
-      message: error instanceof Error ? error.message : 'Unknown error' 
-    });
+    res.status(500).json({ error: 'Failed to generate price insights' });
   }
 });
 
@@ -262,64 +339,67 @@ aiRouter.get('/price-insights/:productId', async (req: Request, res: Response) =
  */
 aiRouter.get('/shopping-guide/:userId', async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const userId = req.params.userId;
     
-    if (!userId) {
-      return res.status(400).json({ error: 'User ID is required' });
-    }
+    // In a real application, we would fetch user preferences and shopping history
+    // For demo purposes, we'll create a simple shopping guide
     
-    // Get user preferences and shopping history
-    const userPreferences = await storage.getUserPreferences(userId);
-    const shoppingHistory = await storage.getUserShoppingHistory(userId);
-    
-    if (!userPreferences) {
-      return res.status(404).json({ error: 'User preferences not found' });
-    }
-    
-    // If OpenAI is not available, return basic shopping guide
-    if (!openai) {
-      const basicGuide = await storage.getBasicShoppingGuide(userId);
-      
-      return res.json({
-        guide: basicGuide,
-        source: 'database',
-        message: 'Basic shopping guide (AI personalization not available)',
+    // If OpenAI is available, use it for personalized shopping guide
+    if (openai) {
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024
+        messages: [
+          {
+            role: "system",
+            content: "You are a personal shopping assistant. Generate helpful shopping guides based on user preferences."
+          },
+          {
+            role: "user",
+            content: `Generate a shopping guide for user ${userId} who enjoys electronics and grocery shopping in the mid-price range. Return as JSON with fields: recommendations (array of objects with title, description, stores), tips (array of strings).`
+          }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.7,
+        max_tokens: 500
       });
+
+      if (response.choices && response.choices.length > 0) {
+        try {
+          const shoppingGuide = JSON.parse(response.choices[0].message.content || '{}');
+          return res.json(shoppingGuide);
+        } catch (parseError) {
+          console.error('Failed to parse OpenAI shopping guide:', parseError);
+          // Fall through to fallback
+        }
+      }
     }
-    
-    // Generate personalized shopping guide using AI
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
+
+    // Fallback: Generate basic shopping guide without AI
+    const shoppingGuide = {
+      recommendations: [
         {
-          role: "system",
-          content: "You are a personal shopping assistant. Generate a personalized shopping guide based on the user's preferences and shopping history."
+          title: "Weekly Grocery Essentials",
+          description: "Focus on fresh produce and essentials at Tesco for best value.",
+          stores: ["Tesco", "Aldi", "Walmart"]
         },
         {
-          role: "user",
-          content: `Create a personalized shopping guide as JSON with 'summary', 'recommendations', 'savingTips', and 'weeklyPlan' fields.
-          User Preferences: ${JSON.stringify(userPreferences)}
-          Shopping History: ${JSON.stringify(shoppingHistory)}`
+          title: "Electronics Shopping",
+          description: "Compare prices across stores for best deals on electronics.",
+          stores: ["Amazon", "eBay", "Best Buy"]
         }
       ],
-      response_format: { type: "json_object" },
-      max_tokens: 800,
-    });
-    
-    const guide = JSON.parse(completion.choices[0].message.content);
-    
-    res.json({
-      userId,
-      guide,
-      source: 'ai',
-      message: 'AI-powered personalized shopping guide',
-    });
+      tips: [
+        "Buy non-perishable items in bulk when on sale to save money",
+        "Check weekly circulars for the best grocery deals",
+        "For electronics, wait for seasonal sales for biggest discounts",
+        "Sign up for store loyalty programs to get additional discounts"
+      ]
+    };
+
+    res.json(shoppingGuide);
   } catch (error) {
     console.error('Error generating shopping guide:', error);
-    res.status(500).json({ 
-      error: 'Failed to generate shopping guide',
-      message: error instanceof Error ? error.message : 'Unknown error' 
-    });
+    res.status(500).json({ error: 'Failed to generate shopping guide' });
   }
 });
 
@@ -333,55 +413,62 @@ aiRouter.post('/extract-features', async (req: Request, res: Response) => {
     if (!description) {
       return res.status(400).json({ error: 'Product description is required' });
     }
-    
-    // If OpenAI is not available, perform basic extraction
-    if (!openai) {
-      // Simple keyword extraction
-      const keywords = description
-        .split(/[.,;:\s]+/)
-        .filter(word => word.length > 4)
-        .filter((value, index, self) => self.indexOf(value) === index)
-        .slice(0, 5);
-      
-      return res.json({
-        features: keywords.map(keyword => ({ name: keyword, confidence: 0.5 })),
-        source: 'rule-based',
-        message: 'Basic feature extraction (AI extraction not available)',
+
+    // If OpenAI is available, use it for feature extraction
+    if (openai) {
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024
+        messages: [
+          {
+            role: "system",
+            content: "You are a product analysis assistant. Extract key features and specifications from product descriptions."
+          },
+          {
+            role: "user",
+            content: `Extract the key features and specifications from this product description: "${description}". Return as JSON with fields: features (array of strings), specifications (object with key-value pairs), keyHighlights (array of strings).`
+          }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.3,
+        max_tokens: 350
       });
-    }
-    
-    // Extract features using AI
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "You are a product analyst. Extract key features from product descriptions as a structured JSON."
-        },
-        {
-          role: "user",
-          content: `Extract the key features from this product description and return as a JSON array of objects with 'feature', 'category', and 'importance' (1-10) fields.
-          Description: "${description}"`
+
+      if (response.choices && response.choices.length > 0) {
+        try {
+          const features = JSON.parse(response.choices[0].message.content || '{}');
+          return res.json(features);
+        } catch (parseError) {
+          console.error('Failed to parse OpenAI feature extraction:', parseError);
+          // Fall through to fallback
         }
-      ],
-      response_format: { type: "json_object" },
-      max_tokens: 400,
-    });
+      }
+    }
+
+    // Fallback: Simple keyword-based feature extraction
+    const words = description.split(/\s+/);
+    const keyFeatures = new Set();
     
-    const features = JSON.parse(completion.choices[0].message.content);
+    // Simple keyword extraction (very basic)
+    const featureKeywords = ["capacity", "power", "battery", "resolution", "wireless", "smart", "automatic", "memory", "storage", "screen", "display", "camera", "processor"];
     
-    res.json({
-      features: features.features || [],
-      source: 'ai',
-      message: 'AI-powered feature extraction',
+    words.forEach((word, index, self) => {
+      featureKeywords.forEach(keyword => {
+        if (self.slice(Math.max(0, index - 3), Math.min(self.length, index + 4)).join(' ').toLowerCase().includes(keyword)) {
+          keyFeatures.add(self.slice(Math.max(0, index - 1), Math.min(self.length, index + 3)).join(' '));
+        }
+      });
     });
+
+    const features = {
+      features: Array.from(keyFeatures),
+      specifications: {},
+      keyHighlights: ["Quality product", "Good value"]
+    };
+
+    res.json(features);
   } catch (error) {
-    console.error('Error extracting features:', error);
-    res.status(500).json({ 
-      error: 'Failed to extract features',
-      message: error instanceof Error ? error.message : 'Unknown error',
-      features: [] 
-    });
+    console.error('Error extracting product features:', error);
+    res.status(500).json({ error: 'Failed to extract product features' });
   }
 });
 
@@ -393,62 +480,105 @@ aiRouter.post('/compare-products', async (req: Request, res: Response) => {
     const { product1Id, product2Id } = req.body;
     
     if (!product1Id || !product2Id) {
-      return res.status(400).json({ error: 'Both product IDs are required' });
+      return res.status(400).json({ error: 'Two product IDs are required' });
     }
-    
-    // Get product details
+
+    // Fetch products
     const product1 = await storage.getProduct(product1Id);
     const product2 = await storage.getProduct(product2Id);
     
     if (!product1 || !product2) {
       return res.status(404).json({ error: 'One or both products not found' });
     }
-    
-    // If OpenAI is not available, return basic comparison
-    if (!openai) {
-      const basicComparison = await storage.getBasicProductComparison(product1Id, product2Id);
+
+    // Fetch price data
+    const prices1 = await storage.getLatestProductPrices(product1Id);
+    const prices2 = await storage.getLatestProductPrices(product2Id);
+
+    // If OpenAI is available, use it for product comparison
+    if (openai) {
+      // Prepare product data for comparison
+      const productData1 = {
+        ...product1,
+        prices: prices1 || []
+      };
       
-      return res.json({
-        comparison: basicComparison,
-        source: 'database',
-        message: 'Basic product comparison (AI comparison not available)',
+      const productData2 = {
+        ...product2,
+        prices: prices2 || []
+      };
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024
+        messages: [
+          {
+            role: "system",
+            content: "You are a product comparison assistant. Compare products objectively based on their features, specifications, and prices."
+          },
+          {
+            role: "user",
+            content: `Compare these two products: Product 1: ${JSON.stringify(productData1)} and Product 2: ${JSON.stringify(productData2)}. Return comparison as JSON with fields: summary, valuePick, featureComparison (array of objects with feature, product1, product2, winner), priceComparison, overallRecommendation.`
+          }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.5,
+        max_tokens: 500
       });
+
+      if (response.choices && response.choices.length > 0) {
+        try {
+          const comparison = JSON.parse(response.choices[0].message.content || '{}');
+          return res.json({
+            product1,
+            product2,
+            prices1: prices1 || [],
+            prices2: prices2 || [],
+            comparison
+          });
+        } catch (parseError) {
+          console.error('Failed to parse OpenAI product comparison:', parseError);
+          // Fall through to fallback
+        }
+      }
     }
+
+    // Fallback: Generate basic comparison without AI
+    const getAveragePrice = (prices: any[]) => {
+      if (!prices || prices.length === 0) return 0;
+      return prices.reduce((sum, p) => sum + p.price, 0) / prices.length;
+    };
     
-    // Generate detailed product comparison using AI
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
+    const avgPrice1 = getAveragePrice(prices1 || []);
+    const avgPrice2 = getAveragePrice(prices2 || []);
+    
+    const priceDiff = avgPrice1 - avgPrice2;
+    const cheaperProduct = priceDiff > 0 ? product2.name : priceDiff < 0 ? product1.name : "Both are similarly priced";
+
+    const comparison = {
+      summary: `Comparing ${product1.name} and ${product2.name}. The main differences are in price and features.`,
+      valuePick: cheaperProduct,
+      featureComparison: [
         {
-          role: "system",
-          content: "You are a product comparison expert. Compare products and highlight differences in a structured JSON format."
-        },
-        {
-          role: "user",
-          content: `Compare these two products and provide a detailed comparison as JSON with 'summary', 'similarities', 'differences', 'valueComparison', and 'recommendation' fields.
-          Product 1: ${JSON.stringify(product1)}
-          Product 2: ${JSON.stringify(product2)}`
+          feature: "Brand",
+          product1: product1.brand || "Unknown",
+          product2: product2.brand || "Unknown",
+          winner: "Depends on preference"
         }
       ],
-      response_format: { type: "json_object" },
-      max_tokens: 700,
-    });
-    
-    const comparison = JSON.parse(completion.choices[0].message.content);
-    
+      priceComparison: `${product1.name} average price: ${avgPrice1.toFixed(2)}, ${product2.name} average price: ${avgPrice2.toFixed(2)}`,
+      overallRecommendation: "Both products have their strengths. Consider your specific needs and budget."
+    };
+
     res.json({
-      product1: { id: product1.id, name: product1.name },
-      product2: { id: product2.id, name: product2.name },
-      comparison,
-      source: 'ai',
-      message: 'AI-powered product comparison',
+      product1,
+      product2,
+      prices1: prices1 || [],
+      prices2: prices2 || [],
+      comparison
     });
   } catch (error) {
     console.error('Error comparing products:', error);
-    res.status(500).json({ 
-      error: 'Failed to compare products',
-      message: error instanceof Error ? error.message : 'Unknown error' 
-    });
+    res.status(500).json({ error: 'Failed to compare products' });
   }
 });
 
@@ -457,53 +587,44 @@ aiRouter.post('/compare-products', async (req: Request, res: Response) => {
  */
 aiRouter.post('/generate-content', async (req: Request, res: Response) => {
   try {
-    const { topic, userInterests, length } = req.body;
+    const { prompt, context } = req.body;
     
-    if (!topic) {
-      return res.status(400).json({ error: 'Topic is required' });
+    if (!prompt) {
+      return res.status(400).json({ error: 'Prompt is required' });
     }
-    
-    // If OpenAI is not available, return template content
-    if (!openai) {
-      return res.json({
-        content: `Content about ${topic} would appear here.`,
-        source: 'template',
-        message: 'Template content (AI generation not available)',
+
+    // If OpenAI is available, use it for content generation
+    if (openai) {
+      const contextStr = context ? JSON.stringify(context) : 'No additional context provided';
+      
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024
+        messages: [
+          {
+            role: "system",
+            content: "You are a content generation assistant for an e-commerce platform. Generate helpful, informative, and engaging content."
+          },
+          {
+            role: "user",
+            content: `Generate content based on this prompt: "${prompt}". Additional context: ${contextStr}`
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 500
       });
+
+      if (response.choices && response.choices.length > 0) {
+        const content = response.choices[0].message.content;
+        return res.json({ content });
+      }
     }
-    
-    // Generate personalized content using AI
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "You are a content creator specializing in e-commerce and shopping topics."
-        },
-        {
-          role: "user",
-          content: `Create ${length || 'medium-length'} content about ${topic}.
-          User Interests: ${userInterests || 'shopping, deals, price comparison'}
-          Format the content with HTML for easy display on a website.`
-        }
-      ],
-      max_tokens: length === 'short' ? 300 : length === 'long' ? 800 : 500,
-    });
-    
-    const content = completion.choices[0].message.content;
-    
-    res.json({
-      content,
-      source: 'ai',
-      message: 'AI-generated content',
-      topic,
-      generatedAt: new Date().toISOString()
+
+    // Fallback: Provide a message explaining AI limitations
+    res.json({ 
+      content: "AI-generated content is currently unavailable. Please try again later or contact customer support for assistance."
     });
   } catch (error) {
     console.error('Error generating content:', error);
-    res.status(500).json({ 
-      error: 'Failed to generate content',
-      message: error instanceof Error ? error.message : 'Unknown error' 
-    });
+    res.status(500).json({ error: 'Failed to generate content' });
   }
 });

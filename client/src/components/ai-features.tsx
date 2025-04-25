@@ -66,9 +66,6 @@ export default function AIFeatures() {
     setIsLoadingRecommendations(true);
     try {
       const result = await getProductRecommendations(undefined, undefined, recommendationCategory);
-      if (result.error) {
-        throw new Error(result.error);
-      }
       setRecommendations(result.recommendations || []);
     } catch (error) {
       toast({
@@ -125,7 +122,7 @@ export default function AIFeatures() {
     
     setIsComparingProducts(true);
     try {
-      const result = await compareProductsAI(parseInt(product1Id), parseInt(product2Id));
+      const result = await compareProducts(parseInt(product1Id), parseInt(product2Id));
       if (result.error) {
         throw new Error(result.error);
       }
