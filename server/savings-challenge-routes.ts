@@ -5,10 +5,23 @@
  * including creating challenges, tracking progress, and managing digital rewards.
  */
 
-import { Router, Request, Response } from 'express';
+import express, { Router, Request, Response } from 'express';
 import { db } from './db';
 import { eq } from 'drizzle-orm';
-import { savingsChallenges, rewards, userChallenges, userRewards } from '@shared/schema';
+import { 
+  savingsChallenges, rewards, userChallenges, userRewards,
+  insertSavingsChallengeSchema, insertRewardSchema, insertUserChallengeSchema
+} from '@shared/schema';
+
+// Extend Express Request interface to include authentication methods
+declare global {
+  namespace Express {
+    interface Request {
+      isAuthenticated(): boolean;
+      user?: any; // This should match your user type
+    }
+  }
+}
 
 export const savingsChallengeRouter = Router();
 

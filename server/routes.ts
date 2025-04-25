@@ -10,6 +10,7 @@ import adminRouter, { setWebSocketServer } from "./admin-routes";
 import marketplaceRouter from "./marketplace-routes";
 import { aiRouter } from "./ai-routes";
 import { socialMediaRouter } from "./social-media";
+import { savingsChallengeRouter } from "./savings-challenge-routes";
 import ipBlocker from "./ip-blocker";
 import { WebSocketServer, WebSocket } from 'ws';
 import fs from 'fs';
@@ -863,6 +864,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register social media integration routes
   app.use("/api/social-media", socialMediaRouter);
+  
+  // Register savings challenge routes
+  app.use("/api/savings-challenge", savingsChallengeRouter);
   
   // Special admin login routes
   app.get('/admin-login.html', (req, res) => {
