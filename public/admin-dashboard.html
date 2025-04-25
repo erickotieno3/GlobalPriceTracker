@@ -514,6 +514,17 @@
             </ul>
           </li>
           
+          <!-- Auto-Pilot System -->
+          <li class="sidebar-section">
+            <div class="sidebar-section-header">Auto-Pilot</div>
+            <ul class="sidebar-submenu">
+              <li><a href="#auto-pilot" class="nav-link"><i>🤖</i> Auto-Pilot Dashboard</a></li>
+              <li><a href="#auto-blog" class="nav-link"><i>📝</i> Auto-Blog</a></li>
+              <li><a href="#auto-updates" class="nav-link"><i>🔄</i> Auto-Updates</a></li>
+              <li><a href="#auto-pilot-logs" class="nav-link"><i>📋</i> Task Logs</a></li>
+            </ul>
+          </li>
+          
           <!-- Marketing & Monetization -->
           <li class="sidebar-section">
             <div class="sidebar-section-header">Marketing</div>
@@ -1390,6 +1401,187 @@
         </div>
 
         <!-- Settings Tab -->
+        <!-- Auto-Pilot Dashboard Tab -->
+        <div class="dashboard-content" id="auto-pilotContent">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Auto-Pilot Dashboard</h2>
+            </div>
+            <div class="card-body">
+              <div class="dashboard-stats">
+                <div class="stat-card">
+                  <span class="stat-icon">🤖</span>
+                  <h3>Tasks Running</h3>
+                  <p class="stat-value" id="tasksRunningCount">0</p>
+                </div>
+                <div class="stat-card">
+                  <span class="stat-icon">✅</span>
+                  <h3>Completed Tasks</h3>
+                  <p class="stat-value" id="tasksCompletedCount">0</p>
+                </div>
+                <div class="stat-card">
+                  <span class="stat-icon">⏱️</span>
+                  <h3>Next Task</h3>
+                  <p class="stat-value" id="nextTaskTime">-- : --</p>
+                </div>
+                <div class="stat-card">
+                  <span class="stat-icon">📝</span>
+                  <h3>Blog Posts</h3>
+                  <p class="stat-value" id="blogPostsCount">0</p>
+                </div>
+              </div>
+              
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Task</th>
+                      <th>Description</th>
+                      <th>Status</th>
+                      <th>Last Run</th>
+                      <th>Next Run</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="autoPilotTasksTable">
+                    <tr>
+                      <td colspan="6" class="text-center">Loading tasks...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Auto-Blog Tab -->
+        <div class="dashboard-content" id="auto-blogContent">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Auto-Blog Management</h2>
+            </div>
+            <div class="card-body">
+              <div class="card-subheader">
+                <h3>Recent Auto-Generated Blog Posts</h3>
+                <button class="btn btn-primary" style="width: auto;" id="triggerAutoBlogBtn">Generate New Blog Post</button>
+              </div>
+              
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Publish Date</th>
+                      <th>Category</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="autoBlogPostsTable">
+                    <tr>
+                      <td colspan="5" class="text-center">Loading blog posts...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Auto-Updates Tab -->
+        <div class="dashboard-content" id="auto-updatesContent">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Automatic Updates Configuration</h2>
+            </div>
+            <div class="card-body">
+              <div class="card-subheader">
+                <h3>Price Update Schedule</h3>
+                <button class="btn btn-primary" style="width: auto;" id="triggerPriceUpdateBtn">Run Price Update Now</button>
+              </div>
+              
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Store</th>
+                      <th>Update Frequency</th>
+                      <th>Last Update</th>
+                      <th>Next Update</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="priceUpdateScheduleTable">
+                    <tr>
+                      <td>Tesco</td>
+                      <td>Every 6 hours</td>
+                      <td>2 hours ago</td>
+                      <td>4 hours from now</td>
+                      <td>✅ Active</td>
+                      <td>
+                        <button class="btn btn-warning btn-sm">Edit</button>
+                        <button class="btn btn-primary btn-sm">Run Now</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Walmart</td>
+                      <td>Every 4 hours</td>
+                      <td>1 hour ago</td>
+                      <td>3 hours from now</td>
+                      <td>✅ Active</td>
+                      <td>
+                        <button class="btn btn-warning btn-sm">Edit</button>
+                        <button class="btn btn-primary btn-sm">Run Now</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Carrefour</td>
+                      <td>Every 8 hours</td>
+                      <td>5 hours ago</td>
+                      <td>3 hours from now</td>
+                      <td>✅ Active</td>
+                      <td>
+                        <button class="btn btn-warning btn-sm">Edit</button>
+                        <button class="btn btn-primary btn-sm">Run Now</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Auto-Pilot Logs Tab -->
+        <div class="dashboard-content" id="auto-pilot-logsContent">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Auto-Pilot Task Logs</h2>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Task</th>
+                      <th>Start Time</th>
+                      <th>End Time</th>
+                      <th>Status</th>
+                      <th>Details</th>
+                    </tr>
+                  </thead>
+                  <tbody id="autoPilotLogsTable">
+                    <tr>
+                      <td colspan="5" class="text-center">Loading logs...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="dashboard-content" id="settingsContent">
           <div class="card">
             <div class="card-header">
