@@ -6,7 +6,7 @@ import { z } from "zod";
 import { insertNewsletterSubscriberSchema } from "@shared/schema";
 import paymentRouter from "./payment-routes";
 import affiliateRouter from "./affiliate-routes";
-import adminRouter from "./admin-routes";
+import adminRouter, { setWebSocketServer } from "./admin-routes";
 import marketplaceRouter from "./marketplace-routes";
 import ipBlocker from "./ip-blocker";
 import { WebSocketServer, WebSocket } from 'ws';
@@ -883,6 +883,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // WebSocket server for real-time price updates
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  
+  // Make the WebSocket server available to the admin routes for auto-pilot updates
+  setWebSocketServer(wss);
   
   // Initialize the product data auto-updater system
   initializeAutoUpdater(wss);

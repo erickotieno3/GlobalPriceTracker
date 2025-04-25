@@ -9,9 +9,19 @@
 
 import { Router, Request, Response } from 'express';
 import { sendVerificationCode, verifyCode } from './email-service';
+import { storage } from './storage';
+import { manuallyTriggerTask } from './auto-pilot';
+import { WebSocketServer } from 'ws';
 
 // Create a router
 const adminRouter = Router();
+
+// WebSocket server reference for real-time updates
+let wss: WebSocketServer;
+
+export function setWebSocketServer(websocketServer: WebSocketServer) {
+  wss = websocketServer;
+}
 
 // Hardcoded admin credentials (in production, use a database)
 const ADMIN_CREDENTIALS = {
@@ -189,15 +199,6 @@ setInterval(() => {
 /**
  * Auto-Pilot Management Routes
  */
-import { storage } from './storage';
-import { manuallyTriggerTask } from './auto-pilot';
-import { WebSocketServer } from 'ws';
-
-let wss: WebSocketServer;
-
-export function setWebSocketServer(websocketServer: WebSocketServer) {
-  wss = websocketServer;
-}
 
 // Get all auto-pilot configs
 adminRouter.get('/auto-pilot/tasks', async (req: Request, res: Response) => {
