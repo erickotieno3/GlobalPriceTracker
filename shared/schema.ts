@@ -1,6 +1,7 @@
 import { pgTable, text, serial, integer, boolean, varchar, timestamp, jsonb, real, primaryKey } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { relations } from "drizzle-orm";
 
 // Countries schema
 export const countries = pgTable("countries", {
@@ -151,3 +152,80 @@ export type StoreWithCountry = Store & {
 export type CountryWithStores = Country & {
   stores: Store[];
 };
+
+// Blog Posts schema
+export const blogPosts = pgTable("blog_posts", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  content: text("content").notNull(),
+  excerpt: text("excerpt").notNull(),
+  imageUrl: text("image_url"),
+  authorName: text("author_name").default("Tesco Price Comparison").notNull(),
+  categoryId: integer("category_id"),
+  tags: text("tags").array(),
+  publishedDate: timestamp("published_date").defaultNow().notNull(),
+  isPublished: boolean("is_published").default(true).notNull(),
+  isAutomated: boolean("is_automated").default(false).notNull(),
+  metaTitle: text("meta_title"),
+  metaDescription: text("meta_description"),
+  relatedProductIds: integer("related_product_ids").array(),
+});
+
+export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
+  id: true,
+  publishedDate: true,
+});
+
+export const blogPostsRelations = relations(blogPosts, ({ one, many }) => ({
+  category: one(categories, {
+    fields: [blogPosts.categoryId],
+    references: [categories.id],
+  }),
+}));
+
+// Auto-Pilot Configuration schema
+export const autoPilotConfig = pgTable("auto_pilot_config", {
+  id: serial("id").primaryKey(),
+  feature: text("feature").notNull().unique(),
+  isEnabled: boolean("is_enabled").default(true).notNull(),
+  schedule: jsonb("schedule").notNull(),
+  lastRun: timestamp("last_run"),
+  nextRun: timestamp("next_run"),
+  parameters: jsonb("parameters").notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertAutoPilotConfigSchema = createInsertSchema(autoPilotConfig).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Auto-Pilot Run Logs schema
+export const autoPilotLogs = pgTable("auto_pilot_logs", {
+  id: serial("id").primaryKey(),
+  featureId: integer("feature_id").notNull(),
+  startTime: timestamp("start_time").defaultNow().notNull(),
+  endTime: timestamp("end_time"),
+  status: text("status").notNull(),
+  details: jsonb("details"),
+  error: text("error"),
+});
+
+export const insertAutoPilotLogSchema = createInsertSchema(autoPilotLogs).omit({
+  id: true,
+  startTime: true,
+});
+
+// Define new types
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
+
+export type AutoPilotConfig = typeof autoPilotConfig.$inferSelect;
+export type InsertAutoPilotConfig = z.infer<typeof insertAutoPilotConfigSchema>;
+
+export type AutoPilotLog = typeof autoPilotLogs.$inferSelect;
+export type InsertAutoPilotLog = z.infer<typeof insertAutoPilotLogSchema>;
