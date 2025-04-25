@@ -1,523 +1,594 @@
 /*
-Theme Name: Tesco Price Comparison
-Theme URI: https://hyrisecrown.com
-Author: Hyrise Crown
-Author URI: https://hyrisecrown.com
-Description: A custom WordPress theme for the Tesco Price Comparison application
-Version: 1.0
+Theme Name: Tesco Comparison Theme
+Theme URI: https://hyrisecrown.com/
+Author: Hyrisecrown
+Author URI: https://hyrisecrown.com/
+Description: A custom theme for the Tesco Price Comparison site
+Version: 1.0.0
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: tesco-comparison
-Tags: price-comparison, e-commerce, responsive, mobile-first
+Tags: custom-background, custom-logo, custom-menu, featured-images, threaded-comments, translation-ready
 */
 
+/* 
+ * This CSS file contains styles for the WordPress theme
+ * It is designed to match the mobile app's UI/UX
+ */
+
+/* Base Styles */
 :root {
-  --tesco-blue: #0078D7;
-  --tesco-dark-blue: #00539f;
-  --tesco-red: #e10600;
-  --light-gray: #f5f5f5;
-  --medium-gray: #d0d0d0;
-  --dark-gray: #333333;
-  --text-primary: #222222;
-  --text-secondary: #666666;
-  --radius: 8px;
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  --font-main: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    --tesco-blue: #0078D7;
+    --tesco-red: #DA291C;
+    --tesco-dark-blue: #00539f;
+    --background-color: #f7f7f7;
+    --card-background: #ffffff;
+    --text-color: #333333;
+    --text-light: #666666;
+    --border-color: #e0e0e0;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-body {
-  font-family: var(--font-main);
-  color: var(--text-primary);
-  background-color: var(--light-gray);
-  overflow-x: hidden;
-  -webkit-tap-highlight-color: transparent;
+html, body {
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--text-color);
+    background-color: var(--background-color);
 }
 
-/* WordPress Admin Bar Fix */
-body.admin-bar .site-header {
-  top: 32px;
+a {
+    color: var(--tesco-blue);
+    text-decoration: none;
 }
 
-@media screen and (max-width: 782px) {
-  body.admin-bar .site-header {
-    top: 46px;
-  }
+img {
+    max-width: 100%;
+    height: auto;
 }
 
-/* Header */
-.site-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px;
-  background-color: white;
-  border-bottom: 1px solid var(--medium-gray);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+/* App Container */
+.app-container {
+    max-width: 100%;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
-.logo {
-  font-size: 28px;
-  font-weight: 700;
-  color: #222;
-  text-decoration: none;
+/* Top Navigation */
+.top-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--tesco-blue);
+    padding: 10px 15px;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow);
 }
 
-.domain {
-  font-size: 14px;
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  gap: 5px;
+.app-logo img {
+    height: 40px;
+    width: auto;
 }
 
-.language-selector {
-  padding: 5px 10px;
-  background: none;
-  border: 1px solid var(--medium-gray);
-  border-radius: var(--radius);
-  font-weight: 600;
+.search-bar {
+    flex: 1;
+    margin: 0 10px;
 }
 
-/* Hero Section */
-.hero {
-  background-color: var(--tesco-blue);
-  color: white;
-  padding: 24px 16px;
-  text-align: center;
+.search-bar form {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border-radius: 20px;
+    overflow: hidden;
+    padding: 0 10px;
 }
 
-.hero h1 {
-  font-size: 28px;
-  margin-bottom: 12px;
-  font-weight: 700;
+.search-bar input {
+    border: none;
+    padding: 8px;
+    width: 100%;
+    font-size: 14px;
+    outline: none;
 }
 
-.button {
-  background-color: white;
-  color: var(--tesco-blue);
-  border: none;
-  padding: 12px 24px;
-  border-radius: 50px;
-  font-size: 16px;
-  font-weight: 600;
-  margin-top: 16px;
-  cursor: pointer;
-  box-shadow: var(--shadow);
-  display: inline-block;
-  text-decoration: none;
+.search-bar button {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    padding: 5px;
 }
 
-.button:hover {
-  background-color: #f0f0f0;
-}
-
-/* Country Selector */
 .country-selector {
-  margin: 16px;
-  position: relative;
+    margin-left: 10px;
 }
 
 .select-wrapper {
-  background: white;
-  border: 1px solid var(--medium-gray);
-  border-radius: var(--radius);
-  padding: 12px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: var(--shadow);
-}
-
-.country-flag {
-  width: 24px;
-  height: 16px;
-  margin-right: 8px;
+    cursor: pointer;
+    position: relative;
 }
 
 .country-select {
-  display: flex;
-  align-items: center;
-  font-size: 16px;
-  font-weight: 500;
+    display: flex;
+    align-items: center;
+    color: white;
+    font-size: 14px;
 }
 
-/* Featured Stores */
+.country-flag {
+    width: 20px;
+    height: 15px;
+    margin-right: 6px;
+    object-fit: cover;
+}
+
+.country-select span:last-child {
+    margin-left: 4px;
+}
+
+/* Country Dropdown */
+.country-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    margin-top: 5px;
+    z-index: 101;
+    min-width: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.country-item {
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s;
+}
+
+.country-item:hover {
+    background-color: rgba(0, 120, 215, 0.05);
+}
+
+.country-item:last-child {
+    border-bottom: none;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding: 15px;
+}
+
 .section-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin: 24px 16px 16px;
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: var(--text-color);
 }
 
-.store-list {
-  display: flex;
-  gap: 8px;
-  padding: 0 16px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+/* Categories Slider */
+.categories-slider {
+    margin-bottom: 25px;
 }
 
-.store-list::-webkit-scrollbar {
-  display: none;
+.scroll-container {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    padding-bottom: 10px;
+    gap: 15px;
 }
 
-.store-card {
-  min-width: 110px;
-  height: 90px;
-  background: white;
-  border-radius: var(--radius);
-  border: 1px solid var(--medium-gray);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px;
+.scroll-container::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
 }
 
-.store-logo {
-  max-width: 100%;
-  max-height: 60px;
-  object-fit: contain;
+.category-card {
+    min-width: 80px;
+    max-width: 80px;
+    text-align: center;
+    background-color: white;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: var(--shadow);
+    transition: transform 0.2s;
+}
+
+.category-card:hover {
+    transform: translateY(-3px);
+}
+
+.category-icon {
+    background-color: rgba(0, 120, 215, 0.1);
+    color: var(--tesco-blue);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 8px;
+}
+
+.category-name {
+    font-size: 12px;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Trending Deals */
-.trending-deal {
-  margin: 16px;
-  padding: 16px;
-  background: white;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  display: flex;
-  align-items: center;
-  gap: 16px;
+.trending-deals {
+    margin-bottom: 25px;
 }
 
-.product-image {
-  width: 70px;
-  height: 70px;
-  border-radius: var(--radius);
-  object-fit: contain;
-  background: var(--light-gray);
+.trending-deals-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.trending-deal {
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    position: relative;
+}
+
+.trending-deal .product-image {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
 }
 
 .product-details {
-  flex-grow: 1;
+    padding: 10px;
 }
 
 .product-title {
-  font-weight: 500;
-  margin-bottom: 4px;
+    font-size: 14px;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .product-price {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--tesco-blue);
+    font-weight: bold;
+    color: var(--tesco-red);
+    font-size: 14px;
 }
 
 .compare-button {
-  background: none;
-  border: none;
-  color: var(--tesco-blue);
-  font-size: 22px;
-  cursor: pointer;
-  padding: 8px;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--tesco-blue);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s;
 }
 
-/* Newsletter */
-.newsletter {
-  margin: 24px 16px;
+.compare-button:hover {
+    background-color: white;
 }
 
-.newsletter-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 8px;
+/* Featured Stores */
+.featured-stores {
+    margin-bottom: 25px;
 }
 
-.newsletter-subtitle {
-  font-size: 14px;
-  color: var(--text-secondary);
-  margin-bottom: 12px;
+.store-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
 }
 
-.newsletter-form {
-  display: flex;
-  gap: 8px;
+.store-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 80px;
 }
 
-.email-input {
-  flex-grow: 1;
-  padding: 12px 16px;
-  border: 1px solid var(--medium-gray);
-  border-radius: var(--radius);
-  font-size: 16px;
+.store-logo {
+    max-width: 100%;
+    max-height: 50px;
+    object-fit: contain;
 }
 
-.subscribe-button {
-  background-color: var(--tesco-blue);
-  color: white;
-  border: none;
-  padding: 12px 16px;
-  border-radius: var(--radius);
-  font-weight: 500;
-  cursor: pointer;
+.store-name {
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Newsletter Signup */
+.newsletter-signup {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+    margin-bottom: 25px;
+}
+
+.newsletter-signup p {
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: var(--text-light);
+}
+
+.form-group {
+    display: flex;
+    gap: 10px;
+}
+
+.form-group input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+.btn-subscribe {
+    background-color: var(--tesco-blue);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-subscribe:hover {
+    background-color: var(--tesco-dark-blue);
+}
+
+/* Compare Modal */
+.compare-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-light);
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(0, 120, 215, 0.2);
+    border-radius: 50%;
+    border-top-color: var(--tesco-blue);
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* Footer */
 .site-footer {
-  background-color: white;
-  padding: 24px 16px;
-  border-top: 1px solid var(--medium-gray);
-  margin-top: 32px;
+    background-color: var(--tesco-blue);
+    color: white;
+    padding: 30px 15px;
+    margin-top: auto;
 }
 
 .footer-widgets {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
-}
-
-@media (min-width: 768px) {
-  .footer-widgets {
-    grid-template-columns: repeat(3, 1fr);
-  }
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 30px;
+    margin-bottom: 30px;
 }
 
 .footer-widget-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 16px;
+    font-size: 16px;
+    margin-bottom: 15px;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.footer-widget-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    height: 2px;
+    background-color: var(--tesco-red);
 }
 
 .footer-widget ul {
-  list-style: none;
+    list-style: none;
 }
 
 .footer-widget ul li {
-  margin-bottom: 8px;
+    margin-bottom: 8px;
 }
 
-.footer-widget ul li a {
-  color: var(--text-secondary);
-  text-decoration: none;
+.footer-widget a {
+    color: rgba(255, 255, 255, 0.8);
+    transition: color 0.2s;
 }
 
-.footer-widget ul li a:hover {
-  color: var(--tesco-blue);
+.footer-widget a:hover {
+    color: white;
 }
 
-.footer-copyright {
-  text-align: center;
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid var(--medium-gray);
-  color: var(--text-secondary);
-  font-size: 14px;
+.site-info {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 14px;
 }
 
-/* WordPress Core Styles */
-.alignnone {
-  margin: 5px 20px 20px 0;
+/* Responsive Styles */
+@media (min-width: 768px) {
+    .app-container {
+        max-width: 768px;
+        margin: 0 auto;
+    }
+    
+    .trending-deals-container {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .store-list {
+        grid-template-columns: repeat(6, 1fr);
+    }
 }
 
-.aligncenter,
-div.aligncenter {
-  display: block;
-  margin: 5px auto 5px auto;
+@media (max-width: 480px) {
+    .top-nav {
+        flex-wrap: wrap;
+    }
+    
+    .app-logo {
+        order: 1;
+        flex-basis: 30%;
+    }
+    
+    .country-selector {
+        order: 2;
+        flex-basis: 60%;
+        margin-left: 0;
+        text-align: right;
+    }
+    
+    .search-bar {
+        order: 3;
+        flex-basis: 100%;
+        margin: 10px 0 0;
+    }
+    
+    .store-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .form-group {
+        flex-direction: column;
+    }
+}
+
+/* WordPress-specific alignments */
+.alignleft {
+    float: left;
+    margin-right: 1.5em;
+    margin-bottom: 1.5em;
 }
 
 .alignright {
-  float: right;
-  margin: 5px 0 20px 20px;
+    float: right;
+    margin-left: 1.5em;
+    margin-bottom: 1.5em;
 }
 
-.alignleft {
-  float: left;
-  margin: 5px 20px 20px 0;
-}
-
-a img.alignright {
-  float: right;
-  margin: 5px 0 20px 20px;
-}
-
-a img.alignnone {
-  margin: 5px 20px 20px 0;
-}
-
-a img.alignleft {
-  float: left;
-  margin: 5px 20px 20px 0;
-}
-
-a img.aligncenter {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.wp-caption {
-  background: #fff;
-  border: 1px solid #f0f0f0;
-  max-width: 96%;
-  padding: 5px 3px 10px;
-  text-align: center;
-}
-
-.wp-caption.alignnone {
-  margin: 5px 20px 20px 0;
-}
-
-.wp-caption.alignleft {
-  margin: 5px 20px 20px 0;
-}
-
-.wp-caption.alignright {
-  margin: 5px 0 20px 20px;
-}
-
-.wp-caption img {
-  border: 0 none;
-  height: auto;
-  margin: 0;
-  max-width: 98.5%;
-  padding: 0;
-  width: auto;
-}
-
-.wp-caption p.wp-caption-text {
-  font-size: 11px;
-  line-height: 17px;
-  margin: 0;
-  padding: 0 4px 5px;
-}
-
-/* Media Queries */
-@media (min-width: 768px) {
-  .hero h1 {
-    font-size: 36px;
-  }
-  
-  .store-list {
-    justify-content: center;
-  }
-  
-  .trending-deals-container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    padding: 0 16px;
-  }
-  
-  .trending-deal {
-    margin: 0;
-  }
-}
-
-/* Splash Screen */
-.splash-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: white;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  transition: opacity 0.5s ease-out;
-}
-
-.splash-logo {
-  font-size: 48px;
-  font-weight: 700;
-  color: var(--tesco-blue);
-  margin-bottom: 20px;
-}
-
-.splash-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(0, 120, 215, 0.2);
-  border-radius: 50%;
-  border-top-color: var(--tesco-blue);
-  animation: spin 1s infinite linear;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Google AdSense Banner */
-.ad-banner {
-  margin: 16px;
-  padding: 8px;
-  background: #f9f9f9;
-  border-radius: var(--radius);
-  text-align: center;
-  font-size: 12px;
-  color: var(--text-secondary);
-  overflow: hidden;
-}
-
-.ad-banner::before {
-  content: "Advertisement";
-  display: block;
-  margin-bottom: 4px;
-}
-
-/* WordPress Mobile Navigation */
-.mobile-menu-toggle {
-  display: none;
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: var(--text-primary);
-}
-
-@media (max-width: 767px) {
-  .primary-navigation {
-    display: none;
-  }
-  
-  .mobile-menu-toggle {
+.aligncenter {
+    clear: both;
     display: block;
-  }
-  
-  .primary-navigation.active {
-    display: block;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    padding: 16px;
-    box-shadow: var(--shadow);
-  }
-  
-  .primary-navigation ul {
-    list-style: none;
-  }
-  
-  .primary-navigation ul li {
-    margin-bottom: 16px;
-  }
-  
-  .primary-navigation ul li a {
-    color: var(--text-primary);
-    text-decoration: none;
-    font-size: 16px;
-    font-weight: 500;
-  }
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 1.5em;
+}
+
+/* Style for the Material Icons */
+@font-face {
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+    src: url(https://fonts.gstatic.com/s/materialicons/v139/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2) format('woff2');
+}
+
+.material-icons {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
 }
