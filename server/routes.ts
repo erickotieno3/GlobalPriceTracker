@@ -8,6 +8,7 @@ import paymentRouter from "./payment-routes";
 import affiliateRouter from "./affiliate-routes";
 import adminRouter, { setWebSocketServer } from "./admin-routes";
 import marketplaceRouter from "./marketplace-routes";
+import { aiRouter } from "./ai-routes";
 import ipBlocker from "./ip-blocker";
 import { WebSocketServer, WebSocket } from 'ws';
 import fs from 'fs';
@@ -855,6 +856,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Use the marketplace routes
   app.use("/api/marketplace", marketplaceRouter);
+  
+  // Use the AI routes
+  app.use("/api/ai", aiRouter);
   
   // Special admin login routes
   app.get('/admin-login.html', (req, res) => {
