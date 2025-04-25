@@ -7,8 +7,27 @@
  * - Social media posting
  * - Metrics and analytics
  */
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
+import { Request } from 'express-serve-static-core';
 import { storage } from './storage';
+import session from 'express-session';
+
+// Add declaration for session in Request
+declare module 'express-session' {
+  interface SessionData {
+    socialUser: any;
+    userId?: number;
+  }
+}
+
+// Add declaration to express Request
+declare global {
+  namespace Express {
+    interface Request {
+      session: session.Session & Partial<session.SessionData>;
+    }
+  }
+}
 
 export const socialMediaRouter = Router();
 
@@ -29,6 +48,28 @@ socialMediaRouter.get('/auth/linkedin', (req: Request, res: Response) => {
 
 socialMediaRouter.get('/auth/twitter', (req: Request, res: Response) => {
   res.redirect('/api/social-media/auth/callback?provider=twitter&demo=true');
+});
+
+socialMediaRouter.get('/auth/instagram', (req: Request, res: Response) => {
+  res.redirect('/api/social-media/auth/callback?provider=instagram&demo=true');
+});
+
+socialMediaRouter.get('/auth/tiktok', (req: Request, res: Response) => {
+  res.redirect('/api/social-media/auth/callback?provider=tiktok&demo=true');
+});
+
+socialMediaRouter.get('/auth/snapchat', (req: Request, res: Response) => {
+  res.redirect('/api/social-media/auth/callback?provider=snapchat&demo=true');
+});
+
+socialMediaRouter.get('/auth/whatsapp', (req: Request, res: Response) => {
+  // WhatsApp typically uses phone number verification rather than OAuth
+  // For demo purposes, we'll simulate the process
+  res.redirect('/api/social-media/auth/callback?provider=whatsapp&demo=true');
+});
+
+socialMediaRouter.get('/auth/telegram', (req: Request, res: Response) => {
+  res.redirect('/api/social-media/auth/callback?provider=telegram&demo=true');
 });
 
 socialMediaRouter.get('/auth/callback', (req: Request, res: Response) => {

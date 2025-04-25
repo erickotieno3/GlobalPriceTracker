@@ -861,6 +861,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register AI routes for AI-powered features
   app.use("/api/ai", aiRouter);
   
+  // Register social media integration routes
+  app.use("/api/social-media", socialMediaRouter);
+  
   // Special admin login routes
   app.get('/admin-login.html', (req, res) => {
     try {
