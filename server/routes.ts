@@ -1074,6 +1074,103 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }));
             break;
             
+          case 'get_autopilot_status':
+            try {
+              // Get all auto-pilot configs
+              const configs = await storage.getAutoPilotConfigs();
+              
+              // Get running and completed tasks
+              const logs = await storage.getAutoPilotLogs();
+              const runningTasks = logs.filter(log => !log.endTime).length;
+              const completedTasks = logs.filter(log => log.status === 'success').length;
+              
+              // Get the next scheduled task
+              const enabledConfigs = await storage.getEnabledAutoPilotConfigs();
+              let nextTaskTime = null;
+              
+              if (enabledConfigs.length > 0) {
+                // Find the task with the closest nextRun time
+                const nextTask = enabledConfigs
+                  .filter(config => config.nextRun)
+                  .sort((a, b) => {
+                    const aTime = a.nextRun ? a.nextRun.getTime() : Infinity;
+                    const bTime = b.nextRun ? b.nextRun.getTime() : Infinity;
+                    return aTime - bTime;
+                  })[0];
+                
+                if (nextTask) {
+                  nextTaskTime = nextTask.nextRun;
+                }
+              }
+              
+              // Get recent blog posts
+              const blogPosts = await storage.getRecentBlogPosts(10);
+              
+              // Send complete status data
+              ws.send(JSON.stringify({
+                type: 'autopilot_status',
+                runningTasks,
+                completedTasks,
+                nextTaskTime,
+                blogPostsCount: blogPosts.length,
+                tasks: configs.map(config => ({
+                  id: config.id,
+                  feature: config.feature,
+                  description: config.description,
+                  isEnabled: config.isEnabled,
+                  lastRun: config.lastRun,
+                  nextRun: config.nextRun
+                })),
+                blogPosts: blogPosts.map(post => ({
+                  id: post.id,
+                  title: post.title,
+                  publishedDate: post.publishedDate,
+                  slug: post.slug,
+                  categoryId: post.categoryId
+                })),
+                logs: logs.slice(0, 20).map(log => ({
+                  id: log.id,
+                  feature: configs.find(c => c.id === log.featureId)?.feature || 'unknown',
+                  startTime: log.startTime,
+                  endTime: log.endTime,
+                  status: log.status,
+                  details: log.details
+                }))
+              }));
+            } catch (error) {
+              console.error('Error fetching auto-pilot status:', error);
+              ws.send(JSON.stringify({
+                type: 'error',
+                message: 'Failed to fetch auto-pilot status',
+                timestamp: new Date().toISOString()
+              }));
+            }
+            break;
+            
+          case 'trigger_autopilot_task':
+            try {
+              if (!data.feature) {
+                throw new Error('Missing feature parameter');
+              }
+              
+              // Manually trigger the task
+              await manuallyTriggerTask(data.feature, wss);
+              
+              ws.send(JSON.stringify({
+                type: 'task_triggered',
+                feature: data.feature,
+                timestamp: new Date().toISOString()
+              }));
+            } catch (error) {
+              console.error('Error triggering auto-pilot task:', error);
+              ws.send(JSON.stringify({
+                type: 'error',
+                message: `Failed to trigger task: ${error instanceof Error ? error.message : String(error)}`,
+                timestamp: new Date().toISOString()
+              }));
+            }
+            break;
+            
           default:
             // Unknown message type
             console.log('Received unknown message type:', data.type);

@@ -186,4 +186,165 @@ setInterval(() => {
   });
 }, 5 * 60 * 1000); // Run every 5 minutes
 
+/**
+ * Auto-Pilot Management Routes
+ */
+import { storage } from './storage';
+import { manuallyTriggerTask } from './auto-pilot';
+import { WebSocketServer } from 'ws';
+
+let wss: WebSocketServer;
+
+export function setWebSocketServer(websocketServer: WebSocketServer) {
+  wss = websocketServer;
+}
+
+// Get all auto-pilot configs
+adminRouter.get('/auto-pilot/tasks', async (req: Request, res: Response) => {
+  try {
+    // Simple authentication check
+    if (!req.cookies.adminSessionId || !adminSessions.has(req.cookies.adminSessionId)) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+    
+    const configs = await storage.getAutoPilotConfigs();
+    res.json(configs);
+  } catch (error) {
+    console.error('Error fetching auto-pilot tasks:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch auto-pilot tasks',
+      details: error instanceof Error ? error.message : String(error)
+    });
+  }
+});
+
+// Run a specific auto-pilot task
+adminRouter.post('/auto-pilot/tasks/:id/run', async (req: Request, res: Response) => {
+  try {
+    // Simple authentication check
+    if (!req.cookies.adminSessionId || !adminSessions.has(req.cookies.adminSessionId)) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+    
+    const taskId = parseInt(req.params.id);
+    const config = await storage.getAutoPilotConfig(taskId);
+    
+    if (!config) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+    
+    if (!wss) {
+      return res.status(500).json({ error: 'WebSocket server not initialized' });
+    }
+    
+    // Trigger the task
+    await manuallyTriggerTask(config.feature, wss);
+    
+    res.json({
+      success: true,
+      message: `Task ${config.feature} triggered successfully`
+    });
+  } catch (error) {
+    console.error('Error running auto-pilot task:', error);
+    res.status(500).json({ 
+      error: 'Failed to run auto-pilot task',
+      details: error instanceof Error ? error.message : String(error)
+    });
+  }
+});
+
+// Toggle a task's enabled status
+adminRouter.post('/auto-pilot/tasks/:id/toggle', async (req: Request, res: Response) => {
+  try {
+    // Simple authentication check
+    if (!req.cookies.adminSessionId || !adminSessions.has(req.cookies.adminSessionId)) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+    
+    const taskId = parseInt(req.params.id);
+    const { isEnabled } = req.body;
+    
+    if (typeof isEnabled !== 'boolean') {
+      return res.status(400).json({ error: 'isEnabled parameter must be a boolean' });
+    }
+    
+    const config = await storage.getAutoPilotConfig(taskId);
+    
+    if (!config) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+    
+    // Update the config
+    const updatedConfig = await storage.updateAutoPilotConfig(taskId, { isEnabled });
+    
+    res.json({
+      success: true,
+      config: updatedConfig,
+      message: `Task ${config.feature} ${isEnabled ? 'enabled' : 'disabled'} successfully`
+    });
+  } catch (error) {
+    console.error('Error toggling auto-pilot task:', error);
+    res.status(500).json({ 
+      error: 'Failed to toggle auto-pilot task',
+      details: error instanceof Error ? error.message : String(error)
+    });
+  }
+});
+
+// Generate a new blog post
+adminRouter.post('/auto-blog/generate', async (req: Request, res: Response) => {
+  try {
+    // Simple authentication check
+    if (!req.cookies.adminSessionId || !adminSessions.has(req.cookies.adminSessionId)) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+    
+    if (!wss) {
+      return res.status(500).json({ error: 'WebSocket server not initialized' });
+    }
+    
+    // Trigger the auto-blog task
+    await manuallyTriggerTask('auto-blog-weekly', wss);
+    
+    res.json({
+      success: true,
+      message: 'Blog post generation started'
+    });
+  } catch (error) {
+    console.error('Error generating blog post:', error);
+    res.status(500).json({ 
+      error: 'Failed to generate blog post',
+      details: error instanceof Error ? error.message : String(error)
+    });
+  }
+});
+
+// Trigger a price update
+adminRouter.post('/auto-pilot/price-update/run', async (req: Request, res: Response) => {
+  try {
+    // Simple authentication check
+    if (!req.cookies.adminSessionId || !adminSessions.has(req.cookies.adminSessionId)) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+    
+    if (!wss) {
+      return res.status(500).json({ error: 'WebSocket server not initialized' });
+    }
+    
+    // Trigger the price update task
+    await manuallyTriggerTask('price-update', wss);
+    
+    res.json({
+      success: true,
+      message: 'Price update started'
+    });
+  } catch (error) {
+    console.error('Error running price update:', error);
+    res.status(500).json({ 
+      error: 'Failed to run price update',
+      details: error instanceof Error ? error.message : String(error)
+    });
+  }
+});
+
 export default adminRouter;
