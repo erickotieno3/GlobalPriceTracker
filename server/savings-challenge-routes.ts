@@ -336,11 +336,11 @@ savingsChallengeRouter.post('/challenges/:id/progress', async (req: Request, res
         challengeId,
         currentAmount: 0,
         status: 'active',
-        startedAt: new Date().toISOString(),
+        // startedAt is auto-generated with defaultNow()
       };
       
       userChallenge = await db.insert(userChallenges)
-        .values(newUserChallenge)
+        .values([newUserChallenge])
         .returning()
         .then(rows => rows[0]);
     }
@@ -360,7 +360,7 @@ savingsChallengeRouter.post('/challenges/:id/progress', async (req: Request, res
     
     // Update user challenge
     const status = isCompleted ? 'completed' : 'active';
-    const completedAt = isCompleted ? new Date().toISOString() : null;
+    const completedAt = isCompleted ? new Date() : null;
     
     const [updatedUserChallenge] = await db.update(userChallenges)
       .set({ 
@@ -383,8 +383,8 @@ savingsChallengeRouter.post('/challenges/:id/progress', async (req: Request, res
         const userReward = {
           userId: req.user.id,
           rewardId: reward.id,
-          challengeId,
-          earnedAt: new Date().toISOString()
+          challengeId
+          // earnedAt is auto-generated with defaultNow()
         };
         
         // Validate with schema
@@ -398,11 +398,18 @@ savingsChallengeRouter.post('/challenges/:id/progress', async (req: Request, res
             ));
           
           if (!existingReward) {
-            await db.insert(userRewards).values(parsedData.data);
+            await db.insert(userRewards).values([parsedData.data]);
+            // Get the newly created user reward to get its earned timestamp
+            const [newUserReward] = await db.select().from(userRewards)
+              .where(and(
+                eq(userRewards.userId, req.user.id),
+                eq(userRewards.rewardId, reward.id)
+              ));
+            
             unlockedRewards.push({
               ...reward,
               unlocked: true,
-              earnedAt: userReward.earnedAt
+              earnedAt: newUserReward?.earnedAt
             });
           }
         }
@@ -512,8 +519,8 @@ savingsChallengeRouter.post('/challenges/custom', async (req: Request, res: Resp
       description: `Earned for completing ${title}`,
       image: '/rewards/early-adopter.svg', // Default image
       type: 'badge',
-      challengeId: challenge.id,
-      createdAt: new Date().toISOString()
+      challengeId: challenge.id
+      // createdAt is auto-generated with defaultNow()
     };
     
     await db.insert(rewards).values([defaultReward]);
