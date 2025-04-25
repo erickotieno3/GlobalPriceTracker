@@ -13,6 +13,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import fs from 'fs';
 import path from 'path';
 import { initializeAutoUpdater } from "./auto-updater";
+import { initializeAutoPilot, manuallyTriggerTask } from "./auto-pilot";
 import cookieParser from "cookie-parser";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -381,6 +382,119 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(languages);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch languages" });
+    }
+  });
+  
+  // Blog posts
+  app.get("/api/blog", async (req, res) => {
+    try {
+      const posts = await storage.getBlogPosts();
+      res.json(posts);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch blog posts" });
+    }
+  });
+  
+  app.get("/api/blog/recent", async (req, res) => {
+    try {
+      const limitParam = req.query.limit;
+      const limit = limitParam ? parseInt(limitParam as string) : undefined;
+      
+      const posts = await storage.getRecentBlogPosts(limit);
+      res.json(posts);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch recent blog posts" });
+    }
+  });
+  
+  app.get("/api/blog/:id", async (req, res) => {
+    try {
+      const postId = parseInt(req.params.id);
+      if (isNaN(postId)) {
+        return res.status(400).json({ message: "Invalid blog post ID" });
+      }
+      
+      const post = await storage.getBlogPost(postId);
+      if (!post) {
+        return res.status(404).json({ message: "Blog post not found" });
+      }
+      
+      res.json(post);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch blog post" });
+    }
+  });
+  
+  app.get("/api/blog/slug/:slug", async (req, res) => {
+    try {
+      const post = await storage.getBlogPostBySlug(req.params.slug);
+      if (!post) {
+        return res.status(404).json({ message: "Blog post not found" });
+      }
+      
+      res.json(post);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch blog post" });
+    }
+  });
+  
+  app.get("/api/categories/:categoryId/blog", async (req, res) => {
+    try {
+      const categoryId = parseInt(req.params.categoryId);
+      if (isNaN(categoryId)) {
+        return res.status(400).json({ message: "Invalid category ID" });
+      }
+      
+      const posts = await storage.getBlogPostsByCategory(categoryId);
+      res.json(posts);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch blog posts for category" });
+    }
+  });
+  
+  // Auto-pilot configuration endpoints
+  app.get("/api/auto-pilot/configs", async (req, res) => {
+    try {
+      const configs = await storage.getAutoPilotConfigs();
+      res.json(configs);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch auto-pilot configurations" });
+    }
+  });
+  
+  app.get("/api/auto-pilot/logs", async (req, res) => {
+    try {
+      const logs = await storage.getAutoPilotLogs();
+      res.json(logs);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch auto-pilot logs" });
+    }
+  });
+  
+  // Endpoint to manually trigger an auto-pilot task
+  app.post("/api/auto-pilot/trigger/:feature", async (req, res) => {
+    try {
+      const feature = req.params.feature;
+      
+      // Check if this feature exists
+      const config = await storage.getAutoPilotConfigByFeature(feature);
+      if (!config) {
+        return res.status(404).json({ message: "Auto-pilot feature not found" });
+      }
+      
+      // Trigger the task
+      const result = await manuallyTriggerTask(feature, wss);
+      
+      res.json({
+        message: `Task '${feature}' triggered successfully`,
+        result
+      });
+    } catch (error) {
+      console.error(`Error triggering auto-pilot task:`, error);
+      res.status(500).json({ 
+        message: "Failed to trigger auto-pilot task", 
+        error: error.message 
+      });
     }
   });
   
@@ -773,6 +887,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize the product data auto-updater system
   initializeAutoUpdater(wss);
   
+  // Initialize the auto-pilot system
+  initializeAutoPilot(wss);
+  
   // WebSocket connection handler
   wss.on('connection', (ws) => {
     console.log('WebSocket client connected');
@@ -853,6 +970,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   type: 'country_stores_update',
                   countryCode: data.countryCode,
                   stores,
+                  timestamp: new Date().toISOString()
+                }));
+              }
+            }
+            break;
+            
+          case 'auto_pilot_trigger':
+            if (data.feature) {
+              try {
+                // Trigger the auto-pilot task
+                const result = await manuallyTriggerTask(data.feature, wss);
+                
+                // Send response
+                if (ws.readyState === WebSocket.OPEN) {
+                  ws.send(JSON.stringify({
+                    type: 'auto_pilot_response',
+                    feature: data.feature,
+                    success: true,
+                    result,
+                    timestamp: new Date().toISOString()
+                  }));
+                }
+              } catch (error) {
+                console.error(`Error triggering auto-pilot task via WebSocket:`, error);
+                if (ws.readyState === WebSocket.OPEN) {
+                  ws.send(JSON.stringify({
+                    type: 'auto_pilot_response',
+                    feature: data.feature,
+                    success: false,
+                    error: error.message,
+                    timestamp: new Date().toISOString()
+                  }));
+                }
+              }
+            }
+            break;
+            
+          case 'get_auto_pilot_status':
+            try {
+              // Get all auto-pilot configurations
+              const configs = await storage.getAutoPilotConfigs();
+              
+              // Send response
+              if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                  type: 'auto_pilot_status',
+                  configs,
+                  timestamp: new Date().toISOString()
+                }));
+              }
+            } catch (error) {
+              console.error(`Error getting auto-pilot status via WebSocket:`, error);
+              if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                  type: 'error',
+                  message: 'Error getting auto-pilot status',
+                  error: error.message,
+                  timestamp: new Date().toISOString()
+                }));
+              }
+            }
+            break;
+            
+          case 'get_blog_posts':
+            try {
+              // Get recent blog posts
+              const posts = await storage.getRecentBlogPosts(data.limit || 5);
+              
+              // Send response
+              if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                  type: 'blog_posts',
+                  posts,
+                  timestamp: new Date().toISOString()
+                }));
+              }
+            } catch (error) {
+              console.error(`Error getting blog posts via WebSocket:`, error);
+              if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                  type: 'error',
+                  message: 'Error getting blog posts',
+                  error: error.message,
                   timestamp: new Date().toISOString()
                 }));
               }
