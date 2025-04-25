@@ -4,6 +4,7 @@ import AlphabeticalSearchPage from "@/pages/alphabetical-search";
 import AutoPilotDashboardPage from "@/pages/auto-pilot-dashboard";
 import AIAssistantPage from "@/pages/ai-assistant";
 import SocialMediaPage from "@/pages/social-media-page";
+import SavingsChallengePage from "@/pages/savings-challenge";
 
 import { useEffect, useState } from "react";
 import { getProductRecommendations } from "@/lib/ai";
@@ -166,6 +167,11 @@ function Header() {
                 </Link>
               </li>
               <li>
+                <Link href="/savings-challenge">
+                  <span className="text-green-600 font-medium hover:text-green-800 cursor-pointer">Savings Challenge</span>
+                </Link>
+              </li>
+              <li>
                 <Link href="/auto-pilot-dashboard">
                   <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded hover:bg-amber-200 cursor-pointer">Admin</span>
                 </Link>
@@ -206,6 +212,11 @@ function Footer() {
               <li>
                 <Link href="/social-media">
                   <span className="text-gray-600 hover:text-blue-600 cursor-pointer">Social Media</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/savings-challenge">
+                  <span className="text-gray-600 hover:text-blue-600 cursor-pointer">Savings Challenge</span>
                 </Link>
               </li>
             </ul>
@@ -263,6 +274,7 @@ function App() {
           <Route path="/ai-assistant" component={AIAssistantPage} />
           <Route path="/auto-pilot-dashboard" component={AutoPilotDashboardPage} />
           <Route path="/social-media" component={SocialMediaPage} />
+          <Route path="/savings-challenge" component={SavingsChallengePage} />
           <Route component={NotFound} />
         </Switch>
       </main>

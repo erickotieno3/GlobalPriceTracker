@@ -229,3 +229,112 @@ export type InsertAutoPilotConfig = z.infer<typeof insertAutoPilotConfigSchema>;
 
 export type AutoPilotLog = typeof autoPilotLogs.$inferSelect;
 export type InsertAutoPilotLog = z.infer<typeof insertAutoPilotLogSchema>;
+
+// Savings Challenges schema
+export const savingsChallenges = pgTable("savings_challenges", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  targetAmount: real("target_amount").notNull(),
+  deadline: timestamp("deadline").notNull(),
+  category: text("category").default("general").notNull(),
+  difficultyLevel: text("difficulty_level").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  isCustom: boolean("is_custom").default(false).notNull(),
+  createdBy: integer("created_by"),
+});
+
+export const insertSavingsChallengeSchema = createInsertSchema(savingsChallenges).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Rewards schema
+export const rewards = pgTable("rewards", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  image: text("image").notNull(),
+  type: text("type").notNull(), // badge, voucher, discount, special
+  challengeId: integer("challenge_id").notNull(),
+  value: real("value"),
+  code: text("code"),
+  expiresAt: timestamp("expires_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertRewardSchema = createInsertSchema(rewards).omit({
+  id: true,
+  createdAt: true,
+});
+
+// User Challenges schema
+export const userChallenges = pgTable("user_challenges", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  challengeId: integer("challenge_id").notNull(),
+  currentAmount: real("current_amount").default(0).notNull(),
+  status: text("status").default("active").notNull(), // active, completed, failed
+  startedAt: timestamp("started_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
+});
+
+export const insertUserChallengeSchema = createInsertSchema(userChallenges).omit({
+  id: true,
+  startedAt: true,
+});
+
+// User Rewards schema
+export const userRewards = pgTable("user_rewards", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  rewardId: integer("reward_id").notNull(),
+  earnedAt: timestamp("earned_at").defaultNow().notNull(),
+  usedAt: timestamp("used_at"),
+});
+
+export const insertUserRewardSchema = createInsertSchema(userRewards).omit({
+  id: true,
+  earnedAt: true,
+});
+
+// Define relations
+export const savingsChallengesRelations = relations(savingsChallenges, ({ many }) => ({
+  rewards: many(rewards),
+  userChallenges: many(userChallenges),
+}));
+
+export const rewardsRelations = relations(rewards, ({ one, many }) => ({
+  challenge: one(savingsChallenges, {
+    fields: [rewards.challengeId],
+    references: [savingsChallenges.id],
+  }),
+  userRewards: many(userRewards),
+}));
+
+export const userChallengesRelations = relations(userChallenges, ({ one }) => ({
+  challenge: one(savingsChallenges, {
+    fields: [userChallenges.challengeId],
+    references: [savingsChallenges.id],
+  }),
+}));
+
+export const userRewardsRelations = relations(userRewards, ({ one }) => ({
+  reward: one(rewards, {
+    fields: [userRewards.rewardId],
+    references: [rewards.id],
+  }),
+}));
+
+// Define types for savings challenge features
+export type SavingsChallenge = typeof savingsChallenges.$inferSelect;
+export type InsertSavingsChallenge = z.infer<typeof insertSavingsChallengeSchema>;
+
+export type Reward = typeof rewards.$inferSelect;
+export type InsertReward = z.infer<typeof insertRewardSchema>;
+
+export type UserChallenge = typeof userChallenges.$inferSelect;
+export type InsertUserChallenge = z.infer<typeof insertUserChallengeSchema>;
+
+export type UserReward = typeof userRewards.$inferSelect;
+export type InsertUserReward = z.infer<typeof insertUserRewardSchema>;
