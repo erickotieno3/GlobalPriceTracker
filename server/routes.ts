@@ -9,6 +9,7 @@ import affiliateRouter from "./affiliate-routes";
 import adminRouter, { setWebSocketServer } from "./admin-routes";
 import marketplaceRouter from "./marketplace-routes";
 import { aiRouter } from "./ai-routes";
+import { socialMediaRouter } from "./social-media";
 import ipBlocker from "./ip-blocker";
 import { WebSocketServer, WebSocket } from 'ws';
 import fs from 'fs';
