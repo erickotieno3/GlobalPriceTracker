@@ -9,6 +9,9 @@ import {
   productPrices,
   newsletterSubscribers,
   languages,
+  blogPosts,
+  autoPilotConfig,
+  autoPilotLogs,
   type Country,
   type InsertCountry,
   type Store,
@@ -26,6 +29,12 @@ import {
   type ProductWithPrices,
   type StoreWithCountry,
   type CountryWithStores,
+  type BlogPost,
+  type InsertBlogPost,
+  type AutoPilotConfig,
+  type InsertAutoPilotConfig,
+  type AutoPilotLog,
+  type InsertAutoPilotLog,
 } from "@shared/schema";
 
 export class DatabaseStorage implements IStorage {
@@ -229,5 +238,128 @@ export class DatabaseStorage implements IStorage {
   async createLanguage(language: InsertLanguage): Promise<Language> {
     const [newLanguage] = await db.insert(languages).values(language).returning();
     return newLanguage;
+  }
+
+  // Blog post methods
+  async getBlogPosts(): Promise<BlogPost[]> {
+    return await db.select().from(blogPosts);
+  }
+
+  async getBlogPost(id: number): Promise<BlogPost | undefined> {
+    const [post] = await db.select().from(blogPosts).where(eq(blogPosts.id, id));
+    return post;
+  }
+
+  async getBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
+    const [post] = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug));
+    return post;
+  }
+
+  async createBlogPost(blogPost: InsertBlogPost): Promise<BlogPost> {
+    const [newPost] = await db.insert(blogPosts).values(blogPost).returning();
+    return newPost;
+  }
+
+  async getBlogPostsByCategory(categoryId: number): Promise<BlogPost[]> {
+    return await db
+      .select()
+      .from(blogPosts)
+      .where(
+        and(
+          eq(blogPosts.categoryId, categoryId), 
+          eq(blogPosts.isPublished, true)
+        )
+      )
+      .orderBy(desc(blogPosts.publishedDate));
+  }
+
+  async getRecentBlogPosts(limit: number = 5): Promise<BlogPost[]> {
+    return await db
+      .select()
+      .from(blogPosts)
+      .where(eq(blogPosts.isPublished, true))
+      .orderBy(desc(blogPosts.publishedDate))
+      .limit(limit);
+  }
+
+  // Auto-pilot configuration methods
+  async getAutoPilotConfigs(): Promise<AutoPilotConfig[]> {
+    return await db.select().from(autoPilotConfig);
+  }
+
+  async getAutoPilotConfig(id: number): Promise<AutoPilotConfig | undefined> {
+    const [config] = await db.select().from(autoPilotConfig).where(eq(autoPilotConfig.id, id));
+    return config;
+  }
+
+  async getAutoPilotConfigByFeature(feature: string): Promise<AutoPilotConfig | undefined> {
+    const [config] = await db.select().from(autoPilotConfig).where(eq(autoPilotConfig.feature, feature));
+    return config;
+  }
+
+  async createAutoPilotConfig(config: InsertAutoPilotConfig): Promise<AutoPilotConfig> {
+    const [newConfig] = await db.insert(autoPilotConfig).values(config).returning();
+    return newConfig;
+  }
+
+  async updateAutoPilotConfig(id: number, updates: Partial<AutoPilotConfig>): Promise<AutoPilotConfig> {
+    const [updatedConfig] = await db
+      .update(autoPilotConfig)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(autoPilotConfig.id, id))
+      .returning();
+    
+    if (!updatedConfig) {
+      throw new Error(`Auto-pilot config with ID ${id} not found`);
+    }
+    
+    return updatedConfig;
+  }
+
+  async getEnabledAutoPilotConfigs(): Promise<AutoPilotConfig[]> {
+    return await db
+      .select()
+      .from(autoPilotConfig)
+      .where(eq(autoPilotConfig.isEnabled, true));
+  }
+
+  // Auto-pilot logs methods
+  async getAutoPilotLogs(): Promise<AutoPilotLog[]> {
+    return await db
+      .select()
+      .from(autoPilotLogs)
+      .orderBy(desc(autoPilotLogs.startTime));
+  }
+
+  async getAutoPilotLog(id: number): Promise<AutoPilotLog | undefined> {
+    const [log] = await db.select().from(autoPilotLogs).where(eq(autoPilotLogs.id, id));
+    return log;
+  }
+
+  async createAutoPilotLog(log: InsertAutoPilotLog): Promise<AutoPilotLog> {
+    const [newLog] = await db.insert(autoPilotLogs).values(log).returning();
+    return newLog;
+  }
+
+  async updateAutoPilotLog(id: number, updates: Partial<AutoPilotLog>): Promise<AutoPilotLog> {
+    const [updatedLog] = await db
+      .update(autoPilotLogs)
+      .set(updates)
+      .where(eq(autoPilotLogs.id, id))
+      .returning();
+    
+    if (!updatedLog) {
+      throw new Error(`Auto-pilot log with ID ${id} not found`);
+    }
+    
+    return updatedLog;
+  }
+
+  async getAutoPilotLogsByFeature(featureId: number): Promise<AutoPilotLog[]> {
+    return await db
+      .select()
+      .from(autoPilotLogs)
+      .where(eq(autoPilotLogs.featureId, featureId))
+      .orderBy(desc(autoPilotLogs.startTime));
   }
 }

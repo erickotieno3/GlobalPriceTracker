@@ -15,7 +15,7 @@ import {
   InsertAutoPilotLog, 
   AutoPilotConfig 
 } from "@shared/schema";
-import { slugify } from "../shared/utils";
+import { slugify } from "@shared/utils";
 
 // Initialize OpenAI client
 const openai = new OpenAI({

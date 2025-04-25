@@ -16,6 +16,12 @@ import {
   ProductWithPrices,
   StoreWithCountry,
   CountryWithStores,
+  BlogPost,
+  InsertBlogPost,
+  AutoPilotConfig,
+  InsertAutoPilotConfig,
+  AutoPilotLog,
+  InsertAutoPilotLog
 } from "@shared/schema";
 
 export interface IStorage {
@@ -63,6 +69,29 @@ export interface IStorage {
   getLanguage(id: number): Promise<Language | undefined>;
   getLanguageByCode(code: string): Promise<Language | undefined>;
   createLanguage(language: InsertLanguage): Promise<Language>;
+
+  // Blog posts
+  getBlogPosts(): Promise<BlogPost[]>;
+  getBlogPost(id: number): Promise<BlogPost | undefined>;
+  getBlogPostBySlug(slug: string): Promise<BlogPost | undefined>;
+  createBlogPost(blogPost: InsertBlogPost): Promise<BlogPost>;
+  getBlogPostsByCategory(categoryId: number): Promise<BlogPost[]>;
+  getRecentBlogPosts(limit?: number): Promise<BlogPost[]>;
+  
+  // Auto-pilot configurations
+  getAutoPilotConfigs(): Promise<AutoPilotConfig[]>;
+  getAutoPilotConfig(id: number): Promise<AutoPilotConfig | undefined>;
+  getAutoPilotConfigByFeature(feature: string): Promise<AutoPilotConfig | undefined>;
+  createAutoPilotConfig(config: InsertAutoPilotConfig): Promise<AutoPilotConfig>;
+  updateAutoPilotConfig(id: number, updates: Partial<AutoPilotConfig>): Promise<AutoPilotConfig>;
+  getEnabledAutoPilotConfigs(): Promise<AutoPilotConfig[]>;
+  
+  // Auto-pilot logs
+  getAutoPilotLogs(): Promise<AutoPilotLog[]>;
+  getAutoPilotLog(id: number): Promise<AutoPilotLog | undefined>;
+  createAutoPilotLog(log: InsertAutoPilotLog): Promise<AutoPilotLog>;
+  updateAutoPilotLog(id: number, updates: Partial<AutoPilotLog>): Promise<AutoPilotLog>;
+  getAutoPilotLogsByFeature(featureId: number): Promise<AutoPilotLog[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -73,6 +102,9 @@ export class MemStorage implements IStorage {
   private productPrices: Map<string, ProductPrice>; // productId-storeId composite key
   private newsletterSubscribers: Map<number, NewsletterSubscriber>;
   private languages: Map<number, Language>;
+  private blogPosts: Map<number, BlogPost>;
+  private autoPilotConfigs: Map<number, AutoPilotConfig>;
+  private autoPilotLogs: Map<number, AutoPilotLog>;
   
   private countryId: number;
   private storeId: number;
@@ -81,6 +113,9 @@ export class MemStorage implements IStorage {
   private productPriceId: number;
   private subscriberId: number;
   private languageId: number;
+  private blogPostId: number;
+  private autoPilotConfigId: number;
+  private autoPilotLogId: number;
 
   constructor() {
     this.countries = new Map();
@@ -90,6 +125,9 @@ export class MemStorage implements IStorage {
     this.productPrices = new Map();
     this.newsletterSubscribers = new Map();
     this.languages = new Map();
+    this.blogPosts = new Map();
+    this.autoPilotConfigs = new Map();
+    this.autoPilotLogs = new Map();
     
     this.countryId = 1;
     this.storeId = 1;
@@ -98,6 +136,9 @@ export class MemStorage implements IStorage {
     this.productPriceId = 1;
     this.subscriberId = 1;
     this.languageId = 1;
+    this.blogPostId = 1;
+    this.autoPilotConfigId = 1;
+    this.autoPilotLogId = 1;
     
     this.initializeData();
   }
@@ -464,6 +505,140 @@ export class MemStorage implements IStorage {
     const newLanguage: Language = { ...language, id };
     this.languages.set(id, newLanguage);
     return newLanguage;
+  }
+
+  // Blog post methods
+  async getBlogPosts(): Promise<BlogPost[]> {
+    return Array.from(this.blogPosts.values());
+  }
+
+  async getBlogPost(id: number): Promise<BlogPost | undefined> {
+    return this.blogPosts.get(id);
+  }
+
+  async getBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
+    return Array.from(this.blogPosts.values()).find(
+      (post) => post.slug === slug
+    );
+  }
+
+  async createBlogPost(blogPost: InsertBlogPost): Promise<BlogPost> {
+    const id = this.blogPostId++;
+    const now = new Date();
+    const newPost: BlogPost = {
+      ...blogPost,
+      id,
+      publishedDate: now
+    };
+    this.blogPosts.set(id, newPost);
+    return newPost;
+  }
+
+  async getBlogPostsByCategory(categoryId: number): Promise<BlogPost[]> {
+    return Array.from(this.blogPosts.values())
+      .filter(post => post.categoryId === categoryId && post.isPublished)
+      .sort((a, b) => b.publishedDate.getTime() - a.publishedDate.getTime());
+  }
+
+  async getRecentBlogPosts(limit: number = 5): Promise<BlogPost[]> {
+    return Array.from(this.blogPosts.values())
+      .filter(post => post.isPublished)
+      .sort((a, b) => b.publishedDate.getTime() - a.publishedDate.getTime())
+      .slice(0, limit);
+  }
+
+  // Auto-pilot configuration methods
+  async getAutoPilotConfigs(): Promise<AutoPilotConfig[]> {
+    return Array.from(this.autoPilotConfigs.values());
+  }
+
+  async getAutoPilotConfig(id: number): Promise<AutoPilotConfig | undefined> {
+    return this.autoPilotConfigs.get(id);
+  }
+
+  async getAutoPilotConfigByFeature(feature: string): Promise<AutoPilotConfig | undefined> {
+    return Array.from(this.autoPilotConfigs.values()).find(
+      (config) => config.feature === feature
+    );
+  }
+
+  async createAutoPilotConfig(config: InsertAutoPilotConfig): Promise<AutoPilotConfig> {
+    const id = this.autoPilotConfigId++;
+    const now = new Date();
+    const newConfig: AutoPilotConfig = {
+      ...config,
+      id,
+      createdAt: now,
+      updatedAt: now
+    };
+    this.autoPilotConfigs.set(id, newConfig);
+    return newConfig;
+  }
+
+  async updateAutoPilotConfig(id: number, updates: Partial<AutoPilotConfig>): Promise<AutoPilotConfig> {
+    const config = this.autoPilotConfigs.get(id);
+    if (!config) {
+      throw new Error(`Auto-pilot config with ID ${id} not found`);
+    }
+
+    const updatedConfig: AutoPilotConfig = {
+      ...config,
+      ...updates,
+      updatedAt: new Date(),
+      id // ensure id isn't overwritten
+    };
+
+    this.autoPilotConfigs.set(id, updatedConfig);
+    return updatedConfig;
+  }
+
+  async getEnabledAutoPilotConfigs(): Promise<AutoPilotConfig[]> {
+    return Array.from(this.autoPilotConfigs.values())
+      .filter(config => config.isEnabled);
+  }
+
+  // Auto-pilot logs methods
+  async getAutoPilotLogs(): Promise<AutoPilotLog[]> {
+    return Array.from(this.autoPilotLogs.values())
+      .sort((a, b) => b.startTime.getTime() - a.startTime.getTime());
+  }
+
+  async getAutoPilotLog(id: number): Promise<AutoPilotLog | undefined> {
+    return this.autoPilotLogs.get(id);
+  }
+
+  async createAutoPilotLog(log: InsertAutoPilotLog): Promise<AutoPilotLog> {
+    const id = this.autoPilotLogId++;
+    const now = new Date();
+    const newLog: AutoPilotLog = {
+      ...log,
+      id,
+      startTime: now
+    };
+    this.autoPilotLogs.set(id, newLog);
+    return newLog;
+  }
+
+  async updateAutoPilotLog(id: number, updates: Partial<AutoPilotLog>): Promise<AutoPilotLog> {
+    const log = this.autoPilotLogs.get(id);
+    if (!log) {
+      throw new Error(`Auto-pilot log with ID ${id} not found`);
+    }
+
+    const updatedLog: AutoPilotLog = {
+      ...log,
+      ...updates,
+      id // ensure id isn't overwritten
+    };
+
+    this.autoPilotLogs.set(id, updatedLog);
+    return updatedLog;
+  }
+
+  async getAutoPilotLogsByFeature(featureId: number): Promise<AutoPilotLog[]> {
+    return Array.from(this.autoPilotLogs.values())
+      .filter(log => log.featureId === featureId)
+      .sort((a, b) => b.startTime.getTime() - a.startTime.getTime());
   }
 }
 
