@@ -133,8 +133,11 @@ app.use((req, res, next) => {
     });
   });
 
-  // Be explicit about which routes should be handled by Vite vs. our API
-  // By adding a condition to the Vite middleware, we ensure that our static files and API routes are not affected
+  // Register API routes first to ensure API endpoints take precedence
+  console.log("API routes registered");
+
+  // Then set up Vite middleware or static file serving for the client app
+  // This ensures that non-API routes get handled by the React app
   if (app.get("env") === "development") {
     console.log("Setting up Vite middleware in development mode");
     await setupVite(app, server);
