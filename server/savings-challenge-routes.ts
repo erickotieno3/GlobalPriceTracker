@@ -3,9 +3,35 @@
  * 
  * This file contains routes for managing savings challenges and user rewards.
  */
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { db } from './db';
-import { eq, and, gte } from 'drizzle-orm';
+import { eq, and, gte, sql, inArray } from 'drizzle-orm';
+
+// Authentication check middleware
+const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+  if (req.user) {
+    next();
+  } else {
+    res.status(401).json({
+      success: false,
+      message: 'You must be logged in to access this resource'
+    });
+  }
+};
+
+// Types for req.user (added here since it's not defined in express by default)
+declare global {
+  namespace Express {
+    interface Request {
+      isAuthenticated?: () => boolean;
+      user?: {
+        id: number;
+        username: string;
+        [key: string]: any;
+      };
+    }
+  }
+}
 import { 
   savingsChallenges, 
   rewards,
@@ -17,14 +43,14 @@ import {
 
 export const savingsChallengeRouter = Router();
 
-// Get all available challenges
+// Get all available challenges - Public endpoint
 savingsChallengeRouter.get('/challenges', async (req: Request, res: Response) => {
   try {
     // Fetch all challenges from the database
     const allChallenges = await db.select().from(savingsChallenges);
     
     // If user is authenticated, fetch their progress
-    if (req.isAuthenticated() && req.user?.id) {
+    if (req.user?.id) {
       const userChallengeData = await db.select().from(userChallenges)
         .where(eq(userChallenges.userId, req.user.id));
       
