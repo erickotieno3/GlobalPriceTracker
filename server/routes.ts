@@ -1207,5 +1207,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
   
+  // Special test endpoints for development environment only
+  if (process.env.NODE_ENV === 'development') {
+    // Test endpoint to trigger auto-blog generation
+    app.get('/api/test/auto-blog-trigger', async (req, res) => {
+      try {
+        console.log('Test endpoint triggered: auto-blog generation');
+        const result = await manuallyTriggerTask('auto-blog-weekly', wss);
+        res.json({ 
+          success: true, 
+          message: 'Auto-blog generation triggered successfully',
+          note: 'This is a test endpoint only available in development mode'
+        });
+      } catch (error) {
+        console.error('Error in test endpoint:', error);
+        res.status(500).json({ 
+          error: 'Failed to trigger auto-blog generation',
+          message: error instanceof Error ? error.message : String(error)
+        });
+      }
+    });
+    
+    // Test endpoint to check OpenAI API status
+    app.get('/api/test/openai-status', async (req, res) => {
+      try {
+        // Check if OpenAI API key is configured
+        const hasApiKey = !!process.env.OPENAI_API_KEY;
+        
+        res.json({
+          success: true,
+          apiKeyConfigured: hasApiKey,
+          fallbackMechanismEnabled: true,
+          message: hasApiKey 
+            ? 'OpenAI API key is configured, using AI-generated content' 
+            : 'OpenAI API key is not configured, using fallback content'
+        });
+      } catch (error) {
+        console.error('Error checking OpenAI status:', error);
+        res.status(500).json({
+          error: 'Failed to check OpenAI status',
+          message: error instanceof Error ? error.message : String(error)
+        });
+      }
+    });
+    
+    // Test endpoint to get auto-pilot configurations
+    app.get('/api/test/auto-pilot-configs', async (req, res) => {
+      try {
+        const configs = await storage.getAutoPilotConfigs();
+        res.json({
+          success: true,
+          configs: configs.map(config => ({
+            id: config.id,
+            feature: config.feature,
+            isEnabled: config.isEnabled,
+            description: config.description,
+            nextRun: config.nextRun,
+            lastRun: config.lastRun
+          }))
+        });
+      } catch (error) {
+        console.error('Error fetching auto-pilot configs:', error);
+        res.status(500).json({
+          error: 'Failed to fetch auto-pilot configurations',
+          message: error instanceof Error ? error.message : String(error)
+        });
+      }
+    });
+  }
+  
   return httpServer;
 }
