@@ -13,7 +13,7 @@
  */
 
 import { storage } from "./storage";
-import { WebSocketServer } from 'ws';
+import { WebSocketServer, WebSocket } from 'ws';
 import { generateAndPublishBlogPost } from './auto-blog';
 import { AutoPilotConfig, InsertAutoPilotConfig, InsertAutoPilotLog } from '@shared/schema';
 import { formatDate } from '../shared/utils';
