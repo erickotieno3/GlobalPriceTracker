@@ -14,6 +14,9 @@ require get_template_directory() . '/inc/theme-setup.php';
 // Include API integration functions
 require get_template_directory() . '/inc/api-integration.php';
 
+// Include unlimited revisions system
+require get_template_directory() . '/inc/revisions.php';
+
 /**
  * Sets up theme defaults and registers support for various WordPress features.
  */
@@ -242,6 +245,20 @@ function tesco_comparison_settings_page() {
                     </td>
                 </tr>
             </table>
+            
+            <h2><?php echo esc_html__('Content Revision Settings', 'tesco-comparison'); ?></h2>
+            <p><?php echo esc_html__('Configure how product, store, and price revisions are managed.', 'tesco-comparison'); ?></p>
+            
+            <table class="form-table">
+                <tr valign="top">
+                    <th scope="row"><?php echo esc_html__('Revision Retention Period (Days)', 'tesco-comparison'); ?></th>
+                    <td>
+                        <input type="number" name="tesco_revision_retention_days" value="<?php echo esc_attr(get_option('tesco_revision_retention_days', '0')); ?>" min="0" step="1" class="small-text" />
+                        <p class="description"><?php echo esc_html__('Number of days to keep revisions. Set to 0 for unlimited (no automatic deletion).', 'tesco-comparison'); ?></p>
+                    </td>
+                </tr>
+            </table>
+            
             <?php submit_button(); ?>
         </form>
     </div>
