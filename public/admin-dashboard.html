@@ -1701,6 +1701,348 @@
   </div>
 
   <script>
+    // Auto-Pilot WebSocket Connection
+    let autoPilotSocket;
+    
+    function connectToAutoPilotWebSocket() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}/ws`;
+      
+      autoPilotSocket = new WebSocket(wsUrl);
+      
+      autoPilotSocket.onopen = function() {
+        console.log('Connected to Auto-Pilot WebSocket');
+        // Request initial data
+        autoPilotSocket.send(JSON.stringify({
+          type: 'get_autopilot_status'
+        }));
+      };
+      
+      autoPilotSocket.onmessage = function(event) {
+        try {
+          const data = JSON.parse(event.data);
+          
+          if (data.type === 'autopilot_status') {
+            updateAutoPilotDashboard(data);
+          } else if (data.type === 'autopilot_task_update') {
+            updateTaskStatus(data.task);
+          } else if (data.type === 'autopilot_log') {
+            addLogEntry(data.log);
+          }
+        } catch (error) {
+          console.error('Error processing WebSocket message:', error);
+        }
+      };
+      
+      autoPilotSocket.onclose = function() {
+        console.log('Auto-Pilot WebSocket connection closed. Reconnecting in 5 seconds...');
+        setTimeout(connectToAutoPilotWebSocket, 5000);
+      };
+      
+      autoPilotSocket.onerror = function(error) {
+        console.error('Auto-Pilot WebSocket error:', error);
+      };
+    }
+    
+    // Update Auto-Pilot Dashboard with received data
+    function updateAutoPilotDashboard(data) {
+      // Update stats
+      document.getElementById('tasksRunningCount').textContent = data.runningTasks || 0;
+      document.getElementById('tasksCompletedCount').textContent = data.completedTasks || 0;
+      
+      // Update next task time
+      if (data.nextTaskTime) {
+        const nextTime = new Date(data.nextTaskTime);
+        document.getElementById('nextTaskTime').textContent = 
+          nextTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      } else {
+        document.getElementById('nextTaskTime').textContent = '-- : --';
+      }
+      
+      // Update blog posts count
+      document.getElementById('blogPostsCount').textContent = data.blogPostsCount || 0;
+      
+      // Populate tasks table
+      if (data.tasks && data.tasks.length > 0) {
+        const tasksTable = document.getElementById('autoPilotTasksTable');
+        tasksTable.innerHTML = '';
+        
+        data.tasks.forEach(task => {
+          const row = document.createElement('tr');
+          row.dataset.taskId = task.id;
+          
+          const lastRunDisplay = task.lastRun 
+            ? new Date(task.lastRun).toLocaleString() 
+            : 'Never';
+            
+          const nextRunDisplay = task.nextRun 
+            ? new Date(task.nextRun).toLocaleString() 
+            : 'Not scheduled';
+          
+          row.innerHTML = `
+            <td>${task.feature}</td>
+            <td>${task.description || ''}</td>
+            <td>${task.isEnabled ? '✅ Enabled' : '❌ Disabled'}</td>
+            <td>${lastRunDisplay}</td>
+            <td>${nextRunDisplay}</td>
+            <td>
+              <button class="btn btn-primary btn-sm run-now-btn">Run Now</button>
+              <button class="btn ${task.isEnabled ? 'btn-danger' : 'btn-success'} btn-sm toggle-btn">
+                ${task.isEnabled ? 'Disable' : 'Enable'}
+              </button>
+            </td>
+          `;
+          
+          tasksTable.appendChild(row);
+        });
+        
+        // Add event listeners to the buttons
+        tasksTable.querySelectorAll('.run-now-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const taskId = this.closest('tr').dataset.taskId;
+            triggerTask(taskId);
+          });
+        });
+        
+        tasksTable.querySelectorAll('.toggle-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const taskId = this.closest('tr').dataset.taskId;
+            const isCurrentlyEnabled = this.textContent.trim() === 'Disable';
+            toggleTask(taskId, !isCurrentlyEnabled);
+          });
+        });
+      }
+      
+      // Populate blog posts table
+      if (data.blogPosts && data.blogPosts.length > 0) {
+        const blogTable = document.getElementById('autoBlogPostsTable');
+        blogTable.innerHTML = '';
+        
+        data.blogPosts.forEach(post => {
+          const row = document.createElement('tr');
+          row.dataset.postId = post.id;
+          
+          const publishDate = new Date(post.publishedDate).toLocaleDateString();
+          
+          row.innerHTML = `
+            <td>${post.title}</td>
+            <td>${publishDate}</td>
+            <td>${post.categoryName || 'Uncategorized'}</td>
+            <td>Published</td>
+            <td>
+              <button class="btn btn-primary btn-sm view-post-btn">View</button>
+              <button class="btn btn-warning btn-sm edit-post-btn">Edit</button>
+            </td>
+          `;
+          
+          blogTable.appendChild(row);
+        });
+      }
+      
+      // Populate logs table
+      if (data.logs && data.logs.length > 0) {
+        updateLogsTable(data.logs);
+      }
+    }
+    
+    // Update a specific task's status
+    function updateTaskStatus(task) {
+      const row = document.querySelector(`#autoPilotTasksTable tr[data-task-id="${task.id}"]`);
+      if (row) {
+        const statusCell = row.cells[2];
+        statusCell.textContent = task.isEnabled ? '✅ Enabled' : '❌ Disabled';
+        
+        if (task.lastRun) {
+          row.cells[3].textContent = new Date(task.lastRun).toLocaleString();
+        }
+        
+        if (task.nextRun) {
+          row.cells[4].textContent = new Date(task.nextRun).toLocaleString();
+        }
+        
+        // Update toggle button
+        const toggleBtn = row.querySelector('.toggle-btn');
+        toggleBtn.textContent = task.isEnabled ? 'Disable' : 'Enable';
+        toggleBtn.className = `btn ${task.isEnabled ? 'btn-danger' : 'btn-success'} btn-sm toggle-btn`;
+      }
+    }
+    
+    // Add a new log entry
+    function addLogEntry(log) {
+      const logsTable = document.getElementById('autoPilotLogsTable');
+      
+      // If the table is showing "Loading logs..." message, clear it
+      if (logsTable.querySelector('td[colspan="5"]')) {
+        logsTable.innerHTML = '';
+      }
+      
+      const row = document.createElement('tr');
+      
+      const startTime = new Date(log.startTime).toLocaleString();
+      const endTime = log.endTime ? new Date(log.endTime).toLocaleString() : 'In progress';
+      
+      row.innerHTML = `
+        <td>${log.feature}</td>
+        <td>${startTime}</td>
+        <td>${endTime}</td>
+        <td>${log.status}</td>
+        <td>
+          <button class="btn btn-info btn-sm view-details-btn">Details</button>
+        </td>
+      `;
+      
+      // Add to the top of the table
+      logsTable.insertBefore(row, logsTable.firstChild);
+      
+      // Add event listener to the details button
+      row.querySelector('.view-details-btn').addEventListener('click', function() {
+        // Show details in a modal or alert for now
+        const details = log.details ? JSON.stringify(log.details, null, 2) : 'No details available';
+        
+        alert(`Log Details:\n${details}`);
+      });
+    }
+    
+    // Update the entire logs table
+    function updateLogsTable(logs) {
+      const logsTable = document.getElementById('autoPilotLogsTable');
+      logsTable.innerHTML = '';
+      
+      logs.forEach(log => {
+        const row = document.createElement('tr');
+        
+        const startTime = new Date(log.startTime).toLocaleString();
+        const endTime = log.endTime ? new Date(log.endTime).toLocaleString() : 'In progress';
+        
+        row.innerHTML = `
+          <td>${log.feature}</td>
+          <td>${startTime}</td>
+          <td>${endTime}</td>
+          <td>${log.status}</td>
+          <td>
+            <button class="btn btn-info btn-sm view-details-btn">Details</button>
+          </td>
+        `;
+        
+        logsTable.appendChild(row);
+        
+        // Add event listener to the details button
+        row.querySelector('.view-details-btn').addEventListener('click', function() {
+          // Show details in a modal or alert for now
+          const details = log.details ? JSON.stringify(log.details, null, 2) : 'No details available';
+          
+          alert(`Log Details:\n${details}`);
+        });
+      });
+    }
+    
+    // Trigger a task to run
+    function triggerTask(taskId) {
+      fetch(`/api/admin/auto-pilot/tasks/${taskId}/run`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to trigger task');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Task triggered:', data);
+      })
+      .catch(error => {
+        console.error('Error triggering task:', error);
+        alert('Failed to trigger task: ' + error.message);
+      });
+    }
+    
+    // Toggle a task's enabled status
+    function toggleTask(taskId, enable) {
+      fetch(`/api/admin/auto-pilot/tasks/${taskId}/toggle`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ isEnabled: enable })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to toggle task');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Task toggled:', data);
+      })
+      .catch(error => {
+        console.error('Error toggling task:', error);
+        alert('Failed to toggle task: ' + error.message);
+      });
+    }
+    
+    // Setup event handlers for auto-pilot sections
+    document.addEventListener('DOMContentLoaded', function() {
+      // Connect to WebSocket after login
+      if (localStorage.getItem('isLoggedIn') === 'true') {
+        connectToAutoPilotWebSocket();
+      }
+      
+      // Generate new blog post
+      const triggerAutoBlogBtn = document.getElementById('triggerAutoBlogBtn');
+      if (triggerAutoBlogBtn) {
+        triggerAutoBlogBtn.addEventListener('click', function() {
+          fetch('/api/admin/auto-blog/generate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Failed to generate blog post');
+            }
+            return response.json();
+          })
+          .then(data => {
+            alert('Blog post generation started. It will appear in the list when complete.');
+          })
+          .catch(error => {
+            console.error('Error generating blog post:', error);
+            alert('Failed to generate blog post: ' + error.message);
+          });
+        });
+      }
+      
+      // Run price update
+      const triggerPriceUpdateBtn = document.getElementById('triggerPriceUpdateBtn');
+      if (triggerPriceUpdateBtn) {
+        triggerPriceUpdateBtn.addEventListener('click', function() {
+          fetch('/api/admin/auto-pilot/price-update/run', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Failed to trigger price update');
+            }
+            return response.json();
+          })
+          .then(data => {
+            alert('Price update started.');
+          })
+          .catch(error => {
+            console.error('Error triggering price update:', error);
+            alert('Failed to trigger price update: ' + error.message);
+          });
+        });
+      }
+    });
+    
     // Login functionality
     document.getElementById('loginForm').addEventListener('submit', function(e) {
       e.preventDefault();
@@ -1717,6 +2059,9 @@
         
         // Store auth in localStorage
         localStorage.setItem('isLoggedIn', 'true');
+        
+        // Connect to auto-pilot WebSocket
+        connectToAutoPilotWebSocket();
         
         // Ensure first tab is active on login
         showTabContent('dashboard');

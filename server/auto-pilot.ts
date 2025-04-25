@@ -197,17 +197,18 @@ async function runTask(config: AutoPilotConfig, wss: WebSocketServer) {
       case 'auto-blog-weekly':
         result = await generateAndPublishBlogPost({
           topic: `Weekly Price Comparison Update: ${formatDate(new Date())}`,
-          tags: config.parameters.tags
+          tags: config.parameters ? (config.parameters as any).tags || [] : []
         });
         break;
         
       case 'auto-blog-product':
         // Get a trending product ID
-        const trendingProducts = await storage.getTrendingProducts(config.parameters.count);
+        const count = config.parameters ? (config.parameters as any).count || 1 : 1;
+        const trendingProducts = await storage.getTrendingProducts(count);
         if (trendingProducts.length > 0) {
           result = await generateAndPublishBlogPost({
             productId: trendingProducts[0].id,
-            tags: config.parameters.tags
+            tags: config.parameters ? (config.parameters as any).tags || [] : []
           });
         } else {
           throw new Error('No trending products found');
@@ -224,12 +225,16 @@ async function runTask(config: AutoPilotConfig, wss: WebSocketServer) {
     }
     
     // Update log with success
+    const detailsObj = typeof log.details === 'object' && log.details !== null 
+      ? log.details 
+      : {};
+    
     await storage.updateAutoPilotLog(log.id, {
       status: 'success',
-      details: { 
-        ...log.details,
+      details: {
         result,
-        completedAt: new Date().toISOString()
+        completedAt: new Date().toISOString(),
+        ...detailsObj
       },
       endTime: new Date()
     });
