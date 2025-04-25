@@ -1,360 +1,506 @@
 /**
  * Savings Challenge Routes
  * 
- * This file contains API routes for handling the interactive savings challenges,
- * including creating challenges, tracking progress, and managing digital rewards.
+ * This file contains routes for managing savings challenges and user rewards.
  */
-
-import express, { Router, Request, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { db } from './db';
-import { eq } from 'drizzle-orm';
+import { eq, and, gte } from 'drizzle-orm';
 import { 
-  savingsChallenges, rewards, userChallenges, userRewards,
-  insertSavingsChallengeSchema, insertRewardSchema, insertUserChallengeSchema
-} from '@shared/schema';
-
-// Extend Express Request interface to include authentication methods
-declare global {
-  namespace Express {
-    interface Request {
-      isAuthenticated(): boolean;
-      user?: any; // This should match your user type
-    }
-  }
-}
+  savingsChallenges, 
+  rewards,
+  userChallenges,
+  userRewards,
+  insertUserChallengeSchema,
+  insertUserRewardSchema
+} from '../shared/schema';
 
 export const savingsChallengeRouter = Router();
 
-/**
- * Get all available challenges
- */
+// Get all available challenges
 savingsChallengeRouter.get('/challenges', async (req: Request, res: Response) => {
   try {
-    // Check if user is authenticated
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: 'User not authenticated' });
-    }
+    // Fetch all challenges from the database
+    const allChallenges = await db.select().from(savingsChallenges);
     
-    const userId = req.user?.id;
-    
-    // Fetch all challenges and join with user progress if available
-    const challenges = await db.query.savingsChallenges.findMany({
-      with: {
-        rewards: true,
-        userChallenges: {
-          where: eq(userChallenges.userId, userId)
-        }
-      }
-    });
-    
-    // Format the challenges with user progress
-    const formattedChallenges = challenges.map(challenge => {
-      const userChallenge = challenge.userChallenges[0] || null;
+    // If user is authenticated, fetch their progress
+    if (req.isAuthenticated() && req.user?.id) {
+      const userChallengeData = await db.select().from(userChallenges)
+        .where(eq(userChallenges.userId, req.user.id));
       
-      return {
-        ...challenge,
-        currentAmount: userChallenge?.currentAmount || 0,
-        status: userChallenge?.status || 'active',
-        userChallenges: undefined, // Remove the raw user challenges data
-      };
-    });
-    
-    res.json({ challenges: formattedChallenges });
+      // Map user progress to challenges
+      const challengesWithProgress = allChallenges.map(challenge => {
+        const userProgress = userChallengeData.find(
+          uc => uc.challengeId === challenge.id
+        );
+        
+        // Get rewards for this challenge
+        const fetchRewards = async () => {
+          const challengeRewards = await db.select().from(rewards)
+            .where(eq(rewards.challengeId, challenge.id));
+          
+          // If user is authenticated, check which rewards are unlocked
+          if (req.isAuthenticated() && req.user?.id) {
+            const unlockedRewards = await db.select().from(userRewards)
+              .where(and(
+                eq(userRewards.userId, req.user.id),
+                eq(userRewards.challengeId, challenge.id)
+              ));
+            
+            return challengeRewards.map(reward => ({
+              ...reward,
+              unlocked: unlockedRewards.some(ur => ur.rewardId === reward.id)
+            }));
+          }
+          
+          return challengeRewards.map(reward => ({
+            ...reward,
+            unlocked: false
+          }));
+        };
+        
+        return {
+          ...challenge,
+          currentAmount: userProgress?.currentAmount || 0,
+          status: userProgress?.status || 'active',
+          rewards: fetchRewards()
+        };
+      });
+      
+      res.json({ challenges: challengesWithProgress });
+    } else {
+      // Fetch rewards for each challenge
+      const challengesWithRewards = await Promise.all(
+        allChallenges.map(async (challenge) => {
+          const challengeRewards = await db.select().from(rewards)
+            .where(eq(rewards.challengeId, challenge.id));
+          
+          return {
+            ...challenge,
+            currentAmount: 0,
+            status: 'active',
+            rewards: challengeRewards.map(reward => ({
+              ...reward,
+              unlocked: false
+            }))
+          };
+        })
+      );
+      
+      res.json({ challenges: challengesWithRewards });
+    }
   } catch (error) {
     console.error('Error fetching challenges:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to fetch challenges'
+    });
   }
 });
 
-/**
- * Get a specific challenge by ID
- */
+// Get a specific challenge by ID
 savingsChallengeRouter.get('/challenges/:id', async (req: Request, res: Response) => {
   try {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: 'User not authenticated' });
+    const { id } = req.params;
+    const challengeId = parseInt(id);
+    
+    if (isNaN(challengeId)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid challenge ID' 
+      });
     }
     
-    const challengeId = parseInt(req.params.id);
-    const userId = req.user?.id;
-    
-    // Fetch the challenge with rewards
-    const challenge = await db.query.savingsChallenges.findFirst({
-      where: eq(savingsChallenges.id, challengeId),
-      with: {
-        rewards: true,
-        userChallenges: {
-          where: eq(userChallenges.userId, userId)
-        }
-      }
-    });
+    // Fetch challenge from database
+    const [challenge] = await db.select().from(savingsChallenges)
+      .where(eq(savingsChallenges.id, challengeId));
     
     if (!challenge) {
-      return res.status(404).json({ message: 'Challenge not found' });
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Challenge not found' 
+      });
     }
     
-    // Format the challenge with user progress
-    const userChallenge = challenge.userChallenges[0] || null;
-    const formattedChallenge = {
+    // Fetch rewards for this challenge
+    const challengeRewards = await db.select().from(rewards)
+      .where(eq(rewards.challengeId, challengeId));
+    
+    let userProgress;
+    let unlockedRewards = [];
+    
+    // If user is authenticated, get their progress
+    if (req.isAuthenticated() && req.user?.id) {
+      const [userChallenge] = await db.select().from(userChallenges)
+        .where(and(
+          eq(userChallenges.userId, req.user.id),
+          eq(userChallenges.challengeId, challengeId)
+        ));
+      
+      userProgress = userChallenge;
+      
+      // Get unlocked rewards
+      if (userChallenge) {
+        const userRewardData = await db.select().from(userRewards)
+          .where(and(
+            eq(userRewards.userId, req.user.id),
+            eq(userRewards.challengeId, challengeId)
+          ));
+        
+        unlockedRewards = userRewardData.map(ur => ur.rewardId);
+      }
+    }
+    
+    // Format response
+    const challengeWithDetails = {
       ...challenge,
-      currentAmount: userChallenge?.currentAmount || 0,
-      status: userChallenge?.status || 'active',
-      userChallenges: undefined,
+      currentAmount: userProgress?.currentAmount || 0,
+      status: userProgress?.status || 'active',
+      rewards: challengeRewards.map(reward => ({
+        ...reward,
+        unlocked: unlockedRewards.includes(reward.id)
+      }))
     };
     
-    res.json({ challenge: formattedChallenge });
+    res.json({ 
+      success: true,
+      challenge: challengeWithDetails
+    });
   } catch (error) {
     console.error('Error fetching challenge:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to fetch challenge details'
+    });
   }
 });
 
-/**
- * Start a new challenge for the user
- */
+// Start a challenge for the user
 savingsChallengeRouter.post('/challenges/:id/start', async (req: Request, res: Response) => {
   try {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: 'User not authenticated' });
+    // Check if user is authenticated
+    if (!req.isAuthenticated() || !req.user?.id) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'You must be logged in to start a challenge' 
+      });
     }
     
-    const challengeId = parseInt(req.params.id);
-    const userId = req.user?.id;
+    const { id } = req.params;
+    const challengeId = parseInt(id);
+    
+    if (isNaN(challengeId)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid challenge ID' 
+      });
+    }
     
     // Check if challenge exists
-    const challenge = await db.query.savingsChallenges.findFirst({
-      where: eq(savingsChallenges.id, challengeId)
-    });
+    const [challenge] = await db.select().from(savingsChallenges)
+      .where(eq(savingsChallenges.id, challengeId));
     
     if (!challenge) {
-      return res.status(404).json({ message: 'Challenge not found' });
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Challenge not found' 
+      });
     }
     
     // Check if user already started this challenge
-    const existingUserChallenge = await db.query.userChallenges.findFirst({
-      where: (userChallenge) => {
-        return eq(userChallenge.userId, userId) && 
-               eq(userChallenge.challengeId, challengeId);
-      }
-    });
+    const [existingUserChallenge] = await db.select().from(userChallenges)
+      .where(and(
+        eq(userChallenges.userId, req.user.id),
+        eq(userChallenges.challengeId, challengeId)
+      ));
     
     if (existingUserChallenge) {
-      return res.status(400).json({ message: 'Challenge already started' });
+      return res.status(400).json({ 
+        success: false, 
+        message: 'You have already started this challenge',
+        userChallenge: existingUserChallenge
+      });
     }
     
-    // Create new user challenge entry
-    const [newUserChallenge] = await db.insert(userChallenges).values({
-      userId,
+    // Create new user challenge
+    const newUserChallenge = {
+      userId: req.user.id,
       challengeId,
       currentAmount: 0,
       status: 'active',
-      startedAt: new Date(),
-    }).returning();
+      startedAt: new Date().toISOString(),
+    };
+    
+    // Validate with schema
+    const parsedData = insertUserChallengeSchema.safeParse(newUserChallenge);
+    if (!parsedData.success) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid data',
+        errors: parsedData.error.errors
+      });
+    }
+    
+    // Insert into database
+    const [userChallenge] = await db.insert(userChallenges)
+      .values(parsedData.data)
+      .returning();
     
     res.status(201).json({ 
+      success: true,
       message: 'Challenge started successfully',
-      userChallenge: newUserChallenge
+      userChallenge
     });
   } catch (error) {
     console.error('Error starting challenge:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to start challenge'
+    });
   }
 });
 
-/**
- * Update challenge progress
- */
+// Update challenge progress
 savingsChallengeRouter.post('/challenges/:id/progress', async (req: Request, res: Response) => {
   try {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: 'User not authenticated' });
+    // Check if user is authenticated
+    if (!req.isAuthenticated() || !req.user?.id) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'You must be logged in to update challenge progress' 
+      });
     }
     
-    const challengeId = parseInt(req.params.id);
-    const userId = req.user?.id;
-    const amount = parseFloat(req.body.amount);
+    const { id } = req.params;
+    const { amount } = req.body;
+    const challengeId = parseInt(id);
     
-    // Validate amount
-    if (!amount || isNaN(amount) || amount <= 0) {
-      return res.status(400).json({ message: 'Invalid amount' });
+    if (isNaN(challengeId) || typeof amount !== 'number' || amount <= 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid challenge ID or amount' 
+      });
     }
     
-    // Get the challenge
-    const challenge = await db.query.savingsChallenges.findFirst({
-      where: eq(savingsChallenges.id, challengeId),
-      with: {
-        rewards: true
-      }
-    });
+    // Check if challenge exists
+    const [challenge] = await db.select().from(savingsChallenges)
+      .where(eq(savingsChallenges.id, challengeId));
     
     if (!challenge) {
-      return res.status(404).json({ message: 'Challenge not found' });
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Challenge not found' 
+      });
     }
     
-    // Get or create user challenge
-    let userChallenge = await db.query.userChallenges.findFirst({
-      where: (userChallenge) => {
-        return eq(userChallenge.userId, userId) && 
-               eq(userChallenge.challengeId, challengeId);
-      }
-    });
+    // Get user challenge or create if it doesn't exist
+    let userChallenge = await db.select().from(userChallenges)
+      .where(and(
+        eq(userChallenges.userId, req.user.id),
+        eq(userChallenges.challengeId, challengeId)
+      ))
+      .then(rows => rows[0]);
     
     if (!userChallenge) {
-      // Auto-start the challenge if not started
-      const [newUserChallenge] = await db.insert(userChallenges).values({
-        userId,
+      // Start the challenge for the user
+      const newUserChallenge = {
+        userId: req.user.id,
         challengeId,
         currentAmount: 0,
         status: 'active',
-        startedAt: new Date(),
-      }).returning();
+        startedAt: new Date().toISOString(),
+      };
       
-      userChallenge = newUserChallenge;
+      userChallenge = await db.insert(userChallenges)
+        .values(newUserChallenge)
+        .returning()
+        .then(rows => rows[0]);
     }
     
     // Check if challenge is already completed or failed
     if (userChallenge.status !== 'active') {
       return res.status(400).json({ 
-        message: `Challenge is already ${userChallenge.status}` 
+        success: false, 
+        message: `This challenge is already ${userChallenge.status}`,
+        userChallenge
       });
     }
     
-    // Update progress
+    // Calculate new amount
     const newAmount = userChallenge.currentAmount + amount;
     const isCompleted = newAmount >= challenge.targetAmount;
     
+    // Update user challenge
+    const status = isCompleted ? 'completed' : 'active';
+    const completedAt = isCompleted ? new Date().toISOString() : null;
+    
     const [updatedUserChallenge] = await db.update(userChallenges)
-      .set({
+      .set({ 
         currentAmount: newAmount,
-        status: isCompleted ? 'completed' : 'active',
-        completedAt: isCompleted ? new Date() : null
+        status,
+        completedAt
       })
       .where(eq(userChallenges.id, userChallenge.id))
       .returning();
     
-    // If challenge completed, grant rewards
-    const unlockedRewards = [];
+    // If challenge completed, unlock rewards
+    let unlockedRewards = [];
     if (isCompleted) {
-      for (const reward of challenge.rewards) {
-        // Check if user already has this reward
-        const existingReward = await db.query.userRewards.findFirst({
-          where: (userReward) => {
-            return eq(userReward.userId, userId) && 
-                  eq(userReward.rewardId, reward.id);
-          }
-        });
+      // Get all rewards for this challenge
+      const challengeRewards = await db.select().from(rewards)
+        .where(eq(rewards.challengeId, challengeId));
+      
+      // For each reward, create a user reward record
+      for (const reward of challengeRewards) {
+        const userReward = {
+          userId: req.user.id,
+          rewardId: reward.id,
+          challengeId,
+          earnedAt: new Date().toISOString()
+        };
         
-        if (!existingReward) {
-          // Grant the reward
-          const [newUserReward] = await db.insert(userRewards).values({
-            userId,
-            rewardId: reward.id,
-            earnedAt: new Date()
-          }).returning();
+        // Validate with schema
+        const parsedData = insertUserRewardSchema.safeParse(userReward);
+        if (parsedData.success) {
+          // Check if already exists
+          const [existingReward] = await db.select().from(userRewards)
+            .where(and(
+              eq(userRewards.userId, req.user.id),
+              eq(userRewards.rewardId, reward.id)
+            ));
           
-          unlockedRewards.push({
-            ...reward,
-            earnedAt: newUserReward.earnedAt
-          });
+          if (!existingReward) {
+            await db.insert(userRewards).values(parsedData.data);
+            unlockedRewards.push({
+              ...reward,
+              unlocked: true,
+              earnedAt: userReward.earnedAt
+            });
+          }
         }
       }
     }
     
     res.json({ 
+      success: true,
       message: isCompleted ? 'Challenge completed!' : 'Progress updated',
       userChallenge: updatedUserChallenge,
-      unlockedRewards,
+      unlockedRewards: unlockedRewards.length > 0 ? unlockedRewards : undefined
     });
   } catch (error) {
     console.error('Error updating challenge progress:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to update challenge progress'
+    });
   }
 });
 
-/**
- * Get user's rewards and badges
- */
+// Get user's rewards
 savingsChallengeRouter.get('/rewards', async (req: Request, res: Response) => {
   try {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: 'User not authenticated' });
+    // Check if user is authenticated
+    if (!req.isAuthenticated() || !req.user?.id) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'You must be logged in to view your rewards' 
+      });
     }
     
-    const userId = req.user?.id;
+    // Get all user rewards
+    const userRewardData = await db.select().from(userRewards)
+      .where(eq(userRewards.userId, req.user.id));
     
-    // Fetch user's rewards
-    const userRewardsData = await db.query.userRewards.findMany({
-      where: eq(userRewards.userId, userId),
-      with: {
-        reward: true
-      }
+    if (userRewardData.length === 0) {
+      return res.json({ rewards: [] });
+    }
+    
+    // Get reward details
+    const rewardIds = userRewardData.map(ur => ur.rewardId);
+    const rewardDetails = await db.select().from(rewards)
+      .where(({ id }) => id.in(rewardIds));
+    
+    // Combine data
+    const userRewardsWithDetails = rewardDetails.map(reward => {
+      const userReward = userRewardData.find(ur => ur.rewardId === reward.id);
+      return {
+        ...reward,
+        unlocked: true,
+        earnedAt: userReward?.earnedAt
+      };
     });
     
-    // Format rewards data
-    const formattedRewards = userRewardsData.map(userReward => ({
-      ...userReward.reward,
-      earnedAt: userReward.earnedAt,
-      unlocked: true
-    }));
-    
-    res.json({ rewards: formattedRewards });
+    res.json({ rewards: userRewardsWithDetails });
   } catch (error) {
-    console.error('Error fetching rewards:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error('Error fetching user rewards:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to fetch rewards'
+    });
   }
 });
 
-/**
- * Create a custom challenge
- */
+// Create a custom savings challenge
 savingsChallengeRouter.post('/challenges/custom', async (req: Request, res: Response) => {
   try {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: 'User not authenticated' });
+    // Check if user is authenticated
+    if (!req.isAuthenticated() || !req.user?.id) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'You must be logged in to create a custom challenge' 
+      });
     }
     
-    const userId = req.user?.id;
-    const { title, description, targetAmount, deadline, category } = req.body;
+    const { title, description, targetAmount, deadline, category = 'custom' } = req.body;
     
     // Validate required fields
-    if (!title || !targetAmount || !deadline) {
-      return res.status(400).json({ message: 'Missing required fields' });
+    if (!title || !description || !targetAmount || !deadline) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Missing required fields'
+      });
     }
     
-    // Create the challenge
-    const [newChallenge] = await db.insert(savingsChallenges).values({
+    // Create custom challenge
+    const newChallenge = {
       title,
       description,
       targetAmount,
-      deadline: new Date(deadline),
-      category: category || 'custom',
-      difficultyLevel: calculateDifficulty(targetAmount),
-      createdBy: userId,
-      isCustom: true
-    }).returning();
+      deadline,
+      category,
+      difficultyLevel: 'medium',
+      createdAt: new Date().toISOString(),
+      isCustom: true,
+      createdBy: req.user.id
+    };
     
-    // Automatically start the challenge for the user
-    await db.insert(userChallenges).values({
-      userId,
-      challengeId: newChallenge.id,
-      currentAmount: 0,
-      status: 'active',
-      startedAt: new Date()
-    });
+    // Insert challenge
+    const [challenge] = await db.insert(savingsChallenges)
+      .values(newChallenge)
+      .returning();
+    
+    // Create a default reward for custom challenges
+    const defaultReward = {
+      name: 'Custom Challenge Badge',
+      description: `Earned for completing ${title}`,
+      image: '/rewards/early-adopter.svg', // Default image
+      type: 'badge',
+      challengeId: challenge.id,
+      createdAt: new Date().toISOString()
+    };
+    
+    await db.insert(rewards).values(defaultReward);
     
     res.status(201).json({ 
+      success: true,
       message: 'Custom challenge created successfully',
-      challenge: newChallenge
+      challenge
     });
   } catch (error) {
-    console.error('Error creating challenge:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error('Error creating custom challenge:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to create custom challenge'
+    });
   }
 });
-
-// Helper function to calculate difficulty level based on target amount
-function calculateDifficulty(targetAmount: number): string {
-  if (targetAmount < 50) return 'easy';
-  if (targetAmount < 150) return 'medium';
-  return 'hard';
-}
