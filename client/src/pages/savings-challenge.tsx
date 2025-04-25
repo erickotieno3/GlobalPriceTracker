@@ -221,11 +221,12 @@ const SavingsChallengePage: React.FC = () => {
         // If challenge completed and rewards were unlocked
         if (result.unlockedRewards && result.unlockedRewards.length > 0) {
           // Add new rewards to user badges
-          setUserBadges(prevBadges => [...prevBadges, ...result.unlockedRewards]);
+          const newRewards = result.unlockedRewards || [];
+          setUserBadges(prevBadges => [...prevBadges, ...newRewards]);
           
           toast({
             title: "Challenge Completed! 🎉",
-            description: `You've earned ${result.unlockedRewards.length} new reward(s)!`,
+            description: `You've earned ${newRewards.length} new reward(s)!`,
             variant: "default",
           });
         } else {
@@ -315,11 +316,31 @@ const SavingsChallengePage: React.FC = () => {
                   Join our interactive challenges to maximize your savings while shopping. The more you save, the more rewards you earn!
                 </p>
                 <div className="flex flex-wrap gap-4">
-                  <Button variant="secondary" className="gap-2">
+                  <Button 
+                    variant="secondary" 
+                    className="gap-2"
+                    onClick={() => {
+                      toast({
+                        title: "Custom Challenge Creation",
+                        description: "This feature will be available soon!",
+                        variant: "default",
+                      });
+                    }}
+                  >
                     <Target className="h-4 w-4" />
                     Create Custom Challenge
                   </Button>
-                  <Button variant="outline" className="bg-white/10 border-white/30 hover:bg-white/20 gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="bg-white/10 border-white/30 hover:bg-white/20 gap-2"
+                    onClick={() => {
+                      toast({
+                        title: "Leaderboard Coming Soon",
+                        description: "The leaderboard feature is under development.",
+                        variant: "default",
+                      });
+                    }}
+                  >
                     <Trophy className="h-4 w-4" />
                     View Leaderboard
                   </Button>
