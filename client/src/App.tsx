@@ -2,8 +2,32 @@ import { Route, Switch, Link } from "wouter";
 import MarketplaceComparisonPage from "@/pages/marketplace-comparison";
 import AlphabeticalSearchPage from "@/pages/alphabetical-search";
 import AutoPilotDashboardPage from "@/pages/auto-pilot-dashboard";
+import AIAssistantPage from "@/pages/ai-assistant";
+
+import { useEffect, useState } from "react";
+import { getProductRecommendations } from "@/lib/ai";
+import { Sparkles, Loader2 } from "lucide-react";
 
 function HomePage() {
+  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
+
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      setIsLoadingRecommendations(true);
+      try {
+        const result = await getProductRecommendations(undefined, undefined, "Electronics");
+        setRecommendations(result.recommendations || []);
+      } catch (error) {
+        console.error("Failed to fetch recommendations:", error);
+      } finally {
+        setIsLoadingRecommendations(false);
+      }
+    };
+
+    fetchRecommendations();
+  }, []);
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl text-center">
       <h1 className="text-4xl font-bold text-blue-600 mb-4">Tesco Price Comparison</h1>
@@ -27,6 +51,60 @@ function HomePage() {
           <Link href="/marketplace-comparison">
             <span className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 inline-block cursor-pointer">
               Compare Marketplaces
+            </span>
+          </Link>
+        </div>
+      </div>
+      
+      {/* AI-powered recommendations section */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <Sparkles className="h-6 w-6 text-blue-600" />
+          <h2 className="text-2xl font-semibold text-blue-700">AI-Powered Recommendations</h2>
+        </div>
+        
+        {isLoadingRecommendations ? (
+          <div className="flex justify-center items-center py-8">
+            <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
+            <span className="ml-2 text-blue-600">Loading recommendations...</span>
+          </div>
+        ) : recommendations.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {recommendations.slice(0, 3).map((product, index) => (
+              <div key={index} className="bg-white rounded-lg shadow p-4 text-left">
+                <div className="aspect-video bg-gray-100 mb-3 flex items-center justify-center overflow-hidden rounded">
+                  {product.imageUrl ? (
+                    <img 
+                      src={product.imageUrl} 
+                      alt={product.name} 
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="text-gray-400">No image</div>
+                  )}
+                </div>
+                <h3 className="font-semibold text-lg mb-1 truncate">{product.name}</h3>
+                <p className="text-sm text-gray-600 line-clamp-2">
+                  {product.description || 'No description available'}
+                </p>
+                {product.price && (
+                  <p className="mt-2 font-bold text-blue-600">
+                    £{typeof product.price === 'number' ? product.price.toFixed(2) : product.price}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-600 py-4">
+            Explore our AI-powered shopping assistant for personalized recommendations.
+          </p>
+        )}
+        
+        <div className="mt-4">
+          <Link href="/ai-assistant">
+            <span className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 inline-block cursor-pointer">
+              Explore AI Features
             </span>
           </Link>
         </div>
@@ -74,6 +152,11 @@ function Header() {
               <li>
                 <Link href="/alphabetical-search">
                   <span className="hover:text-blue-600 cursor-pointer">Product Search</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/ai-assistant">
+                  <span className="text-blue-600 font-medium hover:text-blue-800 cursor-pointer">AI Assistant</span>
                 </Link>
               </li>
               <li>
@@ -166,6 +249,7 @@ function App() {
           <Route path="/" component={HomePage} />
           <Route path="/marketplace-comparison" component={MarketplaceComparisonPage} />
           <Route path="/alphabetical-search" component={AlphabeticalSearchPage} />
+          <Route path="/ai-assistant" component={AIAssistantPage} />
           <Route path="/auto-pilot-dashboard" component={AutoPilotDashboardPage} />
           <Route component={NotFound} />
         </Switch>

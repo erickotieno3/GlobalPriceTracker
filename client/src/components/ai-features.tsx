@@ -7,8 +7,8 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   naturalLanguageSearch, 
   getProductRecommendations, 
-  getPriceTrendInsights,
-  compareProductsAI
+  getPriceInsights,
+  compareProducts
 } from '@/lib/ai';
 import { Loader2, Search, TrendingUp, Sparkles, BarChart } from 'lucide-react';
 
@@ -95,7 +95,7 @@ export default function AIFeatures() {
     
     setIsLoadingInsights(true);
     try {
-      const result = await getPriceTrendInsights(parseInt(productId));
+      const result = await getPriceInsights(parseInt(productId));
       if (result.error) {
         throw new Error(result.error);
       }

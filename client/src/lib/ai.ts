@@ -1,157 +1,191 @@
-/**
- * AI Services for Tesco Compare
- * 
- * This module provides AI-powered features for the application including:
- * - Smart product recommendations
- * - Natural language search
- * - Personalized shopping insights
- * - Price trend analysis
- */
+import { apiRequest } from "@/lib/queryClient";
 
 /**
- * Get AI-powered product recommendations based on user preferences and shopping history
+ * Get AI-powered product recommendations
+ * 
+ * @param userId - Optional user ID for personalized recommendations
+ * @param productId - Optional product ID for similar item recommendations
+ * @param category - Optional category name to filter recommendations by category
+ * @returns Promise with recommendations data
  */
-export async function getProductRecommendations(userId?: string, productId?: number, category?: string) {
+export async function getProductRecommendations(
+  userId?: string,
+  productId?: number,
+  category?: string
+): Promise<{ recommendations: any[] }> {
   try {
     const params = new URLSearchParams();
     if (userId) params.append('userId', userId);
     if (productId) params.append('productId', productId.toString());
     if (category) params.append('category', category);
-    
-    const response = await fetch(`/api/ai/recommendations?${params.toString()}`);
+
+    const response = await apiRequest(
+      'GET',
+      `/api/ai/recommendations?${params.toString()}`
+    );
     
     if (!response.ok) {
-      throw new Error(`Error fetching recommendations: ${response.statusText}`);
+      throw new Error(`Error fetching recommendations: ${response.status}`);
     }
     
     return await response.json();
   } catch (error) {
-    console.error('Failed to get AI recommendations:', error);
-    return { 
-      recommendations: [],
-      error: error instanceof Error ? error.message : 'Unknown error'
-    };
+    console.error('Failed to get recommendations:', error);
+    return { recommendations: [] };
   }
 }
 
 /**
- * Search products using natural language
+ * Get AI-powered price insights for a product
+ * 
+ * @param productId - The product ID to analyze
+ * @returns Promise with price insights data
  */
-export async function naturalLanguageSearch(query: string, country?: string) {
+export async function getPriceInsights(productId: number): Promise<any> {
   try {
-    const params = new URLSearchParams({
-      query,
-      ...(country && { country })
-    });
-    
-    const response = await fetch(`/api/ai/search?${params.toString()}`);
+    const response = await apiRequest(
+      'GET',
+      `/api/ai/price-insights/${productId}`
+    );
     
     if (!response.ok) {
-      throw new Error(`Error performing search: ${response.statusText}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Failed to perform AI search:', error);
-    return { 
-      results: [],
-      error: error instanceof Error ? error.message : 'Unknown error'
-    };
-  }
-}
-
-/**
- * Get AI-powered insights on price trends for a product
- */
-export async function getPriceTrendInsights(productId: number) {
-  try {
-    const response = await fetch(`/api/ai/price-insights/${productId}`);
-    
-    if (!response.ok) {
-      throw new Error(`Error fetching price insights: ${response.statusText}`);
+      throw new Error(`Error fetching price insights: ${response.status}`);
     }
     
     return await response.json();
   } catch (error) {
     console.error('Failed to get price insights:', error);
-    return { 
-      insights: null,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    };
+    return null;
   }
 }
 
 /**
- * Generate a personalized shopping guide for a user
+ * Compare two products using AI
+ * 
+ * @param product1Id - First product ID
+ * @param product2Id - Second product ID
+ * @returns Promise with comparison data
  */
-export async function getPersonalizedShoppingGuide(userId: string) {
+export async function compareProducts(
+  product1Id: number,
+  product2Id: number
+): Promise<any> {
   try {
-    const response = await fetch(`/api/ai/shopping-guide/${userId}`);
+    const response = await apiRequest(
+      'POST',
+      '/api/ai/compare-products',
+      { product1Id, product2Id }
+    );
     
     if (!response.ok) {
-      throw new Error(`Error generating shopping guide: ${response.statusText}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Failed to generate shopping guide:', error);
-    return { 
-      guide: null,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    };
-  }
-}
-
-/**
- * Analyze product descriptions to extract key features
- */
-export async function extractProductFeatures(description: string) {
-  try {
-    const response = await fetch('/api/ai/extract-features', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ description }),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Error extracting features: ${response.statusText}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Failed to extract product features:', error);
-    return { 
-      features: [],
-      error: error instanceof Error ? error.message : 'Unknown error'
-    };
-  }
-}
-
-/**
- * Compare two products and generate a detailed comparison
- */
-export async function compareProductsAI(product1Id: number, product2Id: number) {
-  try {
-    const response = await fetch(`/api/ai/compare-products`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ product1Id, product2Id }),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Error comparing products: ${response.statusText}`);
+      throw new Error(`Error comparing products: ${response.status}`);
     }
     
     return await response.json();
   } catch (error) {
     console.error('Failed to compare products:', error);
-    return { 
-      comparison: null,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    };
+    return null;
+  }
+}
+
+/**
+ * Get AI-generated shopping guide
+ * 
+ * @param userId - User ID to personalize the shopping guide
+ * @returns Promise with shopping guide data
+ */
+export async function getShoppingGuide(userId: string): Promise<any> {
+  try {
+    const response = await apiRequest(
+      'GET',
+      `/api/ai/shopping-guide/${userId}`
+    );
+    
+    if (!response.ok) {
+      throw new Error(`Error fetching shopping guide: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to get shopping guide:', error);
+    return null;
+  }
+}
+
+/**
+ * Extract product features from description
+ * 
+ * @param description - Product description text
+ * @returns Promise with extracted features
+ */
+export async function extractProductFeatures(description: string): Promise<any> {
+  try {
+    const response = await apiRequest(
+      'POST',
+      '/api/ai/extract-features',
+      { description }
+    );
+    
+    if (!response.ok) {
+      throw new Error(`Error extracting features: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to extract features:', error);
+    return null;
+  }
+}
+
+/**
+ * Generate personalized content
+ * 
+ * @param prompt - The prompt for content generation
+ * @param context - Additional context information
+ * @returns Promise with generated content
+ */
+export async function generateContent(
+  prompt: string,
+  context?: Record<string, any>
+): Promise<any> {
+  try {
+    const response = await apiRequest(
+      'POST',
+      '/api/ai/generate-content',
+      { prompt, context }
+    );
+    
+    if (!response.ok) {
+      throw new Error(`Error generating content: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to generate content:', error);
+    return null;
+  }
+}
+
+/**
+ * Natural language search for products
+ * 
+ * @param query - Natural language query string
+ * @returns Promise with search results
+ */
+export async function naturalLanguageSearch(query: string): Promise<any> {
+  try {
+    const response = await apiRequest(
+      'GET',
+      `/api/ai/search?q=${encodeURIComponent(query)}`
+    );
+    
+    if (!response.ok) {
+      throw new Error(`Error performing search: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to search:', error);
+    return { products: [] };
   }
 }
