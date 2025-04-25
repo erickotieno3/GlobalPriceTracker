@@ -501,6 +501,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // API status endpoint for detection by WordPress integration
+  app.get("/api/status", (req, res) => {
+    res.json({
+      status: "ok",
+      api: "nodejs",
+      version: "1.0.0",
+      serverTime: new Date().toISOString()
+    });
+  });
+  
   // Mobile app connectivity endpoint
   app.get("/api/mobile/status", (req, res) => {
     res.json({

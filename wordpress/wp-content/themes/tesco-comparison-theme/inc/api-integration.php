@@ -477,6 +477,14 @@ function tesco_process_payment($payment_method_id, $amount, $currency = 'usd') {
  * Register REST API endpoints
  */
 function tesco_register_rest_routes() {
+    // Add a status endpoint for API detection
+    register_rest_route('tesco/v1', '/status', array(
+        'methods' => array('GET', 'HEAD'),
+        'callback' => function () {
+            return array('status' => 'ok', 'api' => 'wordpress');
+        },
+        'permission_callback' => '__return_true',
+    ));
     register_rest_route('tesco/v1', '/trending-deals', array(
         'methods' => 'GET',
         'callback' => function ($request) {

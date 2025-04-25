@@ -5,7 +5,22 @@
 
 class TescoAppIntegration {
     constructor() {
-        this.apiBase = '/api';
+        // Try to detect if we're using the WordPress REST API or Node.js API
+        const nodeJsApiBase = '/api';
+        const wpApiBase = '/wp-json/tesco/v1';
+        
+        // Check which API is available
+        this.detectApiEndpoint()
+            .then(endpoint => {
+                this.apiBase = endpoint;
+                console.log('Using API endpoint:', this.apiBase);
+            })
+            .catch(() => {
+                // Default to WordPress REST API if detection fails
+                this.apiBase = wpApiBase;
+                console.log('API endpoint detection failed, using:', this.apiBase);
+            });
+            
         this.apiCacheTime = 5 * 60 * 1000; // 5 minutes
         this.init();
     }
@@ -596,6 +611,50 @@ class TescoAppIntegration {
                 }
             }
         });
+    }
+
+    /**
+     * Detect which API endpoint is available
+     * This tries both the Node.js API and WordPress REST API and uses the one that responds
+     */
+    async detectApiEndpoint() {
+        const nodeJsApiBase = '/api';
+        const wpApiBase = '/wp-json/tesco/v1';
+        
+        // Try Node.js API first
+        try {
+            const response = await fetch(`${nodeJsApiBase}/status`, { 
+                method: 'HEAD',
+                headers: { 'Accept': 'application/json' },
+                // Short timeout to avoid long waits
+                signal: AbortSignal.timeout(2000)
+            });
+            
+            if (response.ok) {
+                return nodeJsApiBase;
+            }
+        } catch (error) {
+            console.log('Node.js API detection failed:', error.message);
+        }
+        
+        // Try WordPress REST API
+        try {
+            const response = await fetch(`${wpApiBase}/status`, { 
+                method: 'HEAD',
+                headers: { 'Accept': 'application/json' },
+                // Short timeout to avoid long waits
+                signal: AbortSignal.timeout(2000)
+            });
+            
+            if (response.ok) {
+                return wpApiBase;
+            }
+        } catch (error) {
+            console.log('WordPress REST API detection failed:', error.message);
+        }
+        
+        // If both fail, default to Node.js API (fallback will try WordPress if this fails)
+        return nodeJsApiBase;
     }
 
     /**

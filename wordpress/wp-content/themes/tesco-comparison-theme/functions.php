@@ -8,6 +8,12 @@ if (!defined('_S_VERSION')) {
     define('_S_VERSION', '1.0.0');
 }
 
+// Include theme setup functions
+require get_template_directory() . '/inc/theme-setup.php';
+
+// Include API integration functions
+require get_template_directory() . '/inc/api-integration.php';
+
 /**
  * Sets up theme defaults and registers support for various WordPress features.
  */
@@ -142,131 +148,7 @@ function tesco_comparison_widgets_init() {
 }
 add_action('widgets_init', 'tesco_comparison_widgets_init');
 
-/**
- * Create a custom post type for Stores
- */
-function tesco_comparison_register_post_types() {
-    register_post_type(
-        'store',
-        array(
-            'labels' => array(
-                'name' => __('Stores', 'tesco-comparison'),
-                'singular_name' => __('Store', 'tesco-comparison'),
-                'add_new' => __('Add New Store', 'tesco-comparison'),
-                'add_new_item' => __('Add New Store', 'tesco-comparison'),
-                'edit_item' => __('Edit Store', 'tesco-comparison'),
-                'new_item' => __('New Store', 'tesco-comparison'),
-                'view_item' => __('View Store', 'tesco-comparison'),
-                'search_items' => __('Search Stores', 'tesco-comparison'),
-                'not_found' => __('No stores found', 'tesco-comparison'),
-                'not_found_in_trash' => __('No stores found in Trash', 'tesco-comparison'),
-            ),
-            'public' => true,
-            'has_archive' => true,
-            'menu_icon' => 'dashicons-store',
-            'menu_position' => 20,
-            'supports' => array('title', 'editor', 'thumbnail', 'custom-fields'),
-            'show_in_rest' => true,
-        )
-    );
-    
-    register_post_type(
-        'product',
-        array(
-            'labels' => array(
-                'name' => __('Products', 'tesco-comparison'),
-                'singular_name' => __('Product', 'tesco-comparison'),
-                'add_new' => __('Add New Product', 'tesco-comparison'),
-                'add_new_item' => __('Add New Product', 'tesco-comparison'),
-                'edit_item' => __('Edit Product', 'tesco-comparison'),
-                'new_item' => __('New Product', 'tesco-comparison'),
-                'view_item' => __('View Product', 'tesco-comparison'),
-                'search_items' => __('Search Products', 'tesco-comparison'),
-                'not_found' => __('No products found', 'tesco-comparison'),
-                'not_found_in_trash' => __('No products found in Trash', 'tesco-comparison'),
-            ),
-            'public' => true,
-            'has_archive' => true,
-            'menu_icon' => 'dashicons-cart',
-            'menu_position' => 21,
-            'supports' => array('title', 'editor', 'thumbnail', 'custom-fields'),
-            'show_in_rest' => true,
-        )
-    );
-    
-    register_post_type(
-        'price',
-        array(
-            'labels' => array(
-                'name' => __('Prices', 'tesco-comparison'),
-                'singular_name' => __('Price', 'tesco-comparison'),
-                'add_new' => __('Add New Price', 'tesco-comparison'),
-                'add_new_item' => __('Add New Price', 'tesco-comparison'),
-                'edit_item' => __('Edit Price', 'tesco-comparison'),
-                'new_item' => __('New Price', 'tesco-comparison'),
-                'view_item' => __('View Price', 'tesco-comparison'),
-                'search_items' => __('Search Prices', 'tesco-comparison'),
-                'not_found' => __('No prices found', 'tesco-comparison'),
-                'not_found_in_trash' => __('No prices found in Trash', 'tesco-comparison'),
-            ),
-            'public' => true,
-            'has_archive' => false,
-            'menu_icon' => 'dashicons-money-alt',
-            'menu_position' => 22,
-            'supports' => array('title', 'custom-fields'),
-            'show_in_rest' => true,
-        )
-    );
-    
-    register_taxonomy(
-        'product_category',
-        'product',
-        array(
-            'labels' => array(
-                'name' => __('Product Categories', 'tesco-comparison'),
-                'singular_name' => __('Product Category', 'tesco-comparison'),
-                'search_items' => __('Search Product Categories', 'tesco-comparison'),
-                'all_items' => __('All Product Categories', 'tesco-comparison'),
-                'edit_item' => __('Edit Product Category', 'tesco-comparison'),
-                'update_item' => __('Update Product Category', 'tesco-comparison'),
-                'add_new_item' => __('Add New Product Category', 'tesco-comparison'),
-                'new_item_name' => __('New Product Category Name', 'tesco-comparison'),
-                'menu_name' => __('Categories', 'tesco-comparison'),
-            ),
-            'hierarchical' => true,
-            'show_ui' => true,
-            'show_admin_column' => true,
-            'query_var' => true,
-            'rewrite' => array('slug' => 'product-category'),
-            'show_in_rest' => true,
-        )
-    );
-    
-    register_taxonomy(
-        'country',
-        array('store', 'product'),
-        array(
-            'labels' => array(
-                'name' => __('Countries', 'tesco-comparison'),
-                'singular_name' => __('Country', 'tesco-comparison'),
-                'search_items' => __('Search Countries', 'tesco-comparison'),
-                'all_items' => __('All Countries', 'tesco-comparison'),
-                'edit_item' => __('Edit Country', 'tesco-comparison'),
-                'update_item' => __('Update Country', 'tesco-comparison'),
-                'add_new_item' => __('Add New Country', 'tesco-comparison'),
-                'new_item_name' => __('New Country Name', 'tesco-comparison'),
-                'menu_name' => __('Countries', 'tesco-comparison'),
-            ),
-            'hierarchical' => true,
-            'show_ui' => true,
-            'show_admin_column' => true,
-            'query_var' => true,
-            'rewrite' => array('slug' => 'country'),
-            'show_in_rest' => true,
-        )
-    );
-}
-add_action('init', 'tesco_comparison_register_post_types');
+// Post types are now registered in theme-setup.php
 
 /**
  * Add theme options page
