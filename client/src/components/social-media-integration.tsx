@@ -14,7 +14,7 @@ import { apiRequest } from '@/lib/queryClient';
 
 export type SocialPlatform = 
   'facebook' | 'twitter' | 'linkedin' | 'instagram' | 
-  'tiktok' | 'snapchat' | 'whatsapp' | 'telegram';
+  'tiktok' | 'snapchat' | 'whatsapp' | 'telegram' | 'google';
 
 interface SocialShareProps {
   productId?: number;

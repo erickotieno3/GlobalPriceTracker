@@ -3,6 +3,7 @@ import MarketplaceComparisonPage from "@/pages/marketplace-comparison";
 import AlphabeticalSearchPage from "@/pages/alphabetical-search";
 import AutoPilotDashboardPage from "@/pages/auto-pilot-dashboard";
 import AIAssistantPage from "@/pages/ai-assistant";
+import SocialMediaPage from "@/pages/social-media-page";
 
 import { useEffect, useState } from "react";
 import { getProductRecommendations } from "@/lib/ai";
@@ -160,6 +161,11 @@ function Header() {
                 </Link>
               </li>
               <li>
+                <Link href="/social-media">
+                  <span className="text-purple-600 font-medium hover:text-purple-800 cursor-pointer">Social</span>
+                </Link>
+              </li>
+              <li>
                 <Link href="/auto-pilot-dashboard">
                   <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded hover:bg-amber-200 cursor-pointer">Admin</span>
                 </Link>
@@ -195,6 +201,11 @@ function Footer() {
               <li>
                 <Link href="/store-comparison">
                   <span className="text-gray-600 hover:text-blue-600 cursor-pointer">Store Comparison</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/social-media">
+                  <span className="text-gray-600 hover:text-blue-600 cursor-pointer">Social Media</span>
                 </Link>
               </li>
             </ul>
@@ -251,6 +262,7 @@ function App() {
           <Route path="/alphabetical-search" component={AlphabeticalSearchPage} />
           <Route path="/ai-assistant" component={AIAssistantPage} />
           <Route path="/auto-pilot-dashboard" component={AutoPilotDashboardPage} />
+          <Route path="/social-media" component={SocialMediaPage} />
           <Route component={NotFound} />
         </Switch>
       </main>
