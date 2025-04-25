@@ -7,33 +7,17 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trophy, Target, Star, Gift, TrendingUp, Sparkles, Calendar, Check, Clock, Award } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
+import { 
+  fetchChallenges, 
+  fetchUserRewards, 
+  updateChallengeProgress, 
+  createCustomChallenge, 
+  SavingsChallenge, 
+  Reward 
+} from '@/lib/savings-challenge-api';
 
-// Define types for our challenge data
-interface SavingsChallenge {
-  id: number;
-  title: string;
-  description: string;
-  targetAmount: number;
-  currentAmount: number;
-  deadline: string;
-  status: 'active' | 'completed' | 'failed';
-  category: string;
-  difficultyLevel: 'easy' | 'medium' | 'hard';
-  rewards: Reward[];
-}
-
-interface Reward {
-  id: number;
-  name: string;
-  description: string;
-  image: string;
-  unlocked: boolean;
-  type: 'badge' | 'voucher' | 'discount' | 'special';
-}
-
-// Mock data for challenges (will be replaced with API calls)
-const initialChallenges: SavingsChallenge[] = [
+// Fallback challenges in case API fails
+const fallbackChallenges: SavingsChallenge[] = [
   {
     id: 1,
     title: "Weekly Grocery Saver",
@@ -44,14 +28,18 @@ const initialChallenges: SavingsChallenge[] = [
     status: 'active',
     category: 'groceries',
     difficultyLevel: 'easy',
+    createdAt: new Date().toISOString(),
+    isCustom: false,
     rewards: [
       {
         id: 101,
         name: "Smart Shopper",
         description: "Earned for completing your first grocery savings challenge",
         image: "/rewards/smart-shopper-badge.svg",
-        unlocked: false,
-        type: 'badge'
+        type: 'badge',
+        challengeId: 1,
+        createdAt: new Date().toISOString(),
+        unlocked: false
       }
     ]
   },
@@ -65,22 +53,28 @@ const initialChallenges: SavingsChallenge[] = [
     status: 'active',
     category: 'electronics',
     difficultyLevel: 'medium',
+    createdAt: new Date().toISOString(),
+    isCustom: false,
     rewards: [
       {
         id: 102,
         name: "Tech Wizard",
         description: "You've mastered finding the best tech deals",
         image: "/rewards/tech-wizard-badge.svg",
-        unlocked: false,
-        type: 'badge'
+        type: 'badge',
+        challengeId: 2,
+        createdAt: new Date().toISOString(),
+        unlocked: false
       },
       {
         id: 103,
         name: "£5 Amazon Voucher",
         description: "A £5 Amazon voucher for your next purchase",
         image: "/rewards/amazon-voucher.svg",
-        unlocked: false,
-        type: 'voucher'
+        type: 'voucher',
+        challengeId: 2,
+        createdAt: new Date().toISOString(),
+        unlocked: false
       }
     ]
   },
@@ -94,49 +88,60 @@ const initialChallenges: SavingsChallenge[] = [
     status: 'active',
     category: 'general',
     difficultyLevel: 'hard',
+    createdAt: new Date().toISOString(),
+    isCustom: false,
     rewards: [
       {
         id: 104,
         name: "Budget Guru",
         description: "You've become a master of savings",
         image: "/rewards/budget-guru-badge.svg",
-        unlocked: false,
-        type: 'badge'
+        type: 'badge',
+        challengeId: 3,
+        createdAt: new Date().toISOString(),
+        unlocked: false
       },
       {
         id: 105,
         name: "Premium Tier Free Month",
         description: "One month of premium features for free",
         image: "/rewards/premium-tier.svg",
-        unlocked: false,
-        type: 'special'
+        type: 'special',
+        challengeId: 3,
+        createdAt: new Date().toISOString(),
+        unlocked: false
       }
     ]
   }
 ];
 
 const SavingsChallengePage: React.FC = () => {
-  const [challenges, setChallenges] = useState<SavingsChallenge[]>(initialChallenges);
+  const [challenges, setChallenges] = useState<SavingsChallenge[]>([]);
   const [activeTab, setActiveTab] = useState<string>('all');
   const [userBadges, setUserBadges] = useState<Reward[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { toast } = useToast();
 
-  // Fetch challenges and badges from the server (would be implemented with real API)
+  // Fetch challenges and badges from the API
   useEffect(() => {
     const fetchChallengesAndBadges = async () => {
       setIsLoading(true);
       try {
-        // In a real app, these would be API calls
-        // const challengesResponse = await apiRequest('GET', '/api/savings-challenges');
-        // const badgesResponse = await apiRequest('GET', '/api/user/badges');
-        // setChallenges(challengesResponse.challenges);
-        // setUserBadges(badgesResponse.badges);
+        // Fetch challenges from API
+        const challengeData = await fetchChallenges();
+        if (challengeData.length > 0) {
+          setChallenges(challengeData);
+        } else {
+          // Use fallback data if API returns empty
+          setChallenges(fallbackChallenges);
+        }
         
-        // For demo purposes, we'll just simulate a delay
-        setTimeout(() => {
-          setChallenges(initialChallenges);
-          // Demo unlocked badges
+        // Fetch user rewards
+        const rewardsData = await fetchUserRewards();
+        if (rewardsData.length > 0) {
+          setUserBadges(rewardsData);
+        } else {
+          // Add a default badge for new users if no rewards found
           setUserBadges([
             {
               id: 201,
@@ -144,18 +149,35 @@ const SavingsChallengePage: React.FC = () => {
               description: "One of the first to try the savings challenge feature",
               image: "/rewards/early-adopter.svg",
               unlocked: true,
-              type: 'badge'
+              type: 'badge',
+              challengeId: 0,
+              createdAt: new Date().toISOString()
             }
           ]);
-          setIsLoading(false);
-        }, 1000);
+        }
       } catch (error) {
         console.error("Error fetching challenges:", error);
+        // Use fallback data on error
+        setChallenges(fallbackChallenges);
+        setUserBadges([
+          {
+            id: 201,
+            name: "Early Adopter",
+            description: "One of the first to try the savings challenge feature",
+            image: "/rewards/early-adopter.svg",
+            unlocked: true,
+            type: 'badge',
+            challengeId: 0,
+            createdAt: new Date().toISOString()
+          }
+        ]);
+        
         toast({
           title: "Error loading challenges",
-          description: "Please try again later",
+          description: "Using sample data instead. Please try again later.",
           variant: "destructive",
         });
+      } finally {
         setIsLoading(false);
       }
     };
@@ -164,48 +186,63 @@ const SavingsChallengePage: React.FC = () => {
   }, [toast]);
 
   // Function to update a challenge progress
-  const updateChallengeProgress = async (challengeId: number, amount: number) => {
+  const handleProgressUpdate = async (challengeId: number, amount: number) => {
     try {
-      // In a real app, this would be an API call
-      // await apiRequest('POST', `/api/savings-challenges/${challengeId}/progress`, { amount });
+      // Call the API to update the challenge progress
+      const result = await updateChallengeProgress(challengeId, amount);
       
-      // For demo purposes, we'll update the state directly
-      setChallenges(challenges.map(challenge => {
-        if (challenge.id === challengeId) {
-          const newAmount = Math.min(challenge.targetAmount, challenge.currentAmount + amount);
-          const isCompleted = newAmount >= challenge.targetAmount;
-          
-          // If challenge is completed, unlock rewards
-          const updatedRewards = challenge.rewards.map(reward => ({
-            ...reward,
-            unlocked: isCompleted
-          }));
-          
-          // If completed, also add rewards to user badges
-          if (isCompleted && !challenge.rewards.some(r => r.unlocked)) {
-            setUserBadges([...userBadges, ...updatedRewards]);
+      if (result.success) {
+        // Find the challenge that was updated
+        const updatedChallenges = challenges.map(challenge => {
+          if (challenge.id === challengeId) {
+            // If user challenge was returned from API, use its values
+            if (result.userChallenge) {
+              return {
+                ...challenge,
+                currentAmount: result.userChallenge.currentAmount,
+                status: result.userChallenge.status,
+              };
+            }
+            // Otherwise calculate the new values locally
+            const newAmount = Math.min(challenge.targetAmount, (challenge.currentAmount || 0) + amount);
+            const isCompleted = newAmount >= challenge.targetAmount;
             
-            toast({
-              title: "Challenge Completed! 🎉",
-              description: `You've earned ${updatedRewards.length} new reward(s)!`,
-              variant: "default",
-            });
+            return {
+              ...challenge,
+              currentAmount: newAmount,
+              status: isCompleted ? 'completed' : challenge.status,
+            };
           }
+          return challenge;
+        });
+        
+        setChallenges(updatedChallenges);
+        
+        // If challenge completed and rewards were unlocked
+        if (result.unlockedRewards && result.unlockedRewards.length > 0) {
+          // Add new rewards to user badges
+          setUserBadges(prevBadges => [...prevBadges, ...result.unlockedRewards]);
           
-          return {
-            ...challenge,
-            currentAmount: newAmount,
-            status: isCompleted ? 'completed' : challenge.status,
-            rewards: updatedRewards
-          };
+          toast({
+            title: "Challenge Completed! 🎉",
+            description: `You've earned ${result.unlockedRewards.length} new reward(s)!`,
+            variant: "default",
+          });
+        } else {
+          toast({
+            title: "Progress Updated",
+            description: result.message,
+            variant: "default",
+          });
         }
-        return challenge;
-      }));
+      } else {
+        throw new Error(result.message);
+      }
     } catch (error) {
       console.error("Error updating challenge:", error);
       toast({
         title: "Error updating progress",
-        description: "Please try again later",
+        description: error instanceof Error ? error.message : "Please try again later",
         variant: "destructive",
       });
     }
