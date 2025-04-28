@@ -14,11 +14,16 @@ import { savingsChallengeRouter } from "./savings-challenge-routes";
 import ipBlocker from "./ip-blocker";
 import { WebSocketServer, WebSocket } from 'ws';
 import { revisionRouter } from "./revision-routes";
+import { shopifyRouter } from "./shopify-routes";
+import { initializeShopifyIntegration, getShopifyIntegration } from "./shopify-integration";
 import fs from 'fs';
 import path from 'path';
 import { initializeAutoUpdater } from "./auto-updater";
 import { initializeAutoPilot, manuallyTriggerTask } from "./auto-pilot";
 import cookieParser from "cookie-parser";
+import { eq, desc } from "drizzle-orm";
+import { db } from "./db";
+import { stores, products, productPrices } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Body parser middleware
@@ -882,6 +887,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register revision management routes
   app.use("/api/revisions", revisionRouter);
   
+  // Shopify integration
+  app.use("/api/shopify", shopifyRouter);
+  
   // Special admin login routes
   app.get('/admin-login.html', (req, res) => {
     try {
@@ -918,6 +926,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Initialize the auto-pilot system
   initializeAutoPilot(wss);
+  
+  // Initialize the Shopify integration
+  initializeShopifyIntegration(wss);
   
   // WebSocket connection handler
   wss.on('connection', (ws) => {
@@ -1195,6 +1206,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
               ws.send(JSON.stringify({
                 type: 'error',
                 message: `Failed to trigger task: ${error instanceof Error ? error.message : String(error)}`,
+                timestamp: new Date().toISOString()
+              }));
+            }
+            break;
+            
+          case 'shopify_sync':
+            try {
+              const shopifyIntegration = getShopifyIntegration();
+              
+              ws.send(JSON.stringify({
+                type: 'shopify_sync_started',
+                message: 'Shopify sync started',
+                timestamp: new Date().toISOString()
+              }));
+              
+              // Run the sync async without waiting for completion
+              shopifyIntegration.fetchAllStoreProducts()
+                .then(count => {
+                  console.log(`Synced ${count} products from Shopify stores`);
+                })
+                .catch(error => {
+                  console.error('Error during Shopify sync:', error);
+                });
+            } catch (error) {
+              console.error('Error triggering Shopify sync:', error);
+              ws.send(JSON.stringify({
+                type: 'error',
+                message: `Failed to trigger Shopify sync: ${error instanceof Error ? error.message : String(error)}`,
+                timestamp: new Date().toISOString()
+              }));
+            }
+            break;
+            
+          case 'get_shopify_products':
+            try {
+              // Get Shopify products with pagination
+              const page = data.page || 1;
+              const limit = data.limit || 20;
+              const offset = (page - 1) * limit;
+              
+              const products = await db
+                .select({
+                  product: products,
+                  store: stores,
+                  price: productPrices,
+                })
+                .from(products)
+                .innerJoin(productPrices, eq(products.id, productPrices.productId))
+                .innerJoin(stores, eq(productPrices.storeId, stores.id))
+                .where(eq(products.source, 'shopify'))
+                .orderBy(desc(products.updatedAt))
+                .limit(limit)
+                .offset(offset);
+              
+              // Format results
+              const formattedProducts = products.map(item => ({
+                id: item.product.id,
+                name: item.product.name,
+                imageUrl: item.product.imageUrl,
+                price: item.price.price,
+                currency: item.price.currency,
+                storeName: item.store.name,
+                storeLogoUrl: item.store.logoUrl,
+              }));
+              
+              ws.send(JSON.stringify({
+                type: 'shopify_products',
+                products: formattedProducts,
+                page,
+                limit,
+                timestamp: new Date().toISOString()
+              }));
+            } catch (error) {
+              console.error('Error fetching Shopify products:', error);
+              ws.send(JSON.stringify({
+                type: 'error',
+                message: `Failed to fetch Shopify products: ${error instanceof Error ? error.message : String(error)}`,
                 timestamp: new Date().toISOString()
               }));
             }
