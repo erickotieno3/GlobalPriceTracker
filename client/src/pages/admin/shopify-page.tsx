@@ -1,6 +1,6 @@
 import React from 'react';
-import ShopifyIntegration from '@/components/shopify-integration';
-import AdminLayout from '@/components/admin/admin-layout';
+import ShopifyIntegration from '../../components/shopify-integration';
+import AdminLayout from '../../components/admin/admin-layout';
 
 export default function ShopifyPage() {
   return (

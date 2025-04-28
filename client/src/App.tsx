@@ -5,7 +5,7 @@ import AutoPilotDashboardPage from "@/pages/auto-pilot-dashboard";
 import AIAssistantPage from "@/pages/ai-assistant";
 import SocialMediaPage from "@/pages/social-media-page";
 import SavingsChallengePage from "@/pages/savings-challenge";
-import ShopifyPage from "@/pages/admin/shopify-page";
+import ShopifyPage from "./pages/admin/shopify-page";
 
 import { useEffect, useState } from "react";
 import { getProductRecommendations } from "@/lib/ai";
