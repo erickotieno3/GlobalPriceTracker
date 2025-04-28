@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "wouter";
+import { useLocation } from "wouter";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -31,7 +31,7 @@ const formSchema = z.object({
 
 export default function VendorLogin() {
   const [isLoading, setIsLoading] = useState(false);
-  const [, navigate] = useNavigate();
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
 
   // Initialize form with default values
@@ -54,7 +54,7 @@ export default function VendorLogin() {
           title: "Login successful",
           description: "Welcome back to your vendor dashboard!",
         });
-        navigate("/vendor-dashboard");
+        setLocation("/vendor-dashboard");
       } else {
         toast({
           title: "Login failed",
@@ -175,7 +175,7 @@ export default function VendorLogin() {
                 <Button 
                   variant="outline" 
                   className="w-full"
-                  onClick={() => navigate("/vendor-register")}
+                  onClick={() => setLocation("/vendor-register")}
                 >
                   Register as a vendor
                 </Button>

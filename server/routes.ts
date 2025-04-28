@@ -873,6 +873,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Use the admin routes
   app.use("/api/admin", adminRouter);
   
+  // Use the vendor routes
+  app.use("/api/vendor", vendorRouter);
+  
   // Use the marketplace routes
   app.use("/api/marketplace", marketplaceRouter);
   
@@ -921,6 +924,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Make the WebSocket server available to the admin routes for auto-pilot updates
   setWebSocketServer(wss);
+  
+  // Make the WebSocket server available to the vendor routes
+  setVendorWebSocketServer(wss);
   
   // Initialize the product data auto-updater system
   initializeAutoUpdater(wss);
