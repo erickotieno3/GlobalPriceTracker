@@ -6,6 +6,8 @@ import AIAssistantPage from "@/pages/ai-assistant";
 import SocialMediaPage from "@/pages/social-media-page";
 import SavingsChallengePage from "@/pages/savings-challenge";
 import ShopifyPage from "./pages/admin/shopify-page";
+import VendorLoginPage from "./pages/vendor-login";
+import VendorDashboardPage from "./pages/vendor-dashboard";
 
 import { useEffect, useState } from "react";
 import { getProductRecommendations } from "@/lib/ai";
@@ -173,6 +175,11 @@ function Header() {
                 </Link>
               </li>
               <li>
+                <Link href="/vendor-login">
+                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded hover:bg-green-200 cursor-pointer">Vendor Portal</span>
+                </Link>
+              </li>
+              <li>
                 <Link href="/auto-pilot-dashboard">
                   <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded hover:bg-amber-200 cursor-pointer">Admin</span>
                 </Link>
@@ -218,6 +225,11 @@ function Footer() {
               <li>
                 <Link href="/savings-challenge">
                   <span className="text-gray-600 hover:text-blue-600 cursor-pointer">Savings Challenge</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/vendor-login">
+                  <span className="text-gray-600 hover:text-blue-600 cursor-pointer">Vendor Login</span>
                 </Link>
               </li>
             </ul>
@@ -277,6 +289,8 @@ function App() {
           <Route path="/social-media" component={SocialMediaPage} />
           <Route path="/savings-challenge" component={SavingsChallengePage} />
           <Route path="/admin/shopify" component={ShopifyPage} />
+          <Route path="/vendor-login" component={VendorLoginPage} />
+          <Route path="/vendor-dashboard" component={VendorDashboardPage} />
           <Route component={NotFound} />
         </Switch>
       </main>
