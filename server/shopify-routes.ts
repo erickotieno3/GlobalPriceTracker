@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { db } from './db';
 import { stores, products, productPrices, insertStoreSchema } from '@shared/schema';
 import { initializeShopifyIntegration, getShopifyIntegration } from './shopify-integration';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 
 export const shopifyRouter = Router();
 
@@ -151,7 +151,7 @@ shopifyRouter.get('/products', async (req: Request, res: Response) => {
     });
     
     // Count total products for pagination
-    const totalCount = await db.select({ count: db.fn.count() }).from(products)
+    const totalCount = await db.select({ count: sql`count(*)` }).from(products)
       .where(eq(products.source, 'shopify'));
     
     return res.json({

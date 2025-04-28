@@ -8,7 +8,7 @@
 import axios from 'axios';
 import { db } from './db';
 import { stores, products, productPrices, insertStoreSchema, insertProductPriceSchema } from '@shared/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { WebSocketServer, WebSocket } from 'ws';
 
 interface ShopifyStore {
@@ -56,8 +56,8 @@ export class ShopifyIntegration {
         .where(eq(stores.type, 'shopify'));
 
       this.shopifyStores = shopifyStores.map(store => ({
-        shopDomain: store.apiUrl.replace('https://', '').replace('/', ''),
-        accessToken: store.apiKey,
+        shopDomain: store.apiUrl ? store.apiUrl.replace('https://', '').replace('/', '') : '',
+        accessToken: store.apiKey || '',
         apiVersion: '2024-04', // Latest Shopify API version
         countryId: store.countryId,
         storeId: store.id
@@ -326,11 +326,11 @@ export class ShopifyIntegration {
   private broadcastUpdate(data: any): void {
     if (!this.wss) return;
     
-    for (const client of this.wss.clients) {
-      if (client.readyState === 1) { // WebSocket.OPEN
+    this.wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
         client.send(JSON.stringify(data));
       }
-    }
+    });
   }
 }
 
