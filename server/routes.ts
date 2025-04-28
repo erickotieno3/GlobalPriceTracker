@@ -7,6 +7,7 @@ import { insertNewsletterSubscriberSchema } from "@shared/schema";
 import paymentRouter from "./payment-routes";
 import affiliateRouter from "./affiliate-routes";
 import adminRouter, { setWebSocketServer } from "./admin-routes";
+import vendorRouter, { setWebSocketServer as setVendorWebSocketServer } from "./vendor-routes";
 import marketplaceRouter from "./marketplace-routes";
 import { aiRouter } from "./ai-routes";
 import { socialMediaRouter } from "./social-media";
