@@ -75,115 +75,104 @@ export default function VendorLogin() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Vendor Login
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Access your vendor dashboard to manage your products and sales
-        </p>
-      </div>
+    <div className="container mx-auto px-4 py-12 max-w-md">
+      <Card className="w-full">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">Vendor Login</CardTitle>
+          <CardDescription className="text-center">
+            Enter your credentials to access your vendor dashboard
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <div className="flex items-center relative">
+                        <Mail className="h-4 w-4 text-gray-500 absolute left-3" />
+                        <Input 
+                          placeholder="email@example.com" 
+                          className="pl-10" 
+                          {...field}
+                          disabled={isLoading}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <div className="flex items-center relative">
+                        <LockKeyhole className="h-4 w-4 text-gray-500 absolute left-3" />
+                        <Input 
+                          type="password" 
+                          placeholder="••••••••" 
+                          className="pl-10" 
+                          {...field}
+                          disabled={isLoading}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <Card>
-          <CardHeader>
-            <CardTitle>Sign in to your account</CardTitle>
-            <CardDescription>
-              Enter your credentials to access your vendor dashboard.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <div className="flex items-center relative">
-                          <Mail className="h-4 w-4 text-gray-500 absolute left-3" />
-                          <Input 
-                            placeholder="email@example.com" 
-                            className="pl-10" 
-                            {...field}
-                            disabled={isLoading}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <div className="flex items-center relative">
-                          <LockKeyhole className="h-4 w-4 text-gray-500 absolute left-3" />
-                          <Input 
-                            type="password" 
-                            placeholder="••••••••" 
-                            className="pl-10" 
-                            {...field}
-                            disabled={isLoading}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="flex items-center justify-between">
-                  <div className="text-sm">
-                    <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
-                      Forgot your password?
-                    </a>
-                  </div>
-                </div>
-
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Signing in..." : "Sign in"}
-                </Button>
-              </form>
-            </Form>
-
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <Separator className="w-full" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">
-                    New vendor?
-                  </span>
+              <div className="flex items-center justify-between">
+                <div className="text-sm">
+                  <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
+                    Forgot your password?
+                  </a>
                 </div>
               </div>
 
-              <div className="mt-6">
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => setLocation("/vendor-register")}
-                >
-                  Register as a vendor
-                </Button>
+              <Button 
+                type="submit" 
+                className="w-full" 
+                disabled={isLoading}
+              >
+                {isLoading ? "Signing in..." : "Sign in"}
+              </Button>
+            </form>
+          </Form>
+
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <Separator className="w-full" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">
+                  New vendor?
+                </span>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+
+            <div className="mt-6">
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => console.log("Register as vendor")}
+              >
+                Register as a vendor
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
