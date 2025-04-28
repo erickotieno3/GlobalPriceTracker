@@ -28,6 +28,12 @@ export const stores = pgTable("stores", {
   countryId: integer("country_id").notNull(),
   active: boolean("active").default(true).notNull(),
   displayOrder: integer("display_order").default(0).notNull(),
+  type: varchar("type", { length: 50 }),
+  apiUrl: text("api_url"),
+  apiKey: text("api_key"),
+  updateInterval: integer("update_interval"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const insertStoreSchema = createInsertSchema(stores).omit({
@@ -59,6 +65,11 @@ export const products = pgTable("products", {
   brand: text("brand"),
   active: boolean("active").default(true).notNull(),
   featured: boolean("featured").default(false).notNull(),
+  source: varchar("source", { length: 50 }),
+  externalId: text("external_id"),
+  attributes: jsonb("attributes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const insertProductSchema = createInsertSchema(products).omit({
@@ -75,6 +86,11 @@ export const productPrices = pgTable("product_prices", {
   originalPrice: real("original_price"),
   discountPercentage: real("discount_percentage"),
   inStock: boolean("in_stock").default(true).notNull(),
+  onSale: boolean("on_sale").default(false),
+  url: text("url"),
+  lastChecked: timestamp("last_checked"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
   lastUpdated: timestamp("last_updated").defaultNow().notNull(),
 });
 

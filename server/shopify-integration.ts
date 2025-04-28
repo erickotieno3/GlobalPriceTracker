@@ -7,10 +7,9 @@
 
 import axios from 'axios';
 import { db } from './db';
-import { stores, products, productPrices } from '@shared/schema';
+import { stores, products, productPrices, insertStoreSchema, insertProductPriceSchema } from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
-import { WebSocketServer } from 'ws';
-import { NewStoreSchema, InsertProductPrice } from '@shared/schema';
+import { WebSocketServer, WebSocket } from 'ws';
 
 interface ShopifyStore {
   shopDomain: string;
