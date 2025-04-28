@@ -5,6 +5,7 @@ import AutoPilotDashboardPage from "@/pages/auto-pilot-dashboard";
 import AIAssistantPage from "@/pages/ai-assistant";
 import SocialMediaPage from "@/pages/social-media-page";
 import SavingsChallengePage from "@/pages/savings-challenge";
+import ShopifyPage from "@/pages/admin/shopify-page";
 
 import { useEffect, useState } from "react";
 import { getProductRecommendations } from "@/lib/ai";
@@ -275,6 +276,7 @@ function App() {
           <Route path="/auto-pilot-dashboard" component={AutoPilotDashboardPage} />
           <Route path="/social-media" component={SocialMediaPage} />
           <Route path="/savings-challenge" component={SavingsChallengePage} />
+          <Route path="/admin/shopify" component={ShopifyPage} />
           <Route component={NotFound} />
         </Switch>
       </main>
