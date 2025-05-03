@@ -1,52 +1,57 @@
 # Auto-Deployment Setup Guide
 
-This guide explains how to set up automatic deployment for your Tesco Price Comparison application using GitHub Actions. This will allow you to automatically deploy your application whenever changes are pushed to your main branch.
+This guide explains how to set up automatic deployment for your Tesco Price Comparison application directly within Replit without requiring GitHub integration.
 
-## Prerequisites
+## Method 1: Scheduled Auto-Deployment
 
-1. A GitHub account
-2. Your Replit project connected to GitHub
-3. A Replit API token
+This method uses a scheduled script that runs at specified intervals to automatically create deployments of your application.
 
-## Step 1: Connect Your Replit Project to GitHub
+### Prerequisites
 
-1. In your Replit project, click on the "Version Control" tab in the left sidebar
-2. Click "Connect to GitHub"
-3. Follow the prompts to authorize Replit to access your GitHub account
-4. Create a new repository or select an existing one
+1. A Replit API token
+2. Your Replit project ID/slug
 
-## Step 2: Generate a Replit API Token
+### Step 1: Generate a Replit API Token
 
 1. Go to your Replit account settings: https://replit.com/account
 2. Navigate to the "API Tokens" section
 3. Click "Generate new token"
-4. Give your token a descriptive name like "GitHub Auto-Deploy"
+4. Give your token a descriptive name like "Auto-Deploy"
 5. Copy the generated token (you will only see it once)
 
-## Step 3: Add Your Replit Token to GitHub Secrets
+### Step 2: Add the API Token to Replit Secrets
 
-1. Go to your GitHub repository
-2. Click on "Settings" > "Secrets and variables" > "Actions"
-3. Click "New repository secret"
-4. Name: `REPLIT_TOKEN`
-5. Value: Paste your Replit API token from Step 2
-6. Click "Add secret"
+1. In your Replit project, go to the "Secrets" tab in the left sidebar (lock icon)
+2. Add a new secret:
+   - Key: `REPLIT_API_TOKEN`
+   - Value: Paste your Replit API token from Step 1
+3. Add another secret:
+   - Key: `REPLIT_SLUG`
+   - Value: Your Replit project ID (found in the URL of your Replit project)
 
-## Step 4: Push Your Repository to GitHub
+### Step 3: Start the Deployment Scheduler
 
-1. From your Replit project, go to the "Version Control" tab
-2. Add a commit message
-3. Click "Commit & push"
+There are two ways to use the auto-deployment scheduler:
 
-## Step 5: Verify GitHub Actions Workflow
+#### Option A: Run as a separate process
 
-1. Go to your GitHub repository
-2. Click on the "Actions" tab
-3. You should see the "Auto Deploy to Replit" workflow running
-4. Once it completes, go to your Replit project's "Deployments" tab
-5. You should see a new deployment that was created by the GitHub Action
+Run the scheduler script directly:
+```bash
+node scripts/schedule-deploy.js
+```
 
-## Step 6: Configure Domain (After Deployment)
+This will start the scheduler that will create deployments at the configured interval (default: every 12 hours).
+
+#### Option B: Integrate with your application
+
+Add the following code to your application's startup script (e.g., `server/index.ts`):
+
+```javascript
+// Start the auto-deployment scheduler
+require('../scripts/schedule-deploy').scheduleDeployments();
+```
+
+### Step 4: Configure Domain (After Deployment)
 
 After deployment is successful, you need to set up your domain:
 
@@ -54,17 +59,29 @@ After deployment is successful, you need to set up your domain:
    - Set an A record for @ (root domain) pointing to Replit's IP: 5.161.202.234
    - Set a CNAME record for www pointing to your Replit deployment URL
 
+## Method 2: Manual Deployment Script
+
+If you prefer to trigger deployments manually, you can use the deployment script:
+
+```bash
+node scripts/auto-deploy.js
+```
+
 ## Notes
 
 - You'll still need to manually click the "Promote" button in Replit to make a deployment live
 - This is a safety feature to ensure that you don't automatically promote a broken build
-- If you want fully automated promotion, you would need to use the Replit API directly (which is more complex and requires additional authentication)
+- Deployment logs are stored in the `logs` directory for troubleshooting
+
+## Customizing the Deployment Schedule
+
+You can change the deployment interval by editing the `deploymentInterval` property in `scripts/schedule-deploy.js`. The default is set to 12 hours (in milliseconds).
 
 ## Troubleshooting
 
-If you encounter any issues with your GitHub Actions workflow:
+If you encounter any issues with the auto-deployment:
 
-1. Check the workflow logs in the GitHub Actions tab
-2. Verify your REPLIT_TOKEN is correct and hasn't expired
-3. Make sure your Replit project is properly connected to GitHub
-4. Check if there are any build errors in your application
+1. Check the deployment logs in the `logs` directory
+2. Verify your REPLIT_API_TOKEN is correct and hasn't expired
+3. Make sure your REPLIT_SLUG is set correctly
+4. Look for error messages in the console output

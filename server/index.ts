@@ -10,6 +10,17 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Optional: Uncomment to enable auto-deployment scheduler
+// This will create deployments on the schedule defined in scripts/schedule-deploy.js
+// Note: You need to set REPLIT_API_TOKEN and REPLIT_SLUG in your Replit secrets
+// try {
+//   const { scheduleDeployments } = require('../scripts/schedule-deploy');
+//   scheduleDeployments();
+//   console.log('Auto-deployment scheduler started');
+// } catch (error) {
+//   console.warn('Auto-deployment scheduler could not be started:', error);
+// }
+
 // Ensure logs directory exists
 const logsDir = path.join(__dirname, "..", "logs");
 if (!fs.existsSync(logsDir)) {
