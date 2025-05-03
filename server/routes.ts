@@ -129,6 +129,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Special route for tesco vendor portal
+  app.get('/tesco-vendor', (req, res) => {
+    try {
+      const htmlFile = fs.readFileSync('./public/tesco-vendor.html', 'utf8');
+      res.set('Content-Type', 'text/html');
+      res.send(htmlFile);
+    } catch (err) {
+      console.error('Error serving tesco vendor page:', err);
+      res.status(500).send('Error loading tesco vendor page');
+    }
+  });
+  
   // Root mobile app (highest priority route)
   // Create a simple direct HTML response to check routing
   app.get('/health-check', (req, res) => {
