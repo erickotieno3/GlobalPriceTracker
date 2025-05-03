@@ -86,15 +86,29 @@ vendorRouter.post('/login', async (req: Request, res: Response) => {
     });
   }
 
-  // Find vendor account
+  // Find vendor account - with more logging for debugging
+  console.log(`Attempting login for: ${email}`);
   const vendor = VENDOR_ACCOUNTS.find(v => v.email === email);
   
-  if (!vendor || vendor.password !== password) {
+  if (!vendor) {
+    console.log(`Vendor not found for email: ${email}`);
     return res.status(401).json({ 
       success: false, 
       message: 'Invalid email or password' 
     });
   }
+  
+  // Compare passwords directly
+  console.log(`Checking password match for: ${email}`);
+  if (vendor.password !== password) {
+    console.log(`Password mismatch for: ${email}`);
+    return res.status(401).json({ 
+      success: false, 
+      message: 'Invalid email or password' 
+    });
+  }
+  
+  console.log(`Login successful for: ${email}`);
 
   // Create a session
   const sessionId = generateSessionId();
