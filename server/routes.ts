@@ -141,6 +141,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Direct access page for vendor login (with clear hyperlink)
+  app.get('/vendor-access', (req, res) => {
+    try {
+      const htmlFile = fs.readFileSync('./public/vendor-access.html', 'utf8');
+      res.set('Content-Type', 'text/html');
+      res.send(htmlFile);
+    } catch (err) {
+      console.error('Error serving vendor access page:', err);
+      res.status(500).send('Error loading vendor access page');
+    }
+  });
+  
   // Root mobile app (highest priority route)
   // Create a simple direct HTML response to check routing
   app.get('/health-check', (req, res) => {
