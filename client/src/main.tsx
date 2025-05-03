@@ -1,6 +1,9 @@
 import { createRoot } from "react-dom/client";
+import { QueryClientProvider } from "@tanstack/react-query";
 import App from "./App";
 import "./index.css";
+import { queryClient } from "./lib/queryClient";
+import { Toaster } from "@/components/ui/toaster";
 
 // Import our analytics and service integrations
 import { initializeAnalytics } from "./lib/analytics";
@@ -30,7 +33,12 @@ try {
   const rootElement = document.getElementById("root");
   
   if (rootElement) {
-    createRoot(rootElement).render(<App />);
+    createRoot(rootElement).render(
+      <QueryClientProvider client={queryClient}>
+        <App />
+        <Toaster />
+      </QueryClientProvider>
+    );
     console.log("React render call completed");
   } else {
     console.error("Root element not found in the DOM");
