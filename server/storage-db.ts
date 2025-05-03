@@ -85,14 +85,15 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(countries);
   }
   
-  async getCountry(id: number): Promise<Country | undefined> {
-    const [country] = await db.select().from(countries).where(eq(countries.id, id));
-    return country;
-  }
-  
-  async getCountryByCode(code: string): Promise<Country | undefined> {
-    const [country] = await db.select().from(countries).where(eq(countries.code, code));
-    return country;
+  async getCountry(idOrCode: number | string): Promise<Country | undefined> {
+    if (typeof idOrCode === 'number') {
+      const [country] = await db.select().from(countries).where(eq(countries.id, idOrCode));
+      return country;
+    } else {
+      // Try as country code first
+      const [country] = await db.select().from(countries).where(eq(countries.code, idOrCode));
+      return country;
+    }
   }
   
   async createCountry(country: InsertCountry): Promise<Country> {
