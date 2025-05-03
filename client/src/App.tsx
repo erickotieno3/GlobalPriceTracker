@@ -291,6 +291,13 @@ function App() {
           <Route path="/admin/shopify" component={ShopifyPage} />
           <Route path="/vendor-login" component={VendorLoginPage} />
           <Route path="/vendor-dashboard" component={VendorDashboardPage} />
+          <Route path="/tesco-vendor">
+            {() => {
+              // Redirect to the direct HTML vendor login page
+              window.location.href = "/tesco-vendor";
+              return null;
+            }}
+          </Route>
           <Route component={NotFound} />
         </Switch>
       </main>

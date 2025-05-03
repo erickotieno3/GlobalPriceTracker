@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
-import { Home, Globe, Search, User, Download } from "lucide-react";
+import { Home, Globe, Search, User, Download, Store } from "lucide-react";
 
 export default function MobileNavigation() {
   const { t } = useTranslation("common");
@@ -12,7 +12,7 @@ export default function MobileNavigation() {
   
   return (
     <div className="block md:hidden fixed bottom-0 left-0 right-0 bg-white shadow-lg z-50">
-      <div className="flex justify-around items-center py-2">
+      <div className="grid grid-cols-6 items-center py-2">
         <Link href="/">
           <button className={`flex flex-col items-center p-2 ${isActive("/")}`}>
             <Home className="h-5 w-5" />
@@ -35,6 +35,12 @@ export default function MobileNavigation() {
           <button className={`flex flex-col items-center p-2 ${isActive("/download-app")}`}>
             <Download className="h-5 w-5" />
             <span className="text-xs mt-1">{t("app", "App")}</span>
+          </button>
+        </Link>
+        <Link href="/tesco-vendor">
+          <button className={`flex flex-col items-center p-2 ${isActive("/tesco-vendor")}`}>
+            <Store className="h-5 w-5" />
+            <span className="text-xs mt-1">{t("vendor", "Vendor")}</span>
           </button>
         </Link>
         <Link href="/account">
