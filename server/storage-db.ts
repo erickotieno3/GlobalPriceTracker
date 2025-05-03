@@ -85,15 +85,14 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(countries);
   }
   
-  async getCountry(idOrCode: number | string): Promise<Country | undefined> {
-    if (typeof idOrCode === 'number') {
-      const [country] = await db.select().from(countries).where(eq(countries.id, idOrCode));
-      return country;
-    } else {
-      // Try as country code first
-      const [country] = await db.select().from(countries).where(eq(countries.code, idOrCode));
-      return country;
-    }
+  async getCountry(id: number): Promise<Country | undefined> {
+    const [country] = await db.select().from(countries).where(eq(countries.id, id));
+    return country;
+  }
+  
+  async getCountryByCode(code: string): Promise<Country | undefined> {
+    const [country] = await db.select().from(countries).where(eq(countries.code, code));
+    return country;
   }
   
   async createCountry(country: InsertCountry): Promise<Country> {
@@ -734,23 +733,14 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  // Get a country by string (code or name)
-  async getCountry(idOrCode: number | string): Promise<Country | undefined> {
-    if (typeof idOrCode === 'number') {
-      return this.getCountry(idOrCode);
-    } else {
-      // Try as country code first
-      const countryByCode = await this.getCountryByCode(idOrCode);
-      if (countryByCode) return countryByCode;
+  // Get a country by name
+  async getCountryByName(name: string): Promise<Country | undefined> {
+    const lowerName = name.toLowerCase();
+    const [country] = await db
+      .select()
+      .from(countries)
+      .where(sql`LOWER(${countries.name}) = ${lowerName}`);
       
-      // Try by name if code doesn't match
-      const lowerName = idOrCode.toLowerCase();
-      const [country] = await db
-        .select()
-        .from(countries)
-        .where(sql`LOWER(${countries.name}) = ${lowerName}`);
-        
-      return country;
-    }
+    return country;
   }
 }
