@@ -26,5 +26,19 @@ if [ -f deployment/auto-deploy.pid ]; then
   rm deployment/auto-deploy.pid
 fi
 
+# Stop the auto-SEO system
+if [ -f deployment/auto-seo.pid ]; then
+  echo "Stopping auto-SEO system..."
+  kill $(cat deployment/auto-seo.pid) 2>/dev/null || echo "Auto-SEO process not running"
+  rm deployment/auto-seo.pid
+fi
+
+# Stop the auto-Campaign marketing system
+if [ -f deployment/auto-campaign.pid ]; then
+  echo "Stopping auto-Campaign marketing system..."
+  kill $(cat deployment/auto-campaign.pid) 2>/dev/null || echo "Auto-Campaign process not running"
+  rm deployment/auto-campaign.pid
+fi
+
 echo ""
 echo "All components stopped."
