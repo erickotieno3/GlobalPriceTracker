@@ -12,7 +12,7 @@ import marketplaceRouter from "./marketplace-routes";
 import { aiRouter } from "./ai-routes";
 import { socialMediaRouter } from "./social-media";
 import { savingsChallengeRouter } from "./savings-challenge-routes";
-import paybillRouter from "./paybill-routes.js";
+import paybillRouter from "./paybill-routes";
 import ipBlocker from "./ip-blocker";
 import { WebSocketServer, WebSocket } from 'ws';
 import { revisionRouter } from "./revision-routes";
@@ -942,6 +942,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Shopify integration
   app.use("/api/shopify", shopifyRouter);
+  
+  // Mini Paybill System with E-Top-Up functionality
+  app.use("/api/paybill", paybillRouter);
   
   // Special admin login routes
   app.get('/admin-login.html', (req, res) => {
