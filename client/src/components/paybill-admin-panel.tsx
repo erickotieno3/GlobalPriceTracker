@@ -140,6 +140,36 @@ export default function PaybillAdminPanel() {
   };
   
   return (
+    const [paymentDetails, setPaymentDetails] = useState({
+    accountName: "",
+    accountNumber: "",
+    bankName: "",
+    mobileNumber: "",
+    preferredMethod: "bank" // "bank" or "mobile"
+  });
+  const [isEditingPaymentDetails, setIsEditingPaymentDetails] = useState(false);
+  
+  // Load payment details on component mount
+  useEffect(() => {
+    // In a real implementation, this would fetch from your backend API
+    const savedDetails = localStorage.getItem('paymentDetails');
+    if (savedDetails) {
+      setPaymentDetails(JSON.parse(savedDetails));
+    }
+  }, []);
+  
+  // Save payment details
+  const savePaymentDetails = () => {
+    // In a real implementation, this would save to your backend API
+    localStorage.setItem('paymentDetails', JSON.stringify(paymentDetails));
+    setIsEditingPaymentDetails(false);
+    toast({
+      title: "Payment details saved",
+      description: "Your commission withdrawal details have been updated",
+    });
+  };
+
+    return (
     <div className="space-y-6">
       <Card>
         <CardHeader>

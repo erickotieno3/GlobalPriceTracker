@@ -286,10 +286,12 @@ export default function PaybillPortal() {
           )}
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-3 mb-4">
+            <TabsList className="grid grid-cols-5 mb-4">
               <TabsTrigger value="top-up">Top Up</TabsTrigger>
               <TabsTrigger value="buy-airtime">Buy Airtime</TabsTrigger>
               <TabsTrigger value="pay-service">Pay Service</TabsTrigger>
+              <TabsTrigger value="check-balance">Check Balance</TabsTrigger>
+              <TabsTrigger value="transaction-history">History</TabsTrigger>
             </TabsList>
             
             <TabsContent value="top-up">
@@ -389,6 +391,189 @@ export default function PaybillPortal() {
                   {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Pay Service"}
                 </Button>
               </form>
+            </TabsContent>
+            
+            <TabsContent value="check-balance">
+              <div className="space-y-4">
+                <div className="bg-blue-50 p-4 rounded-md border border-blue-100">
+                  <h3 className="text-lg font-semibold mb-2">Account Balance Inquiry</h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Enter your phone number above to check your current balance.
+                  </p>
+                  
+                  {!phoneNumber ? (
+                    <Alert variant="destructive" className="bg-amber-50 border-amber-200">
+                      <AlertCircle className="h-4 w-4 text-amber-600" />
+                      <AlertTitle className="text-amber-800">Phone number required</AlertTitle>
+                      <AlertDescription className="text-amber-700">
+                        Please enter your phone number above to check your balance.
+                      </AlertDescription>
+                    </Alert>
+                  ) : loading ? (
+                    <div className="flex items-center justify-center p-4">
+                      <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                    </div>
+                  ) : balance !== null ? (
+                    <div className="bg-white p-6 rounded-md border border-blue-200 text-center">
+                      <p className="text-gray-600 mb-2">Your current balance is</p>
+                      <p className="text-3xl font-bold text-blue-700">${balance.toFixed(2)}</p>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="mt-4"
+                        onClick={fetchBalance}
+                      >
+                        <span className="mr-2">Refresh</span>
+                        <span className="h-4 w-4">↻</span>
+                      </Button>
+                    </div>
+                  ) : (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>No account found</AlertTitle>
+                      <AlertDescription>
+                        We couldn't find an account with that phone number. Try topping up first.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
+                  <p className="text-xs text-gray-500 mt-4">
+                    * Balance inquiries are free and do not incur any charges.
+                  </p>
+                </div>
+                
+                <div className="flex justify-between">
+                  <Button 
+                    variant="outline"
+                    onClick={() => setActiveTab("top-up")}
+                  >
+                    Top Up Account
+                  </Button>
+                  <Button
+                    onClick={() => setActiveTab("transaction-history")}
+                  >
+                    View Transaction History
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="transaction-history">
+              <div className="space-y-4">
+                <div className="bg-blue-50 p-4 rounded-md border border-blue-100">
+                  <h3 className="text-lg font-semibold mb-2">Transaction History</h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Enter your phone number above to view your transaction history.
+                  </p>
+                  
+                  {!phoneNumber ? (
+                    <Alert variant="destructive" className="bg-amber-50 border-amber-200">
+                      <AlertCircle className="h-4 w-4 text-amber-600" />
+                      <AlertTitle className="text-amber-800">Phone number required</AlertTitle>
+                      <AlertDescription className="text-amber-700">
+                        Please enter your phone number above to view your transactions.
+                      </AlertDescription>
+                    </Alert>
+                  ) : loading ? (
+                    <div className="flex items-center justify-center p-4">
+                      <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                    </div>
+                  ) : transactions.length > 0 ? (
+                    <div className="bg-white rounded-md border border-gray-200">
+                      <div className="max-h-96 overflow-y-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Date</TableHead>
+                              <TableHead>Type</TableHead>
+                              <TableHead>Amount</TableHead>
+                              <TableHead>Details</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {transactions.map((transaction) => (
+                              <TableRow 
+                                key={transaction.id}
+                                className="cursor-pointer hover:bg-gray-50"
+                                onClick={() => setSelectedTransaction(transaction.id === selectedTransaction ? null : transaction.id)}
+                              >
+                                <TableCell>{formatDate(transaction.date)}</TableCell>
+                                <TableCell>{transaction.type.replace('_', ' ')}</TableCell>
+                                <TableCell className={transaction.type === 'TOP_UP' ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
+                                  {transaction.type === 'TOP_UP' ? '+' : '-'}${transaction.amount.toFixed(2)}
+                                </TableCell>
+                                <TableCell>
+                                  <Button variant="ghost" size="sm">
+                                    View
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                      
+                      {selectedTransaction && receipt && (
+                        <div className="p-4 border-t">
+                          <h4 className="font-semibold flex items-center mb-2">
+                            <ReceiptText className="h-4 w-4 mr-1" /> Transaction Receipt
+                          </h4>
+                          <div className="grid grid-cols-2 gap-2 text-sm bg-gray-50 p-4 rounded-md">
+                            <p className="text-gray-500">Receipt Number:</p>
+                            <p>{receipt.receiptNumber}</p>
+                            
+                            <p className="text-gray-500">Date:</p>
+                            <p>{receipt.date}</p>
+                            
+                            <p className="text-gray-500">Amount:</p>
+                            <p>{receipt.amount}</p>
+                            
+                            <p className="text-gray-500">Description:</p>
+                            <p>{receipt.description}</p>
+                            
+                            <p className="text-gray-500">Paybill:</p>
+                            <p>{receipt.paybillNumber}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <Alert>
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>No transactions</AlertTitle>
+                      <AlertDescription>
+                        You don't have any transactions yet. Start by topping up your account.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
+                  <div className="flex justify-end mt-4">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={fetchTransactions}
+                      disabled={!phoneNumber}
+                    >
+                      <span className="mr-2">Refresh</span>
+                      <span className="h-4 w-4">↻</span>
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="flex justify-between">
+                  <Button 
+                    variant="outline"
+                    onClick={() => setActiveTab("check-balance")}
+                  >
+                    Check Balance
+                  </Button>
+                  <Button
+                    onClick={() => setActiveTab("top-up")}
+                  >
+                    Top Up Account
+                  </Button>
+                </div>
+              </div>
             </TabsContent>
           </Tabs>
           
