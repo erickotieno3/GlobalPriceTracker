@@ -66,6 +66,28 @@ interface ServicePaymentResult {
   serviceId?: string;
 }
 
+interface Commission {
+  id: string;
+  transactionId: string;
+  transactionType: TransactionType;
+  amount: number;
+  commissionAmount: number;
+  date: string;
+  processed: boolean;
+}
+
+interface CommissionSummary {
+  totalCommission: number;
+  pendingCommission: number;
+  processedCommission: number;
+  commissionsByType: {
+    TOP_UP: number;
+    AIRTIME_PURCHASE: number;
+    SERVICE_PAYMENT: number;
+  };
+  recentCommissions: Commission[];
+}
+
 interface ReceiptResult {
   success: boolean;
   message?: string;
@@ -158,6 +180,60 @@ function generateTransactionId(): string {
   return crypto.randomBytes(8).toString('hex').toUpperCase();
 }
 
+// Load commissions from file
+function loadCommissions(): Commission[] {
+  ensureDataDirectory();
+  
+  if (fs.existsSync(COMMISSIONS_FILE)) {
+    try {
+      const data = fs.readFileSync(COMMISSIONS_FILE, 'utf8');
+      return JSON.parse(data);
+    } catch (error) {
+      console.error(`Error loading commissions: ${(error as Error).message}`);
+      return [];
+    }
+  } else {
+    return [];
+  }
+}
+
+// Save commissions to file
+function saveCommissions(commissions: Commission[]): boolean {
+  ensureDataDirectory();
+  
+  try {
+    fs.writeFileSync(COMMISSIONS_FILE, JSON.stringify(commissions, null, 2));
+    return true;
+  } catch (error) {
+    console.error(`Error saving commissions: ${(error as Error).message}`);
+    return false;
+  }
+}
+
+// Record a commission for a transaction
+function recordCommission(transaction: Transaction): Commission {
+  const commissions = loadCommissions();
+  const commissionRate = COMMISSION_RATES[transaction.type];
+  const commissionAmount = transaction.amount * commissionRate;
+  
+  const commission: Commission = {
+    id: generateTransactionId(),
+    transactionId: transaction.id,
+    transactionType: transaction.type,
+    amount: transaction.amount,
+    commissionAmount,
+    date: new Date().toISOString(),
+    processed: false
+  };
+  
+  commissions.push(commission);
+  saveCommissions(commissions);
+  
+  console.log(`Commission recorded: ${commission.commissionAmount.toFixed(2)} for transaction ${commission.transactionId}`);
+  
+  return commission;
+}
+
 // Record a transaction
 function recordTransaction(
   phoneNumber: string, 
@@ -179,6 +255,9 @@ function recordTransaction(
   
   transactions.push(transaction);
   saveTransactions(transactions);
+  
+  // Record commission for this transaction
+  recordCommission(transaction);
   
   return transaction;
 }
@@ -381,6 +460,77 @@ function generateReceipt(transactionId: string): ReceiptResult {
   };
 }
 
+// Get commission summary
+function getCommissionSummary(): CommissionSummary {
+  const commissions = loadCommissions();
+  
+  const totalCommission = commissions.reduce((sum, commission) => sum + commission.commissionAmount, 0);
+  const pendingCommission = commissions
+    .filter(c => !c.processed)
+    .reduce((sum, commission) => sum + commission.commissionAmount, 0);
+  const processedCommission = totalCommission - pendingCommission;
+  
+  // Calculate commissions by type
+  const commissionsByType = {
+    TOP_UP: 0,
+    AIRTIME_PURCHASE: 0,
+    SERVICE_PAYMENT: 0
+  };
+  
+  commissions.forEach(commission => {
+    commissionsByType[commission.transactionType] += commission.commissionAmount;
+  });
+  
+  // Get most recent commissions (last 10)
+  const recentCommissions = [...commissions]
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 10);
+  
+  return {
+    totalCommission,
+    pendingCommission,
+    processedCommission,
+    commissionsByType,
+    recentCommissions
+  };
+}
+
+// Process pending commissions (mark as processed)
+function processCommissions(): { success: boolean, processedCount: number, totalAmount: number } {
+  const commissions = loadCommissions();
+  
+  const pendingCommissions = commissions.filter(c => !c.processed);
+  if (pendingCommissions.length === 0) {
+    return {
+      success: true,
+      processedCount: 0,
+      totalAmount: 0
+    };
+  }
+  
+  // Mark all pending commissions as processed
+  pendingCommissions.forEach(commission => {
+    commission.processed = true;
+  });
+  
+  const saved = saveCommissions(commissions);
+  
+  if (saved) {
+    const totalAmount = pendingCommissions.reduce((sum, c) => sum + c.commissionAmount, 0);
+    return {
+      success: true,
+      processedCount: pendingCommissions.length,
+      totalAmount
+    };
+  } else {
+    return {
+      success: false,
+      processedCount: 0,
+      totalAmount: 0
+    };
+  }
+}
+
 // Export the functions
 export default {
   PAYBILL_NUMBER,
@@ -390,5 +540,9 @@ export default {
   buyAirtime,
   payService,
   generateReceipt,
-  generateTransactionId
+  generateTransactionId,
+  // Commission-related functions
+  getCommissionSummary,
+  processCommissions,
+  COMMISSION_RATES
 };

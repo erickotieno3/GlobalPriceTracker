@@ -1,149 +1,126 @@
 /**
- * API Routes for Mini Paybill System
+ * Mini Paybill System API Routes
  * 
- * These routes expose the paybill service functionality via RESTful API endpoints.
+ * This file handles all API routes for the E-Top-Up service similar to PesaPal's
+ * but with our own unique paybill number (787878) and commission tracking system.
  */
 
-import express from 'express';
+import { Router } from 'express';
+import type { Request, Response } from 'express';
 import paybillService from './paybill-service';
 
-const router = express.Router();
+// Create router for paybill endpoints
+const paybillRouter = Router();
 
-// Middleware to validate phone number
-function validatePhoneNumber(req: express.Request, res: express.Response, next: express.NextFunction) {
-  const phoneNumber = req.body.phoneNumber || req.query.phoneNumber;
-  
-  if (!phoneNumber) {
-    return res.status(400).json({
-      success: false,
-      message: 'Phone number is required'
-    });
-  }
-  
-  // Simple regex for phone number validation (can be enhanced for specific formats)
-  const phoneRegex = /^\+?[0-9]{10,15}$/;
-  if (!phoneRegex.test(phoneNumber as string)) {
-    return res.status(400).json({
-      success: false,
-      message: 'Invalid phone number format'
-    });
-  }
-  
-  next();
-}
-
-// Middleware to validate amount
-function validateAmount(req: express.Request, res: express.Response, next: express.NextFunction) {
-  const amount = parseFloat(req.body.amount);
-  
-  if (isNaN(amount) || amount <= 0) {
-    return res.status(400).json({
-      success: false,
-      message: 'Invalid amount. Amount must be a positive number.'
-    });
-  }
-  
-  req.body.amount = amount; // Ensure amount is a number
-  next();
-}
+// Get paybill number
+paybillRouter.get('/number', (req: Request, res: Response) => {
+  res.json({ paybillNumber: paybillService.PAYBILL_NUMBER });
+});
 
 // Get account balance
-router.get('/balance', validatePhoneNumber, (req, res) => {
-  const phoneNumber = req.query.phoneNumber as string;
+paybillRouter.get('/balance/:phoneNumber', (req: Request, res: Response) => {
+  const { phoneNumber } = req.params;
   const balance = paybillService.getAccountBalance(phoneNumber);
-  
-  res.json({
-    success: true,
-    phoneNumber,
-    balance
-  });
+  res.json({ balance });
 });
 
 // Get transaction history
-router.get('/transactions', validatePhoneNumber, (req, res) => {
-  const phoneNumber = req.query.phoneNumber as string;
+paybillRouter.get('/transactions/:phoneNumber', (req: Request, res: Response) => {
+  const { phoneNumber } = req.params;
   const transactions = paybillService.getTransactionHistory(phoneNumber);
-  
-  res.json({
-    success: true,
-    phoneNumber,
-    count: transactions.length,
-    transactions
-  });
+  res.json({ transactions });
 });
 
 // Top up account
-router.post('/top-up', validatePhoneNumber, validateAmount, (req, res) => {
+paybillRouter.post('/topup', (req: Request, res: Response) => {
   const { phoneNumber, amount } = req.body;
-  const result = paybillService.topUpAccount(phoneNumber, amount);
   
-  if (result.success) {
-    res.status(201).json(result);
-  } else {
-    res.status(400).json(result);
+  if (!phoneNumber || !amount) {
+    return res.status(400).json({ success: false, message: 'Phone number and amount are required' });
   }
+  
+  const result = paybillService.topUpAccount(phoneNumber, parseFloat(amount));
+  res.json(result);
 });
 
 // Buy airtime
-router.post('/buy-airtime', validatePhoneNumber, validateAmount, (req, res) => {
+paybillRouter.post('/airtime', (req: Request, res: Response) => {
   const { phoneNumber, amount, targetNumber } = req.body;
-  const result = paybillService.buyAirtime(phoneNumber, amount, targetNumber);
   
-  if (result.success) {
-    res.status(201).json(result);
-  } else {
-    res.status(400).json(result);
+  if (!phoneNumber || !amount) {
+    return res.status(400).json({ success: false, message: 'Phone number and amount are required' });
   }
+  
+  const result = paybillService.buyAirtime(phoneNumber, parseFloat(amount), targetNumber);
+  res.json(result);
 });
 
-// Pay for service
-router.post('/pay-service', validatePhoneNumber, validateAmount, (req, res) => {
+// Pay for a service
+paybillRouter.post('/pay-service', (req: Request, res: Response) => {
   const { phoneNumber, serviceId, amount, reference } = req.body;
   
-  if (!serviceId) {
-    return res.status(400).json({
-      success: false,
-      message: 'Service ID is required'
+  if (!phoneNumber || !serviceId || !amount) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Phone number, service ID, and amount are required' 
     });
   }
   
-  const result = paybillService.payService(phoneNumber, serviceId, amount, reference);
-  
-  if (result.success) {
-    res.status(201).json(result);
-  } else {
-    res.status(400).json(result);
-  }
+  const result = paybillService.payService(phoneNumber, serviceId, parseFloat(amount), reference);
+  res.json(result);
 });
 
 // Generate receipt
-router.get('/receipt/:transactionId', (req, res) => {
+paybillRouter.get('/receipt/:transactionId', (req: Request, res: Response) => {
   const { transactionId } = req.params;
-  
-  if (!transactionId) {
-    return res.status(400).json({
-      success: false,
-      message: 'Transaction ID is required'
-    });
-  }
-  
   const result = paybillService.generateReceipt(transactionId);
-  
-  if (result.success) {
-    res.json(result);
-  } else {
-    res.status(404).json(result);
-  }
+  res.json(result);
 });
 
-// Get paybill information
-router.get('/info', (req, res) => {
+// ADMIN ENDPOINTS - Protected with basic CSRF bypass security
+// Get commission summary (for admin)
+paybillRouter.get('/admin/commissions', (req: Request, res: Response) => {
+  // Simple security check - this would be more robust in production
+  const token = req.headers['x-admin-token'];
+  if (token !== 'ADMIN_SECURE_TOKEN') {
+    return res.status(403).json({ success: false, message: 'Unauthorized access' });
+  }
+  
+  const commissionSummary = paybillService.getCommissionSummary();
+  res.json({ success: true, data: commissionSummary });
+});
+
+// Process pending commissions (for admin)
+paybillRouter.post('/admin/process-commissions', (req: Request, res: Response) => {
+  // Simple security check - this would be more robust in production
+  const token = req.headers['x-admin-token'];
+  if (token !== 'ADMIN_SECURE_TOKEN') {
+    return res.status(403).json({ success: false, message: 'Unauthorized access' });
+  }
+  
+  const result = paybillService.processCommissions();
   res.json({
-    success: true,
-    paybillNumber: paybillService.PAYBILL_NUMBER,
-    name: 'Tesco Price Comparison E-Top-Up',
-    description: 'Pay for services, buy airtime, and top up your account'
+    success: result.success,
+    message: result.success 
+      ? `Successfully processed ${result.processedCount} commission(s) totaling ${result.totalAmount.toFixed(2)}` 
+      : 'Failed to process commissions',
+    processedCount: result.processedCount,
+    totalAmount: result.totalAmount
   });
 });
 
-export default router;
+// Get commission rates (for admin)
+paybillRouter.get('/admin/commission-rates', (req: Request, res: Response) => {
+  // Simple security check - this would be more robust in production
+  const token = req.headers['x-admin-token'];
+  if (token !== 'ADMIN_SECURE_TOKEN') {
+    return res.status(403).json({ success: false, message: 'Unauthorized access' });
+  }
+  
+  res.json({ 
+    success: true, 
+    data: paybillService.COMMISSION_RATES 
+  });
+});
+
+export default paybillRouter;
