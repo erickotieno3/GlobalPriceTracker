@@ -12,6 +12,7 @@ import marketplaceRouter from "./marketplace-routes";
 import { aiRouter } from "./ai-routes";
 import { socialMediaRouter } from "./social-media";
 import { savingsChallengeRouter } from "./savings-challenge-routes";
+import paybillRouter from "./paybill-routes.js";
 import ipBlocker from "./ip-blocker";
 import { WebSocketServer, WebSocket } from 'ws';
 import { revisionRouter } from "./revision-routes";
