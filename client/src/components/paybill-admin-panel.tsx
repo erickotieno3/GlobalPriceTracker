@@ -17,7 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import axios from 'axios';
 
 interface Commission {
@@ -46,11 +46,12 @@ export default function PaybillAdminPanel() {
   const [summary, setSummary] = useState<CommissionSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [processingCommissions, setProcessingCommissions] = useState(false);
+  const { toast } = useToast();
   
   useEffect(() => {
     fetchCommissionSummary();
   }, []);
-  
+
   const fetchCommissionSummary = async () => {
     setLoading(true);
     try {
