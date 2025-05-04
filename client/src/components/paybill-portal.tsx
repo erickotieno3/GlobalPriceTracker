@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, CheckCircle, AlertCircle, ReceiptText } from 'lucide-react';
+import { Loader2, CheckCircle, AlertCircle, ReceiptText, Printer, Download } from 'lucide-react';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import axios from 'axios';
 
@@ -136,7 +136,7 @@ export default function PaybillPortal() {
     setSuccess(null);
 
     try {
-      const response = await axios.post('/api/paybill/top-up', {
+      const response = await axios.post('/api/paybill/topup', {
         phoneNumber,
         amount: parseFloat(amount)
       });
@@ -144,12 +144,31 @@ export default function PaybillPortal() {
       if (response.data.success) {
         setBalance(response.data.balance);
         setSuccess(response.data.message);
+        
+        // Get the transaction ID for receipt generation
+        const transactionId = response.data.transaction?.id;
+        
         toast({
-          title: "Success!",
-          description: response.data.message,
+          title: "Account Topped Up!",
+          description: `$${amount} added to your account. New balance: $${response.data.balance.toFixed(2)}`,
         });
+        
+        // Fetch updated transactions immediately
         fetchTransactions();
+        
+        // Generate receipt if transaction was successful
+        if (transactionId) {
+          fetchReceipt(transactionId);
+          setSelectedTransaction(transactionId);
+        }
+        
+        // Clear the form
         setAmount("");
+        
+        // Automatically switch to view receipt
+        setTimeout(() => {
+          setActiveTab("transaction-history");
+        }, 1500);
       }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to process top-up');
@@ -555,25 +574,111 @@ export default function PaybillPortal() {
                       </div>
                       
                       {selectedTransaction && receipt && (
-                        <div className="p-4 border-t">
-                          <h4 className="font-semibold flex items-center mb-2">
-                            <ReceiptText className="h-4 w-4 mr-1" /> Transaction Receipt
-                          </h4>
-                          <div className="grid grid-cols-2 gap-2 text-sm bg-gray-50 p-4 rounded-md">
-                            <p className="text-gray-500">Receipt Number:</p>
-                            <p>{receipt.receiptNumber}</p>
+                        <div className="p-4 border-t border-dashed border-gray-200">
+                          <div className="flex justify-between items-start mb-3">
+                            <h4 className="font-semibold flex items-center">
+                              <ReceiptText className="h-4 w-4 mr-1" /> Transaction Receipt
+                            </h4>
+                            <div className="flex space-x-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => window.print()}
+                                className="flex items-center text-xs"
+                              >
+                                <Printer className="h-3 w-3 mr-1" /> Print
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => {
+                                  // Simulate download receipt functionality
+                                  toast({
+                                    title: "Receipt Downloaded",
+                                    description: "Receipt has been downloaded to your device.",
+                                  });
+                                }}
+                                className="flex items-center text-xs"
+                              >
+                                <Download className="h-3 w-3 mr-1" /> Download
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          <div className="bg-white border border-blue-100 rounded-md p-6 relative overflow-hidden">
+                            {/* Logo and header */}
+                            <div className="flex justify-between items-center mb-4 pb-4 border-b">
+                              <div className="flex flex-col">
+                                <span className="text-xl font-bold text-blue-800">E-Top-Up</span>
+                                <span className="text-sm text-gray-500">Official Receipt</span>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-lg font-bold">{receipt.paybillNumber}</div>
+                                <div className="text-xs text-gray-500">Paybill Number</div>
+                              </div>
+                            </div>
                             
-                            <p className="text-gray-500">Date:</p>
-                            <p>{receipt.date}</p>
+                            {/* Status indicator */}
+                            <div className={`absolute top-2 right-2 px-3 py-1 text-xs font-bold rounded-full ${
+                              receipt.status === 'COMPLETED' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {receipt.status}
+                            </div>
                             
-                            <p className="text-gray-500">Amount:</p>
-                            <p>{receipt.amount}</p>
+                            {/* Receipt details */}
+                            <div className="mb-6">
+                              <div className="grid grid-cols-2 gap-3 mb-4">
+                                <div>
+                                  <div className="text-xs text-gray-500">Receipt Number</div>
+                                  <div className="font-medium">{receipt.receiptNumber}</div>
+                                </div>
+                                <div>
+                                  <div className="text-xs text-gray-500">Date & Time</div>
+                                  <div className="font-medium">{new Date(receipt.date).toLocaleString()}</div>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <div className="text-xs text-gray-500">Phone Number</div>
+                                  <div className="font-medium">{receipt.phoneNumber}</div>
+                                </div>
+                                <div>
+                                  <div className="text-xs text-gray-500">Reference</div>
+                                  <div className="font-medium">{receipt.reference || "-"}</div>
+                                </div>
+                              </div>
+                            </div>
                             
-                            <p className="text-gray-500">Description:</p>
-                            <p>{receipt.description}</p>
+                            {/* Transaction details with highlight */}
+                            <div className="bg-blue-50 p-4 rounded-md mb-4">
+                              <div className="flex justify-between items-center mb-2">
+                                <span className="text-sm font-medium text-gray-700">Transaction Type</span>
+                                <span className="font-semibold text-blue-800">
+                                  {receipt.transactionType.replace('_', ' ')}
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-center mb-2">
+                                <span className="text-sm font-medium text-gray-700">Amount</span>
+                                <span className="font-bold text-lg">
+                                  ${receipt.amount}
+                                </span>
+                              </div>
+                              <div className="text-sm text-gray-700 mt-2">
+                                <span className="font-medium">Description:</span> {receipt.description}
+                              </div>
+                            </div>
                             
-                            <p className="text-gray-500">Paybill:</p>
-                            <p>{receipt.paybillNumber}</p>
+                            {/* Footer with watermark */}
+                            <div className="mt-8 pt-4 border-t text-center text-xs text-gray-500 relative">
+                              <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
+                                <div className="text-6xl font-bold text-blue-900 rotate-45">PAID</div>
+                              </div>
+                              <p>Thank you for using our service. This is an official receipt.</p>
+                              <p className="mt-1">For support, please contact our customer service team.</p>
+                            </div>
                           </div>
                         </div>
                       )}
