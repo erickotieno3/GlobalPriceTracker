@@ -175,7 +175,7 @@ export default function PaybillPortal() {
     setSuccess(null);
 
     try {
-      const response = await axios.post('/api/paybill/buy-airtime', {
+      const response = await axios.post('/api/paybill/airtime', {
         phoneNumber,
         amount: parseFloat(amount),
         targetNumber: targetNumber || phoneNumber
@@ -184,13 +184,33 @@ export default function PaybillPortal() {
       if (response.data.success) {
         setBalance(response.data.balance);
         setSuccess(response.data.message);
+        
+        // Get the transaction ID for receipt generation
+        const transactionId = response.data.transaction?.id;
+        
+        // Show toast notification
         toast({
-          title: "Success!",
-          description: response.data.message,
+          title: "Airtime Purchased Successfully!",
+          description: `${amount} airtime sent to ${targetNumber || phoneNumber}. Your new balance is $${response.data.balance.toFixed(2)}`,
         });
+        
+        // Fetch updated transactions immediately
         fetchTransactions();
+        
+        // Generate receipt if transaction was successful
+        if (transactionId) {
+          fetchReceipt(transactionId);
+          setSelectedTransaction(transactionId);
+        }
+        
+        // Clear the form
         setAmount("");
         if (!targetNumber) setTargetNumber("");
+        
+        // Automatically switch to view receipt
+        setTimeout(() => {
+          setActiveTab("transaction-history");
+        }, 1500);
       }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to buy airtime');
@@ -216,6 +236,7 @@ export default function PaybillPortal() {
     setSuccess(null);
 
     try {
+      // Use the correct API endpoint
       const response = await axios.post('/api/paybill/pay-service', {
         phoneNumber,
         serviceId,
@@ -226,14 +247,33 @@ export default function PaybillPortal() {
       if (response.data.success) {
         setBalance(response.data.balance);
         setSuccess(response.data.message);
+        
+        // Get the transaction ID for receipt generation
+        const transactionId = response.data.transaction?.id;
+        
         toast({
-          title: "Success!",
-          description: response.data.message,
+          title: "Payment Successful!",
+          description: `Payment of $${amount} to service ${serviceId} completed. Your new balance is $${response.data.balance.toFixed(2)}`,
         });
+        
+        // Fetch updated transactions immediately
         fetchTransactions();
+        
+        // Generate receipt if transaction was successful
+        if (transactionId) {
+          fetchReceipt(transactionId);
+          setSelectedTransaction(transactionId);
+        }
+        
+        // Clear the form
         setAmount("");
         setServiceId("");
         setReference("");
+        
+        // Automatically switch to view receipt
+        setTimeout(() => {
+          setActiveTab("transaction-history");
+        }, 1500);
       }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to process payment');
