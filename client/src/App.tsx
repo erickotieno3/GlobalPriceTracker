@@ -5,6 +5,7 @@ import AutoPilotDashboardPage from "@/pages/auto-pilot-dashboard";
 import AIAssistantPage from "@/pages/ai-assistant";
 import SocialMediaPage from "@/pages/social-media-page";
 import SavingsChallengePage from "@/pages/savings-challenge";
+import PaybillPage from "@/pages/paybill-page";
 import ShopifyPage from "./pages/admin/shopify-page";
 import VendorLoginPage from "./pages/vendor-login";
 import VendorDashboardPage from "./pages/vendor-dashboard";
@@ -115,6 +116,20 @@ function HomePage() {
         </div>
       </div>
       
+      {/* New Paybill Service Promotion */}
+      <div className="bg-blue-100 border border-blue-300 rounded-lg p-6 mb-8">
+        <h2 className="text-2xl font-semibold text-blue-800 mb-4">New: 220220 E-Top-Up Service!</h2>
+        <p className="mb-4 text-blue-700">
+          Use our new paybill number <span className="font-bold">220220</span> to top up your account, 
+          buy airtime, or pay for various services directly from our platform.
+        </p>
+        <Link href="/paybill">
+          <span className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 inline-block cursor-pointer">
+            Try E-Top-Up Portal
+          </span>
+        </Link>
+      </div>
+        
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8">
         <h2 className="text-2xl font-semibold mb-4">Application Status</h2>
         <p className="mb-2">
@@ -175,6 +190,11 @@ function Header() {
                 </Link>
               </li>
               <li>
+                <Link href="/paybill">
+                  <span className="text-blue-600 font-medium hover:text-blue-800 cursor-pointer">220220 E-Top-Up</span>
+                </Link>
+              </li>
+              <li>
                 <Link href="/vendor-login">
                   <span className="bg-green-100 text-green-800 px-2 py-1 rounded hover:bg-green-200 cursor-pointer">Vendor Portal</span>
                 </Link>
@@ -225,6 +245,11 @@ function Footer() {
               <li>
                 <Link href="/savings-challenge">
                   <span className="text-gray-600 hover:text-blue-600 cursor-pointer">Savings Challenge</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/paybill">
+                  <span className="text-gray-600 hover:text-blue-600 cursor-pointer">220220 E-Top-Up</span>
                 </Link>
               </li>
               <li>
@@ -288,6 +313,7 @@ function App() {
           <Route path="/auto-pilot-dashboard" component={AutoPilotDashboardPage} />
           <Route path="/social-media" component={SocialMediaPage} />
           <Route path="/savings-challenge" component={SavingsChallengePage} />
+          <Route path="/paybill" component={PaybillPage} />
           <Route path="/admin/shopify" component={ShopifyPage} />
           <Route path="/vendor-login" component={VendorLoginPage} />
           <Route path="/vendor-dashboard" component={VendorDashboardPage} />
