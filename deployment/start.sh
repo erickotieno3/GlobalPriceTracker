@@ -37,17 +37,11 @@ node scripts/auto-deploy.js > logs/auto-deploy.log 2>&1 &
 echo $! > deployment/auto-deploy.pid
 echo "Auto-deployment script started with PID $(cat deployment/auto-deploy.pid)"
 
-# Start the auto-SEO system
-echo "Starting auto-SEO system..."
-node scripts/auto-seo.js > logs/auto-seo.log 2>&1 &
-echo $! > deployment/auto-seo.pid
-echo "Auto-SEO system started with PID $(cat deployment/auto-seo.pid)"
-
-# Start the auto-Campaign marketing system
-echo "Starting auto-Campaign marketing system..."
-node scripts/auto-campaign.js > logs/auto-campaign.log 2>&1 &
-echo $! > deployment/auto-campaign.pid
-echo "Auto-Campaign marketing system started with PID $(cat deployment/auto-campaign.pid)"
+# Start the unified marketing automation system
+echo "Starting marketing automation system..."
+node scripts/marketing-automation.js > logs/marketing-automation.log 2>&1 &
+echo $! > deployment/marketing-automation.pid
+echo "Marketing automation system started with PID $(cat deployment/marketing-automation.pid)"
 
 echo ""
 echo "All components started successfully!"

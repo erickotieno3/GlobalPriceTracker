@@ -38,26 +38,15 @@ else
   echo "✗ Auto-deployment script: NOT STARTED"
 fi
 
-# Check auto-SEO system
-if [ -f deployment/auto-seo.pid ]; then
-  if ps -p $(cat deployment/auto-seo.pid) > /dev/null; then
-    echo "✓ Auto-SEO system: RUNNING (PID: $(cat deployment/auto-seo.pid))"
+# Check marketing automation system
+if [ -f deployment/marketing-automation.pid ]; then
+  if ps -p $(cat deployment/marketing-automation.pid) > /dev/null; then
+    echo "✓ Marketing automation system: RUNNING (PID: $(cat deployment/marketing-automation.pid))"
   else
-    echo "✗ Auto-SEO system: STOPPED (stale PID file)"
+    echo "✗ Marketing automation system: STOPPED (stale PID file)"
   fi
 else
-  echo "✗ Auto-SEO system: NOT STARTED"
-fi
-
-# Check auto-Campaign marketing system
-if [ -f deployment/auto-campaign.pid ]; then
-  if ps -p $(cat deployment/auto-campaign.pid) > /dev/null; then
-    echo "✓ Auto-Campaign system: RUNNING (PID: $(cat deployment/auto-campaign.pid))"
-  else
-    echo "✗ Auto-Campaign system: STOPPED (stale PID file)"
-  fi
-else
-  echo "✗ Auto-Campaign system: NOT STARTED"
+  echo "✗ Marketing automation system: NOT STARTED"
 fi
 
 echo ""
@@ -72,11 +61,27 @@ echo ""
 echo "Auto-deployment log:"
 tail -n 3 logs/auto-deploy.log 2>/dev/null || echo "No auto-deployment logs found"
 echo ""
+echo "Marketing Automation log:"
+tail -n 5 logs/marketing-automation.log 2>/dev/null || echo "No marketing automation logs found"
+echo ""
+echo "Marketing Health Report:"
+if [ -f logs/marketing-health.json ]; then
+  echo "✓ Health report available - last updated: $(date -r logs/marketing-health.json '+%Y-%m-%d %H:%M:%S')"
+  if command -v jq &> /dev/null; then
+    jq -r '"✓ Overall Health Score: " + (.overallHealthScore | tostring) + "%"' logs/marketing-health.json 2>/dev/null || echo "  Unable to parse health score"
+  else
+    grep -o '"overallHealthScore": [0-9]*' logs/marketing-health.json | grep -o '[0-9]*' | xargs -I{} echo "✓ Overall Health Score: {}%" 2>/dev/null || echo "  Unable to parse health score"
+  fi
+else
+  echo "✗ No marketing health report found"
+fi
+echo ""
+echo "Legacy Logs (for reference):"
 echo "Auto-SEO log:"
-tail -n 3 logs/auto-seo.log 2>/dev/null || echo "No auto-SEO logs found"
+tail -n 2 logs/auto-seo.log 2>/dev/null || echo "No auto-SEO logs found"
 echo ""
 echo "Auto-Campaign log:"
-tail -n 3 logs/auto-campaign.log 2>/dev/null || echo "No auto-campaign logs found"
+tail -n 2 logs/auto-campaign.log 2>/dev/null || echo "No auto-campaign logs found"
 
 # Check for marketing content
 echo ""

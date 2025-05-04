@@ -26,17 +26,21 @@ if [ -f deployment/auto-deploy.pid ]; then
   rm deployment/auto-deploy.pid
 fi
 
-# Stop the auto-SEO system
+# Stop the marketing automation system
+if [ -f deployment/marketing-automation.pid ]; then
+  echo "Stopping marketing automation system..."
+  kill $(cat deployment/marketing-automation.pid) 2>/dev/null || echo "Marketing automation process not running"
+  rm deployment/marketing-automation.pid
+fi
+
+# Legacy cleanup - remove old PIDs if they exist
 if [ -f deployment/auto-seo.pid ]; then
-  echo "Stopping auto-SEO system..."
-  kill $(cat deployment/auto-seo.pid) 2>/dev/null || echo "Auto-SEO process not running"
+  echo "Cleaning up old auto-SEO PID file..."
   rm deployment/auto-seo.pid
 fi
 
-# Stop the auto-Campaign marketing system
 if [ -f deployment/auto-campaign.pid ]; then
-  echo "Stopping auto-Campaign marketing system..."
-  kill $(cat deployment/auto-campaign.pid) 2>/dev/null || echo "Auto-Campaign process not running"
+  echo "Cleaning up old auto-campaign PID file..."
   rm deployment/auto-campaign.pid
 fi
 

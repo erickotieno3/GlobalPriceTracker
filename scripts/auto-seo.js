@@ -190,7 +190,9 @@ async function generateSitemap(pages) {
   log('Generating sitemap.xml...');
   
   const now = new Date().toISOString();
-  const xmlEntries = pages.map(page => `
+  
+  // Add product and category pages
+  let xmlEntries = pages.map(page => `
   <url>
     <loc>${config.siteUrl}${page.url}</loc>
     <lastmod>${now}</lastmod>
@@ -198,6 +200,42 @@ async function generateSitemap(pages) {
     <priority>${page.priority || '0.7'}</priority>
   </url>
   `).join('');
+  
+  // Add store pages
+  const stores = await fetchStores();
+  const storeEntries = stores.map(store => `
+  <url>
+    <loc>${config.siteUrl}/store/${store.id}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  `).join('');
+  
+  xmlEntries += storeEntries;
+  
+  // Add important static pages
+  const staticPages = [
+    { url: '/about', priority: '0.6', changeFreq: 'monthly' },
+    { url: '/contact', priority: '0.6', changeFreq: 'monthly' },
+    { url: '/terms', priority: '0.4', changeFreq: 'monthly' },
+    { url: '/privacy', priority: '0.4', changeFreq: 'monthly' },
+    { url: '/faq', priority: '0.7', changeFreq: 'weekly' },
+    { url: '/blog', priority: '0.8', changeFreq: 'weekly' },
+    { url: '/savings-challenge', priority: '0.8', changeFreq: 'weekly' },
+    { url: '/compare', priority: '0.9', changeFreq: 'daily' }
+  ];
+  
+  const staticEntries = staticPages.map(page => `
+  <url>
+    <loc>${config.siteUrl}${page.url}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>${page.changeFreq}</changefreq>
+    <priority>${page.priority}</priority>
+  </url>
+  `).join('');
+  
+  xmlEntries += staticEntries;
   
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -211,7 +249,151 @@ ${xmlEntries}
 </urlset>`;
   
   fs.writeFileSync(config.sitemapPath, sitemap);
-  log(`Sitemap generated at ${config.sitemapPath}`);
+  log(`Sitemap generated at ${config.sitemapPath} with ${pages.length + stores.length + staticPages.length + 1} URLs`);
+  
+  // Generate sitemap index if we have a large number of URLs
+  if (pages.length > 1000) {
+    log('Large number of URLs detected, generating sitemap index...');
+    generateSitemapIndex(pages, stores, staticPages);
+  }
+}
+
+/**
+ * Generate sitemap_index.xml file for large number of URLs
+ */
+async function generateSitemapIndex(products, stores, staticPages) {
+  log('Generating sitemap index...');
+  
+  const now = new Date().toISOString();
+  const sitemapDir = path.dirname(config.sitemapPath);
+  
+  // Create subdirectory for multiple sitemap files
+  const sitemapsDir = path.join(sitemapDir, 'sitemaps');
+  if (!fs.existsSync(sitemapsDir)) {
+    fs.mkdirSync(sitemapsDir, { recursive: true });
+  }
+  
+  // Create product sitemap (chunked into files of 1000 products)
+  const productChunks = [];
+  for (let i = 0; i < products.length; i += 1000) {
+    productChunks.push(products.slice(i, i + 1000));
+  }
+  
+  const sitemapFiles = [];
+  
+  // Generate product sitemap files
+  for (let i = 0; i < productChunks.length; i++) {
+    const chunk = productChunks[i];
+    const filename = `sitemap-products-${i + 1}.xml`;
+    const filePath = path.join(sitemapsDir, filename);
+    
+    const productEntries = chunk.map(page => `
+  <url>
+    <loc>${config.siteUrl}${page.url}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>${page.changeFreq || 'weekly'}</changefreq>
+    <priority>${page.priority || '0.7'}</priority>
+  </url>
+  `).join('');
+    
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${productEntries}
+</urlset>`;
+    
+    fs.writeFileSync(filePath, sitemap);
+    sitemapFiles.push({ path: `/sitemaps/${filename}`, lastmod: now });
+    log(`Generated product sitemap chunk ${i + 1} with ${chunk.length} URLs`);
+  }
+  
+  // Generate stores sitemap
+  const storeEntries = stores.map(store => `
+  <url>
+    <loc>${config.siteUrl}/store/${store.id}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  `).join('');
+  
+  const storesSitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${storeEntries}
+</urlset>`;
+  
+  const storesPath = path.join(sitemapsDir, 'sitemap-stores.xml');
+  fs.writeFileSync(storesPath, storesSitemap);
+  sitemapFiles.push({ path: '/sitemaps/sitemap-stores.xml', lastmod: now });
+  log(`Generated stores sitemap with ${stores.length} URLs`);
+  
+  // Generate static pages sitemap
+  const staticEntries = staticPages.map(page => `
+  <url>
+    <loc>${config.siteUrl}${page.url}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>${page.changeFreq}</changefreq>
+    <priority>${page.priority}</priority>
+  </url>
+  `).join('');
+  
+  // Add homepage
+  const homeEntry = `
+  <url>
+    <loc>${config.siteUrl}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  `;
+  
+  const staticSitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${homeEntry}
+${staticEntries}
+</urlset>`;
+  
+  const staticPath = path.join(sitemapsDir, 'sitemap-static.xml');
+  fs.writeFileSync(staticPath, staticSitemap);
+  sitemapFiles.push({ path: '/sitemaps/sitemap-static.xml', lastmod: now });
+  log(`Generated static pages sitemap with ${staticPages.length + 1} URLs`);
+  
+  // Generate the sitemap index
+  const sitemapIndexEntries = sitemapFiles.map(file => `
+  <sitemap>
+    <loc>${config.siteUrl}${file.path}</loc>
+    <lastmod>${file.lastmod}</lastmod>
+  </sitemap>
+  `).join('');
+  
+  const sitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${sitemapIndexEntries}
+</sitemapindex>`;
+  
+  const sitemapIndexPath = path.join(sitemapDir, 'sitemap_index.xml');
+  fs.writeFileSync(sitemapIndexPath, sitemapIndex);
+  log(`Generated sitemap index at ${sitemapIndexPath} with ${sitemapFiles.length} sitemaps`);
+  
+  // Update robots.txt to point to the sitemap index
+  const robotsTxt = `User-agent: *
+Allow: /
+Sitemap: ${config.siteUrl}/sitemap_index.xml
+
+# Optimize crawl rate
+Crawl-delay: 5
+
+# Block admin routes
+Disallow: /admin
+Disallow: /api/
+Disallow: /vendor-portal/
+
+# Allow Googlebot all access
+User-agent: Googlebot
+Allow: /
+`;
+  
+  fs.writeFileSync(config.robotsPath, robotsTxt);
+  log(`Updated robots.txt to point to sitemap index`);
 }
 
 /**
@@ -269,16 +451,71 @@ function generateCanonicalConfig() {
  */
 async function fetchPopularProducts() {
   try {
-    const response = await fetch(`${config.siteUrl}/api/products/popular`);
+    const response = await fetch(`${config.siteUrl}/api/products/popular?limit=20`);
     if (response.ok) {
       return await response.json();
     } else {
       log(`Failed to fetch popular products: ${response.status}`, true);
+      // Attempt to fetch using alternate endpoint
+      try {
+        const alternateResponse = await fetch(`${config.siteUrl}/api/products?sort=popularity&limit=20`);
+        if (alternateResponse.ok) {
+          return await alternateResponse.json();
+        }
+      } catch (altError) {
+        log(`Failed to fetch from alternate endpoint: ${altError.message}`, true);
+      }
       return [];
     }
   } catch (error) {
     log(`Error fetching popular products: ${error.message}`, true);
     return [];
+  }
+}
+
+/**
+ * Fetch category data for SEO optimization
+ */
+async function fetchCategories() {
+  try {
+    const response = await fetch(`${config.siteUrl}/api/categories`);
+    if (response.ok) {
+      return await response.json();
+    } else {
+      log(`Failed to fetch categories: ${response.status}`, true);
+      return config.priorityCategories.map(name => ({ name, id: name.toLowerCase().replace(/\s+/g, '-') }));
+    }
+  } catch (error) {
+    log(`Error fetching categories: ${error.message}`, true);
+    return config.priorityCategories.map(name => ({ name, id: name.toLowerCase().replace(/\s+/g, '-') }));
+  }
+}
+
+/**
+ * Fetch store data for SEO optimization
+ */
+async function fetchStores() {
+  try {
+    const response = await fetch(`${config.siteUrl}/api/stores`);
+    if (response.ok) {
+      return await response.json();
+    } else {
+      log(`Failed to fetch stores: ${response.status}`, true);
+      return [
+        { name: 'Tesco', id: 'tesco' },
+        { name: 'Walmart', id: 'walmart' },
+        { name: 'Carrefour', id: 'carrefour' },
+        { name: 'Aldi', id: 'aldi' }
+      ];
+    }
+  } catch (error) {
+    log(`Error fetching stores: ${error.message}`, true);
+    return [
+      { name: 'Tesco', id: 'tesco' },
+      { name: 'Walmart', id: 'walmart' },
+      { name: 'Carrefour', id: 'carrefour' },
+      { name: 'Aldi', id: 'aldi' }
+    ];
   }
 }
 
