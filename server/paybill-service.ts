@@ -73,9 +73,17 @@ interface ReceiptResult {
 }
 
 // Configuration
-const PAYBILL_NUMBER = '220220';
+const PAYBILL_NUMBER = '787878'; // Unique paybill number for Tesco Price Comparison platform
 const DATA_FILE = path.join(__dirname, '..', 'data', 'paybill-accounts.json');
 const TRANSACTIONS_FILE = path.join(__dirname, '..', 'data', 'paybill-transactions.json');
+const COMMISSIONS_FILE = path.join(__dirname, '..', 'data', 'paybill-commissions.json');
+
+// Commission rates
+const COMMISSION_RATES = {
+  TOP_UP: 0.02, // 2% commission on top-ups
+  AIRTIME_PURCHASE: 0.05, // 5% commission on airtime purchases
+  SERVICE_PAYMENT: 0.03 // 3% commission on service payments
+};
 
 // Ensure data directory exists
 function ensureDataDirectory(): void {

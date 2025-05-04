@@ -6,12 +6,12 @@ export default function PaybillPage() {
   return (
     <div className="container mx-auto py-6">
       <Helmet>
-        <title>220220 E-Top-Up Portal | Tesco Price Comparison</title>
-        <meta name="description" content="Use our 220220 E-Top-Up portal to add funds to your account, buy airtime, or pay for various services." />
+        <title>787878 E-Top-Up Portal | Tesco Price Comparison</title>
+        <meta name="description" content="Use our 787878 E-Top-Up portal to add funds to your account, buy airtime, or pay for various services." />
       </Helmet>
       
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold mb-2">220220 E-Top-Up Portal</h1>
+        <h1 className="text-3xl font-bold mb-2">787878 E-Top-Up Portal</h1>
         <p className="text-gray-600">
           Easily manage your account, buy airtime, and pay for services
         </p>

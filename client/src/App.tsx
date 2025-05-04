@@ -118,9 +118,9 @@ function HomePage() {
       
       {/* New Paybill Service Promotion */}
       <div className="bg-blue-100 border border-blue-300 rounded-lg p-6 mb-8">
-        <h2 className="text-2xl font-semibold text-blue-800 mb-4">New: 220220 E-Top-Up Service!</h2>
+        <h2 className="text-2xl font-semibold text-blue-800 mb-4">New: 787878 E-Top-Up Service!</h2>
         <p className="mb-4 text-blue-700">
-          Use our new paybill number <span className="font-bold">220220</span> to top up your account, 
+          Use our new paybill number <span className="font-bold">787878</span> to top up your account, 
           buy airtime, or pay for various services directly from our platform.
         </p>
         <Link href="/paybill">
@@ -191,7 +191,7 @@ function Header() {
               </li>
               <li>
                 <Link href="/paybill">
-                  <span className="text-blue-600 font-medium hover:text-blue-800 cursor-pointer">220220 E-Top-Up</span>
+                  <span className="text-blue-600 font-medium hover:text-blue-800 cursor-pointer">787878 E-Top-Up</span>
                 </Link>
               </li>
               <li>
@@ -249,7 +249,7 @@ function Footer() {
               </li>
               <li>
                 <Link href="/paybill">
-                  <span className="text-gray-600 hover:text-blue-600 cursor-pointer">220220 E-Top-Up</span>
+                  <span className="text-gray-600 hover:text-blue-600 cursor-pointer">787878 E-Top-Up</span>
                 </Link>
               </li>
               <li>
