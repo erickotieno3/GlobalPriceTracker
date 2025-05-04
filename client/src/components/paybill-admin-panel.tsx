@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -17,8 +17,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import axios from 'axios';
+import { Edit, Save } from 'lucide-react';
 
 interface Commission {
   id: string;
@@ -42,14 +46,42 @@ interface CommissionSummary {
   recentCommissions: Commission[];
 }
 
+interface PaymentDetails {
+  accountName: string;
+  accountNumber: string;
+  bankName: string;
+  mobileNumber: string;
+  preferredMethod: "bank" | "mobile";
+}
+
 export default function PaybillAdminPanel() {
   const [summary, setSummary] = useState<CommissionSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [processingCommissions, setProcessingCommissions] = useState(false);
   const { toast } = useToast();
   
+  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails>({
+    accountName: "",
+    accountNumber: "",
+    bankName: "",
+    mobileNumber: "",
+    preferredMethod: "bank"
+  });
+  
+  const [isEditingPaymentDetails, setIsEditingPaymentDetails] = useState(false);
+  
   useEffect(() => {
     fetchCommissionSummary();
+    
+    // Load payment details
+    const savedDetails = localStorage.getItem('paymentDetails');
+    if (savedDetails) {
+      try {
+        setPaymentDetails(JSON.parse(savedDetails));
+      } catch (e) {
+        console.error('Error parsing payment details:', e);
+      }
+    }
   }, []);
 
   const fetchCommissionSummary = async () => {
@@ -118,6 +150,41 @@ export default function PaybillAdminPanel() {
     }
   };
   
+  const savePaymentDetails = () => {
+    // Validate payment details
+    if (paymentDetails.preferredMethod === "bank") {
+      if (!paymentDetails.accountName || !paymentDetails.accountNumber || !paymentDetails.bankName) {
+        toast({
+          title: "Missing information",
+          description: "Please fill in all bank account details",
+          variant: "destructive",
+        });
+        return;
+      }
+    } else {
+      if (!paymentDetails.mobileNumber) {
+        toast({
+          title: "Missing information",
+          description: "Please enter a mobile number",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+    
+    // In a real implementation, this would save to your backend API
+    localStorage.setItem('paymentDetails', JSON.stringify(paymentDetails));
+    setIsEditingPaymentDetails(false);
+    toast({
+      title: "Payment details saved",
+      description: "Your commission withdrawal details have been updated",
+    });
+  };
+  
+  const handlePaymentMethodChange = (value: "bank" | "mobile") => {
+    setPaymentDetails(prev => ({ ...prev, preferredMethod: value }));
+  };
+  
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -140,36 +207,6 @@ export default function PaybillAdminPanel() {
   };
   
   return (
-    const [paymentDetails, setPaymentDetails] = useState({
-    accountName: "",
-    accountNumber: "",
-    bankName: "",
-    mobileNumber: "",
-    preferredMethod: "bank" // "bank" or "mobile"
-  });
-  const [isEditingPaymentDetails, setIsEditingPaymentDetails] = useState(false);
-  
-  // Load payment details on component mount
-  useEffect(() => {
-    // In a real implementation, this would fetch from your backend API
-    const savedDetails = localStorage.getItem('paymentDetails');
-    if (savedDetails) {
-      setPaymentDetails(JSON.parse(savedDetails));
-    }
-  }, []);
-  
-  // Save payment details
-  const savePaymentDetails = () => {
-    // In a real implementation, this would save to your backend API
-    localStorage.setItem('paymentDetails', JSON.stringify(paymentDetails));
-    setIsEditingPaymentDetails(false);
-    toast({
-      title: "Payment details saved",
-      description: "Your commission withdrawal details have been updated",
-    });
-  };
-
-    return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
@@ -201,17 +238,17 @@ export default function PaybillAdminPanel() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
               <div className="text-sm text-gray-600 mb-1">Top-Up</div>
-              <div className="text-xl font-semibold">${summary?.commissionsByType.TOP_UP.toFixed(2) || '0.00'}</div>
+              <div className="text-xl font-semibold">${summary?.commissionsByType?.TOP_UP.toFixed(2) || '0.00'}</div>
             </div>
             
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
               <div className="text-sm text-gray-600 mb-1">Airtime Purchase</div>
-              <div className="text-xl font-semibold">${summary?.commissionsByType.AIRTIME_PURCHASE.toFixed(2) || '0.00'}</div>
+              <div className="text-xl font-semibold">${summary?.commissionsByType?.AIRTIME_PURCHASE.toFixed(2) || '0.00'}</div>
             </div>
             
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
               <div className="text-sm text-gray-600 mb-1">Service Payment</div>
-              <div className="text-xl font-semibold">${summary?.commissionsByType.SERVICE_PAYMENT.toFixed(2) || '0.00'}</div>
+              <div className="text-xl font-semibold">${summary?.commissionsByType?.SERVICE_PAYMENT.toFixed(2) || '0.00'}</div>
             </div>
           </div>
           
@@ -228,7 +265,7 @@ export default function PaybillAdminPanel() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {summary?.recentCommissions.map((commission) => (
+              {summary?.recentCommissions?.map((commission) => (
                 <TableRow key={commission.id}>
                   <TableCell>{new Date(commission.date).toLocaleString()}</TableCell>
                   <TableCell>{getTransactionTypeLabel(commission.transactionType)}</TableCell>
@@ -271,6 +308,141 @@ export default function PaybillAdminPanel() {
             )}
           </Button>
         </CardFooter>
+      </Card>
+      
+      {/* Payment Details Card */}
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>Commission Withdrawal Details</CardTitle>
+              <CardDescription>
+                Specify where you want your processed commissions to be sent
+              </CardDescription>
+            </div>
+            {!isEditingPaymentDetails && (
+              <Button variant="outline" size="sm" onClick={() => setIsEditingPaymentDetails(true)}>
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Details
+              </Button>
+            )}
+          </div>
+        </CardHeader>
+        
+        <CardContent>
+          {isEditingPaymentDetails ? (
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm font-medium mb-2">Choose your preferred payment method:</p>
+                <RadioGroup 
+                  value={paymentDetails.preferredMethod}
+                  onValueChange={(value) => handlePaymentMethodChange(value as "bank" | "mobile")}
+                  className="flex flex-col space-y-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="bank" id="bank" />
+                    <Label htmlFor="bank">Bank Account</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="mobile" id="mobile" />
+                    <Label htmlFor="mobile">Mobile Money</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              
+              {paymentDetails.preferredMethod === "bank" ? (
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="bankName">Bank Name</Label>
+                    <Input
+                      id="bankName"
+                      value={paymentDetails.bankName}
+                      onChange={(e) => setPaymentDetails(prev => ({ ...prev, bankName: e.target.value }))}
+                      placeholder="Enter your bank name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="accountName">Account Holder Name</Label>
+                    <Input
+                      id="accountName"
+                      value={paymentDetails.accountName}
+                      onChange={(e) => setPaymentDetails(prev => ({ ...prev, accountName: e.target.value }))}
+                      placeholder="Enter account holder name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="accountNumber">Account Number</Label>
+                    <Input
+                      id="accountNumber"
+                      value={paymentDetails.accountNumber}
+                      onChange={(e) => setPaymentDetails(prev => ({ ...prev, accountNumber: e.target.value }))}
+                      placeholder="Enter account number"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <Label htmlFor="mobileNumber">Mobile Money Number</Label>
+                  <Input
+                    id="mobileNumber"
+                    value={paymentDetails.mobileNumber}
+                    onChange={(e) => setPaymentDetails(prev => ({ ...prev, mobileNumber: e.target.value }))}
+                    placeholder="Enter mobile money number"
+                  />
+                </div>
+              )}
+              
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsEditingPaymentDetails(false)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={savePaymentDetails}
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Details
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div>
+              {paymentDetails.preferredMethod === "bank" && (paymentDetails.accountName || paymentDetails.accountNumber || paymentDetails.bankName) ? (
+                <div className="bg-gray-50 p-4 rounded-md border">
+                  <h4 className="font-semibold mb-3">Bank Account Details</h4>
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-3 gap-2">
+                      <p className="text-sm text-gray-500">Bank Name:</p>
+                      <p className="text-sm col-span-2">{paymentDetails.bankName || "Not specified"}</p>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <p className="text-sm text-gray-500">Account Name:</p>
+                      <p className="text-sm col-span-2">{paymentDetails.accountName || "Not specified"}</p>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <p className="text-sm text-gray-500">Account Number:</p>
+                      <p className="text-sm col-span-2">{paymentDetails.accountNumber || "Not specified"}</p>
+                    </div>
+                  </div>
+                </div>
+              ) : paymentDetails.preferredMethod === "mobile" && paymentDetails.mobileNumber ? (
+                <div className="bg-gray-50 p-4 rounded-md border">
+                  <h4 className="font-semibold mb-3">Mobile Money Details</h4>
+                  <div className="grid grid-cols-3 gap-2">
+                    <p className="text-sm text-gray-500">Mobile Number:</p>
+                    <p className="text-sm col-span-2">{paymentDetails.mobileNumber}</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-6 text-gray-500">
+                  <p>No payment details specified yet. Click "Edit Details" to add your withdrawal information.</p>
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
       </Card>
       
       <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
