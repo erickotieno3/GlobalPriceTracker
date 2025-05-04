@@ -234,18 +234,19 @@ export const csrfProtectionMiddleware = (req: Request, res: Response, next: Next
     return next();
   }
   
-  // Skip CSRF protection for authentication-related endpoints
-  // This is a security trade-off to allow basic authentication without tokens
+  // Skip CSRF protection for authentication-related endpoints and paybill operations
+  // This is a security trade-off to allow basic authentication and payment operations without tokens
   if (
     req.path.includes('/api/vendor/login') || 
     req.path.includes('/api/login') || 
     req.path.includes('/api/register') ||
     req.path.includes('/api/auth/') ||
+    req.path.includes('/api/paybill/') || // Allow paybill operations
     req.path.startsWith('/vendor-login') ||
     req.path.startsWith('/vendor-access') ||
     req.path.startsWith('/tesco-vendor')
   ) {
-    console.log('Skipping CSRF check for auth endpoint:', req.path);
+    console.log('Skipping CSRF check for auth/paybill endpoint:', req.path);
     return next();
   }
   

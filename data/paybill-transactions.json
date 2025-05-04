@@ -1,0 +1,20 @@
+[
+  {
+    "id": "829D584243F927CC",
+    "phoneNumber": "+254700123456",
+    "type": "TOP_UP",
+    "amount": 1000,
+    "description": "Account top-up via Paybill 220220",
+    "date": "2025-05-04T18:24:51.178Z",
+    "paybillNumber": "220220"
+  },
+  {
+    "id": "907BC5D4DA02D16E",
+    "phoneNumber": "+254700123456",
+    "type": "AIRTIME_PURCHASE",
+    "amount": 200,
+    "description": "Airtime purchase for +254711987654",
+    "date": "2025-05-04T18:25:40.382Z",
+    "paybillNumber": "220220"
+  }
+]
