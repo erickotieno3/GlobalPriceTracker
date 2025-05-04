@@ -5,24 +5,35 @@
  * using the Replit API. It can be scheduled to run at specified intervals.
  */
 
-const fetch = require('node-fetch');
-const fs = require('fs');
-const path = require('path');
+import fetch from 'node-fetch';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// ES Module equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Configuration
 const config = {
-  // Get the Replit API token from environment variable
-  apiToken: process.env.REPLIT_API_TOKEN,
-  // Get the Replit slug/ID from environment variable
-  replSlug: process.env.REPLIT_SLUG || 'your-repl-id',
-  // Clean up these files/directories before deployment
-  cleanupPaths: [
-    'node_modules/.cache',
-    'dist',
-    '.parcel-cache'
-  ],
-  // Log file for deployment history
-  logFile: path.join(__dirname, '..', 'logs', 'deployment-history.log')
+  // Deployment interval in milliseconds (default: 2 days)
+  deploymentInterval: 2 * 24 * 60 * 60 * 1000,
+  
+  // Log file path
+  logFile: path.join(__dirname, '..', 'logs', 'auto-deploy.log'),
+  
+  // Max log file size before rotation (5MB)
+  maxLogSize: 5 * 1024 * 1024,
+  
+  // API base URL
+  apiBaseUrl: 'https://replit.com/api/v1/deployments',
+  
+  // Headers for Replit API requests
+  headers: {
+    'X-Requested-With': 'Tesco-Price-Comparison-Auto-Deploy',
+    'Content-Type': 'application/json'
+    // Note: Authentication headers will be added from environment variables
+  }
 };
 
 /**
@@ -40,36 +51,36 @@ function ensureLogDirectory() {
  */
 function log(message) {
   const timestamp = new Date().toISOString();
-  const logMessage = `[${timestamp}] ${message}`;
+  const logMessage = `${timestamp} - ${message}`;
   
   console.log(logMessage);
   
+  // Append to log file
   ensureLogDirectory();
   fs.appendFileSync(config.logFile, logMessage + '\n');
+  
+  // Check log file size and rotate if needed
+  const stats = fs.statSync(config.logFile);
+  if (stats.size > config.maxLogSize) {
+    const backupFile = `${config.logFile}.old`;
+    if (fs.existsSync(backupFile)) {
+      fs.unlinkSync(backupFile);
+    }
+    fs.renameSync(config.logFile, backupFile);
+  }
 }
 
 /**
  * Clean up unnecessary files before deployment
  */
 function cleanup() {
-  log('Starting pre-deployment cleanup...');
+  log('Cleaning up unnecessary files before deployment...');
   
-  for (const filePath of config.cleanupPaths) {
-    const fullPath = path.join(__dirname, '..', filePath);
-    
-    if (fs.existsSync(fullPath)) {
-      try {
-        if (fs.lstatSync(fullPath).isDirectory()) {
-          fs.rmdirSync(fullPath, { recursive: true });
-        } else {
-          fs.unlinkSync(fullPath);
-        }
-        log(`✓ Cleaned up: ${filePath}`);
-      } catch (error) {
-        log(`⚠️ Failed to clean up ${filePath}: ${error.message}`);
-      }
-    }
-  }
+  // Add your cleanup logic here
+  // For example:
+  // - Remove temporary files
+  // - Clean up log files
+  // - Remove development artifacts
   
   log('Cleanup completed');
 }
@@ -78,45 +89,52 @@ function cleanup() {
  * Create a new deployment using the Replit API
  */
 async function createDeployment() {
-  if (!config.apiToken) {
-    log('❌ Error: REPLIT_API_TOKEN environment variable is not set');
-    log('Please add your Replit API token to the environment variables in the Secrets tab');
-    process.exit(1);
-  }
-  
   log('Creating new deployment...');
   
+  // First, clean up files
+  cleanup();
+  
+  // Check if required environment variables are set
+  if (!process.env.REPLIT_DEPLOYMENT_TOKEN) {
+    log('ERROR: REPLIT_DEPLOYMENT_TOKEN environment variable not set. Cannot deploy.');
+    return false;
+  }
+  
+  if (!process.env.REPL_ID || !process.env.REPL_OWNER) {
+    log('ERROR: REPL_ID or REPL_OWNER environment variables not set. Cannot deploy.');
+    return false;
+  }
+  
   try {
-    // Replit API endpoint for deployments
-    const url = `https://api.replit.com/v1/replits/${config.replSlug}/deployments`;
+    // Add authentication headers
+    const headers = {
+      ...config.headers,
+      'Authorization': `Bearer ${process.env.REPLIT_DEPLOYMENT_TOKEN}`
+    };
     
-    const response = await fetch(url, {
+    // Make API request to create deployment
+    const response = await fetch(config.apiBaseUrl, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${config.apiToken}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
-      },
+      headers,
       body: JSON.stringify({
-        // Optional metadata for the deployment
-        message: `Auto-deployment at ${new Date().toISOString()}`
+        id: process.env.REPL_ID,
+        user: process.env.REPL_OWNER
       })
     });
     
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`API request failed with status ${response.status}: ${errorText}`);
+    // Check response
+    if (response.status === 201 || response.status === 200) {
+      const data = await response.json();
+      log(`Deployment created successfully! Deployment ID: ${data.id}`);
+      return true;
+    } else {
+      const error = await response.text();
+      log(`Failed to create deployment. Status: ${response.status}, Error: ${error}`);
+      return false;
     }
-    
-    const data = await response.json();
-    log(`✓ Deployment created successfully! Deployment ID: ${data.id}`);
-    log('Note: You still need to manually promote this deployment to make it live');
-    
-    return data;
   } catch (error) {
-    log(`❌ Deployment failed: ${error.message}`);
-    throw error;
+    log(`Error creating deployment: ${error.message}`);
+    return false;
   }
 }
 
@@ -124,21 +142,25 @@ async function createDeployment() {
  * Main function to run the auto-deployment process
  */
 async function main() {
-  log('Starting auto-deployment process...');
+  log('Auto-deployment process started');
   
-  try {
-    // Step 1: Clean up unnecessary files
-    cleanup();
+  // Create initial deployment
+  const result = await createDeployment();
+  
+  if (result) {
+    log(`Scheduling next deployment in ${config.deploymentInterval / (1000 * 60 * 60)} hours`);
     
-    // Step 2: Create the deployment
-    await createDeployment();
-    
-    log('Auto-deployment process completed successfully');
-  } catch (error) {
-    log(`Auto-deployment process failed: ${error.message}`);
-    process.exit(1);
+    // Schedule regular deployments
+    setInterval(async () => {
+      log('Scheduled deployment time reached');
+      await createDeployment();
+    }, config.deploymentInterval);
+  } else {
+    log('Initial deployment failed. Please check the issues before scheduling regular deployments.');
   }
 }
 
-// Run the script
-main();
+// Run the main function
+main().catch(error => {
+  log(`Unhandled error in main process: ${error.message}`);
+});

@@ -10,25 +10,21 @@
  * 3. For best results, run this on another server or another Replit
  */
 
-const https = require('https');
-const fs = require('fs');
-const path = require('path');
+import fetch from 'node-fetch';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// Configuration
+// ES Module equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Configuration (update with your Replit URL after deployment)
 const config = {
-  // Replace with your actual Replit URL
-  url: 'https://a4749bdf-c5e6-4c33-87d1-5f5f180970bb-00-2k1ghfi4i47hj.worf.replit.dev',
-  
-  // How often to ping (in milliseconds)
-  // 10 minutes is a good balance - too frequent might waste resources
-  interval: 10 * 60 * 1000,
-  
-  // Log file path
+  replitUrl: process.env.REPLIT_URL || 'https://tesco-price-comparison.yourusername.replit.app',
+  pingInterval: 5 * 60 * 1000, // 5 minutes in milliseconds
   logFile: path.join(__dirname, '..', 'logs', 'keep-alive.log'),
-  
-  // Maximum log file size before rotation (in bytes)
-  // 5MB is a reasonable size
-  maxLogSize: 5 * 1024 * 1024
+  maxLogSize: 5 * 1024 * 1024 // 5MB
 };
 
 /**
@@ -46,23 +42,16 @@ function ensureLogDirectory() {
  */
 function log(message) {
   const timestamp = new Date().toISOString();
-  const logMessage = `[${timestamp}] ${message}`;
+  const logMessage = `${timestamp} - ${message}`;
   
   console.log(logMessage);
   
-  // Write to log file
+  // Append to log file
   ensureLogDirectory();
   fs.appendFileSync(config.logFile, logMessage + '\n');
   
-  // Check if log file needs rotation
-  try {
-    const stats = fs.statSync(config.logFile);
-    if (stats.size > config.maxLogSize) {
-      rotateLogFile();
-    }
-  } catch (error) {
-    console.error(`Error checking log file size: ${error.message}`);
-  }
+  // Check log file size and rotate if needed
+  rotateLogFile();
 }
 
 /**
@@ -70,58 +59,53 @@ function log(message) {
  */
 function rotateLogFile() {
   try {
-    const backupFile = `${config.logFile}.backup`;
-    if (fs.existsSync(backupFile)) {
-      fs.unlinkSync(backupFile);
+    const stats = fs.statSync(config.logFile);
+    if (stats.size > config.maxLogSize) {
+      const backupFile = `${config.logFile}.old`;
+      if (fs.existsSync(backupFile)) {
+        fs.unlinkSync(backupFile);
+      }
+      fs.renameSync(config.logFile, backupFile);
+      log('Log file rotated due to size limit');
     }
-    fs.renameSync(config.logFile, backupFile);
-    log('Log file rotated');
   } catch (error) {
-    console.error(`Error rotating log file: ${error.message}`);
+    // Ignore errors if file doesn't exist yet
+    if (error.code !== 'ENOENT') {
+      console.error('Error rotating log file:', error.message);
+    }
   }
 }
 
 /**
  * Send a ping to keep the Replit application alive
  */
-function pingReplit() {
-  log(`Pinging ${config.url}`);
-  
-  // Using HTTPS to make a GET request to the URL
-  https.get(config.url, (res) => {
-    log(`Ping response: ${res.statusCode} ${res.statusMessage}`);
+async function pingReplit() {
+  try {
+    const response = await fetch(config.replitUrl);
     
-    // Handle redirects (common with Replit)
-    if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-      log(`Following redirect to: ${res.headers.location}`);
-      https.get(res.headers.location, (redirectRes) => {
-        log(`Redirect response: ${redirectRes.statusCode} ${redirectRes.statusMessage}`);
-      }).on('error', (err) => {
-        log(`Redirect error: ${err.message}`);
-      });
+    if (response.ok) {
+      log(`Successful ping to ${config.replitUrl} - Status: ${response.status}`);
+    } else {
+      log(`Failed ping to ${config.replitUrl} - Status: ${response.status}`);
     }
-    
-    // Consume response data (required by the Node.js HTTP API)
-    res.on('data', () => {});
-    
-  }).on('error', (err) => {
-    log(`Ping error: ${err.message}`);
-  });
+  } catch (error) {
+    log(`Error pinging ${config.replitUrl}: ${error.message}`);
+  }
 }
 
 /**
  * Main function to start the keep-alive service
  */
 function startKeepAliveService() {
-  log('Starting keep-alive service');
-  log(`Target: ${config.url}`);
-  log(`Interval: ${config.interval / 1000 / 60} minutes`);
+  log('Keep-alive service started');
+  log(`Target URL: ${config.replitUrl}`);
+  log(`Ping interval: ${config.pingInterval / 1000} seconds`);
   
-  // Send an initial ping
+  // Immediately ping once
   pingReplit();
   
-  // Schedule regular pings
-  setInterval(pingReplit, config.interval);
+  // Set up regular interval
+  setInterval(pingReplit, config.pingInterval);
 }
 
 // Start the service
