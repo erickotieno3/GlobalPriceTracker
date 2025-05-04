@@ -250,7 +250,10 @@ export default function PaybillAdminPanel() {
           The "Process Pending Commissions" button transfers pending commissions to your account for withdrawal.
         </p>
         <p className="text-sm text-blue-700">
-          <strong>Commission Rates:</strong> Top-Up (2%), Airtime Purchase (5%), Service Payment (3%)
+          <strong>Commission Rates:</strong> Top-Up (1.5%), Airtime Purchase (2.5%), Service Payment (2%)
+        </p>
+        <p className="text-sm text-blue-700 mt-1">
+          <strong>Note:</strong> Rates are benchmarked to be lower than PesaPal and other competitors to attract more clients.
         </p>
       </div>
     </div>

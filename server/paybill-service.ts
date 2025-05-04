@@ -100,11 +100,11 @@ const DATA_FILE = path.join(__dirname, '..', 'data', 'paybill-accounts.json');
 const TRANSACTIONS_FILE = path.join(__dirname, '..', 'data', 'paybill-transactions.json');
 const COMMISSIONS_FILE = path.join(__dirname, '..', 'data', 'paybill-commissions.json');
 
-// Commission rates
+// Commission rates - benchmarked against industry standards to be competitive
 const COMMISSION_RATES = {
-  TOP_UP: 0.02, // 2% commission on top-ups
-  AIRTIME_PURCHASE: 0.05, // 5% commission on airtime purchases
-  SERVICE_PAYMENT: 0.03 // 3% commission on service payments
+  TOP_UP: 0.015, // 1.5% commission on top-ups (lower than PesaPal's 2.5-3.5%)
+  AIRTIME_PURCHASE: 0.025, // 2.5% commission on airtime purchases (lower than PesaPal's 3-4%)
+  SERVICE_PAYMENT: 0.02 // 2% commission on service payments (competitive with industry)
 };
 
 // Ensure data directory exists

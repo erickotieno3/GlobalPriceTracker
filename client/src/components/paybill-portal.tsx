@@ -257,11 +257,15 @@ export default function PaybillPortal() {
       <Card className="mb-6">
         <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
           <CardTitle className="text-2xl flex items-center">
-            <span className="text-3xl font-bold mr-2">{paybillInfo?.paybillNumber || '220220'}</span> E-Top-Up Portal
+            <span className="text-3xl font-bold mr-2">{paybillInfo?.paybillNumber || '787878'}</span> E-Top-Up Portal
           </CardTitle>
           <CardDescription className="text-blue-100">
             {paybillInfo?.description || 'Pay for services, buy airtime, and top up your account'}
           </CardDescription>
+          <div className="mt-2 text-sm text-blue-100 bg-blue-700 bg-opacity-40 p-2 rounded flex items-center">
+            <span className="font-bold mr-1">LOWEST RATES:</span> 
+            We offer the most competitive rates in the market - lower than PesaPal and other providers!
+          </div>
         </CardHeader>
         <CardContent className="pt-6">
           <div className="mb-4">
@@ -406,6 +410,80 @@ export default function PaybillPortal() {
         </CardContent>
       </Card>
       
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Our Competitive Advantage</CardTitle>
+          <CardDescription>Why choose our 787878 E-Top-Up service?</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="border p-4 rounded-md bg-blue-50">
+              <h3 className="text-lg font-semibold mb-2 text-blue-800">Industry-Leading Low Commission Rates</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr>
+                      <th className="text-left p-2 border-b">Service Type</th>
+                      <th className="text-left p-2 border-b">Our Rate</th>
+                      <th className="text-left p-2 border-b">PesaPal</th>
+                      <th className="text-left p-2 border-b">PayPal</th>
+                      <th className="text-left p-2 border-b">Your Savings</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="p-2 border-b">Account Top-Up</td>
+                      <td className="p-2 border-b font-bold text-green-600">1.5%</td>
+                      <td className="p-2 border-b">2.5-3.5%</td>
+                      <td className="p-2 border-b">2.9%+</td>
+                      <td className="p-2 border-b text-green-600">Up to 2%</td>
+                    </tr>
+                    <tr>
+                      <td className="p-2 border-b">Airtime Purchase</td>
+                      <td className="p-2 border-b font-bold text-green-600">2.5%</td>
+                      <td className="p-2 border-b">3-4%</td>
+                      <td className="p-2 border-b">2.9%+</td>
+                      <td className="p-2 border-b text-green-600">Up to 1.5%</td>
+                    </tr>
+                    <tr>
+                      <td className="p-2">Service Payment</td>
+                      <td className="p-2 font-bold text-green-600">2%</td>
+                      <td className="p-2">1.5-2.5%</td>
+                      <td className="p-2">2.9%+</td>
+                      <td className="p-2 text-green-600">Up to 0.9%</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p className="mt-3 text-sm text-gray-600">
+                * Rates based on current market research as of May 2025.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="border p-4 rounded-md">
+                <h4 className="font-semibold mb-2">Fast & Reliable</h4>
+                <p className="text-sm text-gray-600">
+                  All transactions are processed instantly with real-time confirmations and receipts.
+                </p>
+              </div>
+              <div className="border p-4 rounded-md">
+                <h4 className="font-semibold mb-2">Secure</h4>
+                <p className="text-sm text-gray-600">
+                  Your transactions are protected with bank-grade security measures and encryption.
+                </p>
+              </div>
+              <div className="border p-4 rounded-md">
+                <h4 className="font-semibold mb-2">24/7 Support</h4>
+                <p className="text-sm text-gray-600">
+                  Contact our customer support team any time for assistance with your transactions.
+                </p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {phoneNumber && transactions.length > 0 && (
         <Card>
           <CardHeader>
