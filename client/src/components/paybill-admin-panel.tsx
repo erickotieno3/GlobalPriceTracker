@@ -61,9 +61,9 @@ export default function PaybillAdminPanel() {
   const { toast } = useToast();
   
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails>({
-    accountName: "",
-    accountNumber: "",
-    bankName: "",
+    accountName: "Hyrise Crown",
+    accountNumber: "01521209171200",
+    bankName: "Standard Bank",
     mobileNumber: "",
     preferredMethod: "bank"
   });

@@ -96,8 +96,8 @@ interface ReceiptResult {
 
 // Configuration
 const PAYBILL_NUMBER = '787878'; // Unique paybill number for Tesco Price Comparison platform
-const MERCHANT_NAME = 'Hyrise Crown'; // Company name (Registration No. BN-EZC3Z67A)
-const MERCHANT_ACCOUNT = '01521209171200'; // Default bank account for commission settlement
+const MERCHANT_NAME = 'Hyrise Crown (Registration No. BN-EZC3Z67A)'; // Official company name with registration number
+const MERCHANT_ACCOUNT = '01521209171200'; // Standard Bank account for commission settlement
 const DATA_FILE = path.join(__dirname, '..', 'data', 'paybill-accounts.json');
 const TRANSACTIONS_FILE = path.join(__dirname, '..', 'data', 'paybill-transactions.json');
 const COMMISSIONS_FILE = path.join(__dirname, '..', 'data', 'paybill-commissions.json');
@@ -300,7 +300,7 @@ function topUpAccount(phoneNumber: string, amount: number): TopUpResult {
       phoneNumber,
       'TOP_UP',
       amount,
-      `Account top-up via Paybill ${PAYBILL_NUMBER}`
+      `Account top-up via ${MERCHANT_NAME} Paybill ${PAYBILL_NUMBER}`
     );
     
     return {
@@ -340,7 +340,7 @@ function buyAirtime(phoneNumber: string, amount: number, targetNumber: string | 
   if (accounts[phoneNumber] < amount) {
     return {
       success: false,
-      message: 'Insufficient balance',
+      message: `Failed. You do not have enough money to buy airtime. Your balance is $${accounts[phoneNumber].toFixed(2)}.`,
       balance: accounts[phoneNumber]
     };
   }
@@ -354,7 +354,7 @@ function buyAirtime(phoneNumber: string, amount: number, targetNumber: string | 
       phoneNumber,
       'AIRTIME_PURCHASE',
       amount,
-      `Airtime purchase for ${recipientNumber}`
+      `Airtime purchase for ${recipientNumber} via ${MERCHANT_NAME}`
     );
     
     return {
@@ -399,7 +399,7 @@ function payService(
   if (accounts[phoneNumber] < amount) {
     return {
       success: false,
-      message: 'Insufficient balance',
+      message: `Failed. You do not have enough money to pay for ${serviceId}. Your balance is $${accounts[phoneNumber].toFixed(2)}.`,
       balance: accounts[phoneNumber]
     };
   }
@@ -413,7 +413,7 @@ function payService(
       phoneNumber,
       'SERVICE_PAYMENT',
       amount,
-      `Payment for service ${serviceId}${reference ? ` (Ref: ${reference})` : ''}`
+      `Payment to ${serviceId} via ${MERCHANT_NAME}${reference ? ` (Ref: ${reference})` : ''}`
     );
     
     return {
@@ -455,6 +455,11 @@ function generateReceipt(transactionId: string): ReceiptResult {
     status: 'COMPLETED',
     reference: transaction.id
   };
+  
+  // Add merchant name to the receipt description if not already present
+  if (!receipt.description.includes(MERCHANT_NAME)) {
+    receipt.description = `${receipt.description} - Powered by ${MERCHANT_NAME}`;
+  }
   
   return {
     success: true,
@@ -536,6 +541,8 @@ function processCommissions(): { success: boolean, processedCount: number, total
 // Export the functions
 export default {
   PAYBILL_NUMBER,
+  MERCHANT_NAME,
+  MERCHANT_ACCOUNT,
   getAccountBalance,
   getTransactionHistory,
   topUpAccount,
