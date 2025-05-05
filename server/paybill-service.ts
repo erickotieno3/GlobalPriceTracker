@@ -96,6 +96,8 @@ interface ReceiptResult {
 
 // Configuration
 const PAYBILL_NUMBER = '787878'; // Unique paybill number for Tesco Price Comparison platform
+const MERCHANT_NAME = 'Hyrise Crown'; // Company name (Registration No. BN-EZC3Z67A)
+const MERCHANT_ACCOUNT = '01521209171200'; // Default bank account for commission settlement
 const DATA_FILE = path.join(__dirname, '..', 'data', 'paybill-accounts.json');
 const TRANSACTIONS_FILE = path.join(__dirname, '..', 'data', 'paybill-transactions.json');
 const COMMISSIONS_FILE = path.join(__dirname, '..', 'data', 'paybill-commissions.json');
