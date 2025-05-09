@@ -97,7 +97,7 @@ interface ReceiptResult {
 // Configuration
 const PAYBILL_NUMBER = '787878'; // Unique paybill number for Tesco Price Comparison platform
 const MERCHANT_NAME = 'Hyrise Crown (Registration No. BN-EZC3Z67A)'; // Official company name with registration number
-const MERCHANT_ACCOUNT = '01521209171200'; // Standard Bank account for commission settlement
+const MERCHANT_ACCOUNT = '01521209171200'; // National Bank Kisumu Kenya account for commission settlement
 const DATA_FILE = path.join(__dirname, '..', 'data', 'paybill-accounts.json');
 const TRANSACTIONS_FILE = path.join(__dirname, '..', 'data', 'paybill-transactions.json');
 const COMMISSIONS_FILE = path.join(__dirname, '..', 'data', 'paybill-commissions.json');
@@ -511,7 +511,7 @@ function transferFundsToMerchantAccount(amount: number): boolean {
     // For now, we're simulating a successful transfer with detailed logging
     console.log(`==== COMMISSION TRANSFER INITIATED ====`);
     console.log(`Destination: ${MERCHANT_NAME}`);
-    console.log(`Bank Account: ${MERCHANT_ACCOUNT} (Standard Bank)`);
+    console.log(`Bank Account: ${MERCHANT_ACCOUNT} (National Bank Kisumu Kenya)`);
     console.log(`Amount: $${amount.toFixed(2)}`);
     console.log(`Reference: PAYBILL-COMM-${new Date().toISOString().slice(0,10)}`);
     console.log(`Status: TRANSFER COMPLETED`);

@@ -680,7 +680,7 @@ export default function PaybillPortal() {
                               <div className="mb-2 border-b pb-2">
                                 <p className="font-semibold text-gray-600">Merchant Information</p>
                                 <p>Hyrise Crown (Registration No. BN-EZC3Z67A)</p>
-                                <p>Bank: Standard Bank | Account: 01521209171200</p>
+                                <p>Bank: National Bank Kisumu Kenya | Account: 01521209171200</p>
                               </div>
                               <p>Thank you for using our service. This is an official receipt.</p>
                               <p className="mt-1">For support, please contact our customer service team.</p>
