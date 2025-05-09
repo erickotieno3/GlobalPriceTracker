@@ -106,15 +106,47 @@ paybillRouter.post('/admin/process-commissions', (req: Request, res: Response) =
     return res.status(403).json({ success: false, message: 'Unauthorized access' });
   }
   
-  const result = paybillService.processCommissions();
-  res.json({
-    success: result.success,
-    message: result.success 
-      ? `Successfully processed ${result.processedCount} commission(s) totaling ${result.totalAmount.toFixed(2)}` 
-      : 'Failed to process commissions',
-    processedCount: result.processedCount,
-    totalAmount: result.totalAmount
-  });
+  try {
+    const result = paybillService.processCommissions();
+    
+    if (result.success) {
+      // Generate a detailed notification that would be sent via SMS/email in production
+      const notificationDetails = {
+        title: "Commission Transfer Complete",
+        message: `Dear ${paybillService.MERCHANT_NAME}, your commission payment of $${result.totalAmount.toFixed(2)} has been transferred to your National Bank Kisumu Kenya account (${paybillService.MERCHANT_ACCOUNT}). Transfer ID: ${result.transferId}`,
+        timestamp: new Date().toISOString(),
+        type: "COMMISSION_TRANSFER"
+      };
+      
+      res.json({
+        success: true,
+        message: `Successfully processed ${result.processedCount} commission(s) totaling $${result.totalAmount.toFixed(2)}`,
+        transferDetails: {
+          transferId: result.transferId,
+          timestamp: new Date().toISOString(),
+          amount: result.totalAmount,
+          recipient: paybillService.MERCHANT_NAME,
+          accountNumber: paybillService.MERCHANT_ACCOUNT,
+          bank: "National Bank Kisumu Kenya"
+        },
+        notification: notificationDetails,
+        processedCount: result.processedCount
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'Failed to process commissions',
+        error: 'Unable to complete the transfer operation'
+      });
+    }
+  } catch (error) {
+    console.error('Error processing commissions:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while processing commissions',
+      error: error instanceof Error ? error.message : String(error)
+    });
+  }
 });
 
 // Get commission rates (for admin)
