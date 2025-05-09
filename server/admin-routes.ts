@@ -26,7 +26,7 @@ export function setWebSocketServer(websocketServer: WebSocketServer) {
 // Hardcoded admin credentials (in production, use a database)
 const ADMIN_CREDENTIALS = {
   email: 'admin@tesco-compare.com',
-  password: 'Tsc%A@dm8!n&P9rT@l#K3y2024',
+  password: 'Hyr1s3Cr0wn!ADm1N@2025#S3cur3',
   name: 'Admin User'
 };
 
