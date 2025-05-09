@@ -466,10 +466,19 @@ function generateReceipt(transactionId: string): ReceiptResult {
     reference: transaction.id
   };
   
-  // Always update receipt to include the current merchant name and remove any other merchant references
+  // Always ensure receipt uses the current merchant name
+  // Check for old merchant name (KACH COMM SOLUTIONS or variations like KACH COMM)
   if (receipt.description.includes("KACH COMM SOLUTIONS")) {
     receipt.description = receipt.description.replace("KACH COMM SOLUTIONS", MERCHANT_NAME);
-  } else if (!receipt.description.includes(MERCHANT_NAME)) {
+  } else if (receipt.description.includes("KACH COMM")) {
+    receipt.description = receipt.description.replace("KACH COMM", MERCHANT_NAME);
+  } else if (receipt.description.includes("220220")) {
+    // Also replace old paybill number if present
+    receipt.description = receipt.description.replace("220220", PAYBILL_NUMBER);
+  }
+  
+  // Ensure the receipt includes the current merchant name
+  if (!receipt.description.includes(MERCHANT_NAME)) {
     receipt.description = `${receipt.description} - Powered by ${MERCHANT_NAME}`;
   }
   
@@ -669,8 +678,9 @@ function processCommissions(): { success: boolean, processedCount: number, total
     commission.processed = true;
     // Add detailed info about when and how commission was processed
     commission.processedDate = new Date().toISOString();
+    // Ensure the commission uses the correct merchant information
     commission.processingDetails = {
-      merchantName: MERCHANT_NAME,
+      merchantName: MERCHANT_NAME, // Use the constant to ensure consistency
       merchantAccount: MERCHANT_ACCOUNT,
       bank: "National Bank Kisumu Kenya",
       transferReference: `PAYBILL-COMM-${new Date().toISOString().slice(0,10)}`
