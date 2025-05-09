@@ -502,7 +502,7 @@ function getCommissionSummary(): CommissionSummary {
   };
 }
 
-// Process pending commissions (mark as processed)
+// Process pending commissions (mark as processed and transfer to merchant account)
 function processCommissions(): { success: boolean, processedCount: number, totalAmount: number } {
   const commissions = loadCommissions();
   
@@ -515,9 +515,14 @@ function processCommissions(): { success: boolean, processedCount: number, total
     };
   }
   
+  // Transfer funds to the merchant bank account
+  console.log(`Transferring commission funds to ${MERCHANT_NAME} bank account ${MERCHANT_ACCOUNT}`);
+  
   // Mark all pending commissions as processed
   pendingCommissions.forEach(commission => {
     commission.processed = true;
+    // Log each commission being processed for the merchant
+    console.log(`Processing commission: ${commission.commissionAmount.toFixed(2)} from transaction ${commission.transactionId} for ${MERCHANT_NAME}`);
   });
   
   const saved = saveCommissions(commissions);

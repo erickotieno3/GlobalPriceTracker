@@ -12,16 +12,24 @@ import paybillService from './paybill-service';
 // Create router for paybill endpoints
 const paybillRouter = Router();
 
-// Get paybill number
-paybillRouter.get('/number', (req: Request, res: Response) => {
-  res.json({ paybillNumber: paybillService.PAYBILL_NUMBER });
+// Get paybill info (number and merchant name)
+paybillRouter.get('/info', (req: Request, res: Response) => {
+  res.json({
+    success: true,
+    paybillNumber: paybillService.PAYBILL_NUMBER,
+    name: paybillService.MERCHANT_NAME,
+    description: `Pay for services, buy airtime, and top up your account with ${paybillService.MERCHANT_NAME}`
+  });
 });
 
 // Get account balance
-paybillRouter.get('/balance/:phoneNumber', (req: Request, res: Response) => {
-  const { phoneNumber } = req.params;
-  const balance = paybillService.getAccountBalance(phoneNumber);
-  res.json({ balance });
+paybillRouter.get('/balance', (req: Request, res: Response) => {
+  const { phoneNumber } = req.query;
+  if (!phoneNumber) {
+    return res.status(400).json({ success: false, message: 'Phone number is required' });
+  }
+  const balance = paybillService.getAccountBalance(phoneNumber as string);
+  res.json({ success: true, balance, merchant: paybillService.MERCHANT_NAME });
 });
 
 // Get transaction history
