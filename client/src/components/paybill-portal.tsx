@@ -609,8 +609,9 @@ export default function PaybillPortal() {
                             {/* Logo and header */}
                             <div className="flex justify-between items-center mb-4 pb-4 border-b">
                               <div className="flex flex-col">
-                                <span className="text-xl font-bold text-blue-800">E-Top-Up</span>
-                                <span className="text-sm text-gray-500">Official Receipt</span>
+                                <span className="text-xl font-bold text-blue-800">Hyrise Crown</span>
+                                <span className="text-sm text-gray-500">E-Top-Up Receipt</span>
+                                <span className="text-xs text-gray-400">Registration No. BN-EZC3Z67A</span>
                               </div>
                               <div className="text-right">
                                 <div className="text-lg font-bold">{receipt.paybillNumber}</div>
@@ -671,10 +672,15 @@ export default function PaybillPortal() {
                               </div>
                             </div>
                             
-                            {/* Footer with watermark */}
+                            {/* Footer with watermark and bank info */}
                             <div className="mt-8 pt-4 border-t text-center text-xs text-gray-500 relative">
                               <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
                                 <div className="text-6xl font-bold text-blue-900 rotate-45">PAID</div>
+                              </div>
+                              <div className="mb-2 border-b pb-2">
+                                <p className="font-semibold text-gray-600">Merchant Information</p>
+                                <p>Hyrise Crown (Registration No. BN-EZC3Z67A)</p>
+                                <p>Bank: Standard Bank | Account: 01521209171200</p>
                               </div>
                               <p>Thank you for using our service. This is an official receipt.</p>
                               <p className="mt-1">For support, please contact our customer service team.</p>
