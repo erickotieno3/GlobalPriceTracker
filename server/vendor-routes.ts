@@ -30,7 +30,7 @@ const VENDOR_ACCOUNTS = [
   {
     id: 1,
     email: 'tesco@vendor.com',
-    password: 'HyC#Tsc0!V3nd0r@2025_S3cure',
+    password: 'B7gP!x@9mR*Tsc0#V3nd0r$2025&zQ4w',
     name: 'Tesco Vendor',
     storeName: 'Tesco',
     products: 156,
@@ -41,7 +41,7 @@ const VENDOR_ACCOUNTS = [
   {
     id: 2,
     email: 'walmart@vendor.com',
-    password: 'HyC#W4lm4rt!V3nd0r@2025_S3cure',
+    password: 'K3jM$r8vT*W4lm4rt!V3nd0r@2025#L6sY',
     name: 'Walmart Vendor',
     storeName: 'Walmart',
     products: 203,
@@ -52,7 +52,7 @@ const VENDOR_ACCOUNTS = [
   {
     id: 3,
     email: 'amazon@vendor.com',
-    password: 'HyC#Amzn!V3nd0r@2025_S3cure',
+    password: 'F5dN@e7cX*Amzn#V3nd0r$2025&H2pZ',
     name: 'Amazon Vendor',
     storeName: 'Amazon',
     products: 415,
