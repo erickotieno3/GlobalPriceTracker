@@ -13,7 +13,7 @@ import os
 
 # Business details
 MERCHANT_NAME = "Hyrise Crown (Registration No. BN-EZC3Z67A)"
-PAYBILL_NUMBER = "787878"
+PAYBILL_NUMBER = "959595"  # New unoccupied paybill number
 BANK_ACCOUNT = "01521209171200"
 BANK_NAME = "National Bank Kisumu Kenya"
 
