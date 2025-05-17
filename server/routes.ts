@@ -18,6 +18,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { revisionRouter } from "./revision-routes";
 import { shopifyRouter } from "./shopify-routes";
 import { initializeShopifyIntegration, getShopifyIntegration } from "./shopify-integration";
+import { uploadProductImage, handleVisualSearch, getB2BInsights } from "./visual-search";
 import fs from 'fs';
 import path from 'path';
 import { initializeAutoUpdater } from "./auto-updater";
@@ -945,6 +946,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Mini Paybill System with E-Top-Up functionality
   app.use("/api/paybill", paybillRouter);
+  
+  // Visual search direct routes
+  app.post("/api/ai/visual-search", uploadProductImage, handleVisualSearch);
+  app.get("/api/ai/b2b-insights/:productId", getB2BInsights);
   
   // Special admin login routes
   app.get('/admin-login.html', (req, res) => {
