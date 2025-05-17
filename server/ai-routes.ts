@@ -12,6 +12,7 @@
 import { Router, Request, Response } from 'express';
 import OpenAI from 'openai';
 import { storage } from './storage';
+import { uploadProductImage, handleVisualSearch, getB2BInsights } from './visual-search';
 
 // Initialize OpenAI client
 let openai: OpenAI | null = null;
@@ -628,3 +629,15 @@ aiRouter.post('/generate-content', async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to generate content' });
   }
 });
+
+/**
+ * Visual Product Search - Upload and analyze product image
+ */
+aiRouter.post('/visual-search', uploadProductImage, handleVisualSearch);
+
+/**
+ * Get B2B insights for a specific product
+ */
+aiRouter.get('/b2b-insights/:productId', getB2BInsights);
+
+export default aiRouter;
