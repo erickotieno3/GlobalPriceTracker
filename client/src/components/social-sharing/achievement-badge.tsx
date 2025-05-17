@@ -15,7 +15,7 @@ export interface AchievementBadgeProps {
   onShare?: () => void;
 }
 
-const iconMap = {
+const iconMap: Record<string, React.ComponentType<any>> = {
   'award': Award,
   'trending-up': TrendingUp,
   'percent': Percent,
@@ -24,7 +24,7 @@ const iconMap = {
   'badge-check': BadgeCheck
 };
 
-const typeToIcon = {
+const typeToIcon: Record<string, string> = {
   'saving': 'dollar-sign',
   'comparison': 'trending-up',
   'streak': 'sparkles',
@@ -32,7 +32,7 @@ const typeToIcon = {
   'milestone': 'award'
 };
 
-const typeToColor = {
+const typeToColor: Record<string, string> = {
   'saving': 'green',
   'comparison': 'blue',
   'streak': 'purple',
@@ -40,7 +40,14 @@ const typeToColor = {
   'milestone': 'gold'
 };
 
-const colorSchemeStyles = {
+const colorSchemeStyles: Record<string, {
+  background: string;
+  icon: string;
+  title: string;
+  description: string;
+  value: string;
+  button: string;
+}> = {
   'blue': {
     background: 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200',
     icon: 'bg-blue-200 text-blue-600',
@@ -96,8 +103,8 @@ export function AchievementBadge({
   const { toast } = useToast();
   
   // Determine icon and color scheme based on type if not provided
-  const finalIcon = icon || typeToIcon[type];
-  const finalColorScheme = colorScheme || typeToColor[type];
+  const finalIcon = icon || typeToIcon[type] as 'award' | 'trending-up' | 'percent' | 'sparkles' | 'dollar-sign' | 'badge-check';
+  const finalColorScheme = colorScheme || typeToColor[type] as 'blue' | 'green' | 'gold' | 'purple' | 'teal';
   const styles = colorSchemeStyles[finalColorScheme];
   
   const IconComponent = iconMap[finalIcon];

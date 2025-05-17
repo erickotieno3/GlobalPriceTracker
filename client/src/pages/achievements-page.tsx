@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'wouter';
 import { BadgeGallery } from '@/components/social-sharing/badge-gallery';
 import { AchievementBadgeProps } from '@/components/social-sharing/achievement-badge';
 import { Container } from '@/components/ui/container';
@@ -133,10 +134,12 @@ export default function AchievementsPage() {
           </p>
         </div>
         
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Share on Social Media
-        </Button>
+        <Link href="/create-badge">
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            Create New Badge
+          </Button>
+        </Link>
       </div>
       
       <Tabs defaultValue="earned" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
