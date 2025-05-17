@@ -10,6 +10,7 @@ import ShopifyPage from "./pages/admin/shopify-page";
 import VendorLoginPage from "./pages/vendor-login";
 import VendorDashboardPage from "./pages/vendor-dashboard";
 import VisualSearchPage from "@/pages/visual-search-page";
+import AchievementsPage from "@/pages/achievements-page";
 
 import { useEffect, useState } from "react";
 import { getProductRecommendations } from "@/lib/ai";
@@ -201,6 +202,11 @@ function Header() {
                 </Link>
               </li>
               <li>
+                <Link href="/achievements">
+                  <span className="text-amber-600 font-medium hover:text-amber-800 cursor-pointer">Achievements</span>
+                </Link>
+              </li>
+              <li>
                 <Link href="/vendor-login">
                   <span className="bg-green-100 text-green-800 px-2 py-1 rounded hover:bg-green-200 cursor-pointer">Vendor Portal</span>
                 </Link>
@@ -324,6 +330,7 @@ function App() {
           <Route path="/vendor-login" component={VendorLoginPage} />
           <Route path="/vendor-dashboard" component={VendorDashboardPage} />
           <Route path="/visual-search" component={VisualSearchPage} />
+          <Route path="/achievements" component={AchievementsPage} />
           <Route path="/tesco-vendor">
             {() => {
               // Redirect to the direct HTML vendor login page
