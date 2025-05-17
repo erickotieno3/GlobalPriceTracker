@@ -20,8 +20,8 @@ import uuid
 from typing import Dict, List, Optional, Tuple, Union
 
 # Configuration
-PAYBILL_NUMBER = "959595"  # New unoccupied paybill number
-MERCHANT_NAME = "Hyrise Crown (Registration No. BN-EZC3Z67A)"
+PAYBILL_NUMBER = "6061123"  # New paybill number
+MERCHANT_NAME = "Kisumu Hyrise Crown Restaurant"
 MERCHANT_ACCOUNT = "01521209171200" 
 BANK_NAME = "National Bank Kisumu Kenya"
 
