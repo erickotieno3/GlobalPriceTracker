@@ -9,6 +9,7 @@ import PaybillPage from "@/pages/paybill-page";
 import ShopifyPage from "./pages/admin/shopify-page";
 import VendorLoginPage from "./pages/vendor-login";
 import VendorDashboardPage from "./pages/vendor-dashboard";
+import VisualSearchPage from "@/pages/visual-search-page";
 
 import { useEffect, useState } from "react";
 import { getProductRecommendations } from "@/lib/ai";
@@ -118,9 +119,9 @@ function HomePage() {
       
       {/* New Paybill Service Promotion */}
       <div className="bg-blue-100 border border-blue-300 rounded-lg p-6 mb-8">
-        <h2 className="text-2xl font-semibold text-blue-800 mb-4">New: 787878 E-Top-Up Service!</h2>
+        <h2 className="text-2xl font-semibold text-blue-800 mb-4">New: 6061123 E-Top-Up Service!</h2>
         <p className="mb-4 text-blue-700">
-          Use our new paybill number <span className="font-bold">787878</span> to top up your account, 
+          Use our new paybill number <span className="font-bold">6061123</span> to top up your account, 
           buy airtime, or pay for various services directly from our platform.
         </p>
         <Link href="/paybill">
@@ -191,7 +192,12 @@ function Header() {
               </li>
               <li>
                 <Link href="/paybill">
-                  <span className="text-blue-600 font-medium hover:text-blue-800 cursor-pointer">787878 E-Top-Up</span>
+                  <span className="text-blue-600 font-medium hover:text-blue-800 cursor-pointer">6061123 E-Top-Up</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/visual-search">
+                  <span className="text-pink-600 font-medium hover:text-pink-800 cursor-pointer">Visual Search</span>
                 </Link>
               </li>
               <li>
@@ -317,6 +323,7 @@ function App() {
           <Route path="/admin/shopify" component={ShopifyPage} />
           <Route path="/vendor-login" component={VendorLoginPage} />
           <Route path="/vendor-dashboard" component={VendorDashboardPage} />
+          <Route path="/visual-search" component={VisualSearchPage} />
           <Route path="/tesco-vendor">
             {() => {
               // Redirect to the direct HTML vendor login page
