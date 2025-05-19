@@ -14,6 +14,7 @@ import AchievementsPage from "@/pages/achievements-page";
 import CreateBadgePage from "@/pages/create-badge-page";
 import LegalDocumentsPage from "./pages/legal/legal-documents";
 import AIAdminDashboard from "./pages/admin/ai-admin-dashboard";
+import GorillaLeadsDashboard from "./pages/gorillaleads-dashboard";
 
 import { useEffect, useState } from "react";
 import { getProductRecommendations } from "@/lib/ai";
@@ -210,6 +211,11 @@ function Header() {
                 </Link>
               </li>
               <li>
+                <Link href="/leads">
+                  <span className="text-purple-600 font-medium hover:text-purple-800 cursor-pointer">Lead Gen</span>
+                </Link>
+              </li>
+              <li>
                 <Link href="/vendor-login">
                   <span className="bg-green-100 text-green-800 px-2 py-1 rounded hover:bg-green-200 cursor-pointer">Vendor Portal</span>
                 </Link>
@@ -335,6 +341,7 @@ function App() {
           <Route path="/visual-search" component={VisualSearchPage} />
           <Route path="/achievements" component={AchievementsPage} />
           <Route path="/create-badge" component={CreateBadgePage} />
+          <Route path="/leads" component={GorillaLeadsDashboard} />
           <Route path="/legal" component={LegalDocumentsPage} />
           <Route path="/admin/ai-dashboard" component={AIAdminDashboard} />
           <Route path="/tesco-vendor">
