@@ -408,38 +408,16 @@ export default function AIAdminDashboard() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Default AI Model</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select model" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <div className="flex items-center px-2 pb-1">
-                                  <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">Recommended</span>
-                                </div>
-                                <Separator className="my-1" />
-                                <div>
-                                  <div className="flex items-center mb-2">
-                                    <Bot className="mr-2 h-4 w-4" />
-                                    <div>
-                                      <div className="text-sm font-medium">GPT-4o</div>
-                                      <div className="text-xs text-muted-foreground">Latest multimodal model</div>
-                                    </div>
-                                  </div>
-                                  <div className="flex items-center">
-                                    <Bot className="mr-2 h-4 w-4" />
-                                    <div>
-                                      <div className="text-sm font-medium">GPT-4</div>
-                                      <div className="text-xs text-muted-foreground">High capability model</div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </SelectContent>
-                            </Select>
+                            <div className="relative">
+                              <select
+                                className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                value={field.value}
+                                onChange={field.onChange}
+                              >
+                                <option value="gpt-4o">GPT-4o (Latest multimodal model)</option>
+                                <option value="gpt-4">GPT-4 (High capability model)</option>
+                              </select>
+                            </div>
                             <FormDescription>
                               GPT-4o is recommended for best performance
                             </FormDescription>
