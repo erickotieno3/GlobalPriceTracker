@@ -15,6 +15,7 @@ import CreateBadgePage from "@/pages/create-badge-page";
 import LegalDocumentsPage from "./pages/legal/legal-documents";
 import AIAdminDashboard from "./pages/admin/ai-admin-dashboard";
 import GorillaLeadsDashboard from "./pages/gorillaleads-dashboard";
+import SpeechToTextPage from "@/pages/speech-to-text-page";
 
 import { useEffect, useState } from "react";
 import { getProductRecommendations } from "@/lib/ai";
@@ -216,6 +217,11 @@ function Header() {
                 </Link>
               </li>
               <li>
+                <Link href="/speech-to-text">
+                  <span className="text-indigo-600 font-medium hover:text-indigo-800 cursor-pointer">Speech to Text</span>
+                </Link>
+              </li>
+              <li>
                 <Link href="/vendor-login">
                   <span className="bg-green-100 text-green-800 px-2 py-1 rounded hover:bg-green-200 cursor-pointer">Vendor Portal</span>
                 </Link>
@@ -342,6 +348,7 @@ function App() {
           <Route path="/achievements" component={AchievementsPage} />
           <Route path="/create-badge" component={CreateBadgePage} />
           <Route path="/leads" component={GorillaLeadsDashboard} />
+          <Route path="/speech-to-text" component={SpeechToTextPage} />
           <Route path="/legal" component={LegalDocumentsPage} />
           <Route path="/admin/ai-dashboard" component={AIAdminDashboard} />
           <Route path="/tesco-vendor">
