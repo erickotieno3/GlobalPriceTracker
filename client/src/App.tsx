@@ -12,6 +12,8 @@ import VendorDashboardPage from "./pages/vendor-dashboard";
 import VisualSearchPage from "@/pages/visual-search-page";
 import AchievementsPage from "@/pages/achievements-page";
 import CreateBadgePage from "@/pages/create-badge-page";
+import LegalDocumentsPage from "./pages/legal/legal-documents";
+import AIAdminDashboard from "./pages/admin/ai-admin-dashboard";
 
 import { useEffect, useState } from "react";
 import { getProductRecommendations } from "@/lib/ai";
@@ -333,6 +335,8 @@ function App() {
           <Route path="/visual-search" component={VisualSearchPage} />
           <Route path="/achievements" component={AchievementsPage} />
           <Route path="/create-badge" component={CreateBadgePage} />
+          <Route path="/legal" component={LegalDocumentsPage} />
+          <Route path="/admin/ai-dashboard" component={AIAdminDashboard} />
           <Route path="/tesco-vendor">
             {() => {
               // Redirect to the direct HTML vendor login page

@@ -11,8 +11,8 @@ export interface AICompletionOptions {
   role?: string;
   includeHistory?: boolean;
   userId?: string;
-  attachmentBase64?: string;
-  attachmentType?: string;
+  attachmentBase64?: string | null;
+  attachmentType?: string | null;
 }
 
 // Store conversation history for users
