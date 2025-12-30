@@ -49,6 +49,7 @@ export class ShopifyIntegration {
    */
   async initialize(): Promise<void> {
     try {
+      console.log('Initializing Shopify integration...');
       // Load Shopify stores from database
       const shopifyStores = await db
         .select()
@@ -65,7 +66,7 @@ export class ShopifyIntegration {
 
       console.log(`Initialized Shopify integration with ${this.shopifyStores.length} stores`);
     } catch (error) {
-      console.error('Failed to initialize Shopify integration:', error);
+      console.error('Failed to initialize Shopify integration (swallowed for stability):', error);
     }
   }
 

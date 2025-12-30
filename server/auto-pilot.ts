@@ -121,23 +121,27 @@ async function ensureDefaultConfigsExist() {
   ];
   
   for (const config of defaultConfigs) {
-    const existingConfig = await storage.getAutoPilotConfigByFeature(config.feature);
-    
-    if (!existingConfig) {
-      console.log(`Creating default configuration for ${config.feature}...`);
+    try {
+      const existingConfig = await storage.getAutoPilotConfigByFeature(config.feature);
       
-      const nextRun = calculateNextRunTime(config.schedule);
-      
-      const insertConfig: InsertAutoPilotConfig = {
-        feature: config.feature,
-        description: config.description,
-        isEnabled: config.isEnabled,
-        schedule: config.schedule,
-        parameters: config.parameters,
-        nextRun
-      };
-      
-      await storage.createAutoPilotConfig(insertConfig);
+      if (!existingConfig) {
+        console.log(`Creating default configuration for ${config.feature}...`);
+        
+        const nextRun = calculateNextRunTime(config.schedule);
+        
+        const insertConfig: InsertAutoPilotConfig = {
+          feature: config.feature,
+          description: config.description,
+          isEnabled: config.isEnabled,
+          schedule: config.schedule,
+          parameters: config.parameters,
+          nextRun
+        };
+        
+        await storage.createAutoPilotConfig(insertConfig);
+      }
+    } catch (error) {
+      console.error(`Failed to ensure default config for ${config.feature}:`, error);
     }
   }
 }
