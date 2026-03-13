@@ -38,7 +38,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Critical: Serve static assets first to ensure they are accessible
   // Serve static files from the public directory with highest priority
-  app.use(express.static('public'));
+  // dotfiles: 'allow' ensures .well-known/assetlinks.json is served for Google Play TWA
+  app.use(express.static('public', { dotfiles: 'allow' }));
   
   // Custom health check endpoints for deployment
   app.get('/health', (req, res) => {
