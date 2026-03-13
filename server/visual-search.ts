@@ -444,7 +444,7 @@ async function generateB2BInsights(
       max_tokens: 1000
     });
 
-    const insights = JSON.parse(response.choices[0].message.content);
+    const insights = JSON.parse(response.choices[0].message.content || '{}');
     
     return {
       marketTrends: insights.marketTrends || 'No market trend data available',

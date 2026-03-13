@@ -99,7 +99,7 @@ const mockTemplates = [
     id: '3',
     name: 'Pricing Inquiry',
     subject: 'Tesco Price Comparison Pricing Information',
-    body: 'Hi {{firstName}},\n\nThank you for your interest in our pricing information.\n\nOur plans start at $99/month for basic access, with premium features available on our higher-tier plans.\n\nI've attached our full pricing sheet for your review. Would you like to schedule a call to discuss which plan would be best for your needs?\n\nBest regards,\nThe Tesco Price Comparison Team',
+    body: "Hi {{firstName}},\n\nThank you for your interest in our pricing information.\n\nOur plans start at $99/month for basic access, with premium features available on our higher-tier plans.\n\nI've attached our full pricing sheet for your review. Would you like to schedule a call to discuss which plan would be best for your needs?\n\nBest regards,\nThe Tesco Price Comparison Team",
     type: 'Email',
     createdAt: '2025-05-03T11:45:00Z',
   },

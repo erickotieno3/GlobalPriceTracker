@@ -89,3 +89,10 @@ data/             # JSON data files for paybill system
 ### Infrastructure
 - **Replit**: Primary hosting with deployment support
 - **Hetzner Cloud**: Backup hosting option documented in deployment guides
+
+## Integration Status Notes
+
+### GitHub Integration
+GitHub integration was dismissed by user. To push source code to GitHub in future, either:
+1. Complete the GitHub OAuth integration flow in Replit integrations, or
+2. Provide a GitHub Personal Access Token (PAT) as `GITHUB_TOKEN` secret
