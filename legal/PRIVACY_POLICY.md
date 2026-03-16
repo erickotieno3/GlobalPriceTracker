@@ -101,6 +101,6 @@ We may update our Privacy Policy from time to time. If we make material changes,
 
 If you have any questions about this Privacy Policy, please contact us at:
 
-Email: privacy@hyrisecrown.com  
+Email: erickotienokjv@gmail.com  
 Address: [Your Business Address]  
 Phone: [Your Business Phone Number]

@@ -49,6 +49,6 @@ All rights not expressly granted herein are reserved. Any use of materials beyon
 
 For matters regarding copyright or other intellectual property issues, please contact:
 
-Email: copyright@hyrisecrown.com  
+Email: erickotienokjv@gmail.com  
 Address: [Your Business Address]  
 Phone: [Your Business Phone Number]

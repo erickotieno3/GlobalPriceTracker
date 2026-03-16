@@ -64,6 +64,6 @@ This License constitutes the entire agreement between you and Licensor relating 
 If you have any questions about this License, please contact:
 
 Hyrise Crown  
-Email: licensing@hyrisecrown.com  
+Email: erickotienokjv@gmail.com  
 Address: [Your Business Address]  
 Phone: [Your Business Phone Number]

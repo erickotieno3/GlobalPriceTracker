@@ -94,7 +94,7 @@ export default function LegalDocumentsPage() {
               
               <h3>10. CONTACT US</h3>
               <p>
-                If you have any questions about these Terms, please contact us at legal@hyrisecrown.com.
+                If you have any questions about these Terms, please contact us at erickotienokjv@gmail.com.
               </p>
             </CardContent>
           </Card>
@@ -182,7 +182,7 @@ export default function LegalDocumentsPage() {
               
               <h3>10. CONTACT US</h3>
               <p>
-                If you have any questions about this Privacy Policy, please contact us at privacy@hyrisecrown.com.
+                If you have any questions about this Privacy Policy, please contact us at erickotienokjv@gmail.com.
               </p>
             </CardContent>
           </Card>
@@ -247,7 +247,7 @@ export default function LegalDocumentsPage() {
               
               <h3>8. CONTACT FOR COPYRIGHT MATTERS</h3>
               <p>
-                Please send copyright notices or inquiries to: copyright@hyrisecrown.com
+                Please send copyright notices or inquiries to: erickotienokjv@gmail.com
               </p>
             </CardContent>
           </Card>

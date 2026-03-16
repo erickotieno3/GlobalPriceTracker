@@ -21,7 +21,7 @@ The above information must be submitted to our designated copyright agent as fol
 
 **Designated Copyright Agent:**
 - Name: Copyright Agent, Hyrise Crown
-- Email: dmca@hyrisecrown.com
+- Email: erickotienokjv@gmail.com
 - Address: [Your Business Address]
 - Phone: [Your Business Phone Number]
 
@@ -50,4 +50,4 @@ Hyrise Crown reserves the right to update or modify this DMCA Policy at any time
 
 ## Questions
 
-If you have any questions about this DMCA Policy, please contact us at dmca@hyrisecrown.com.
+If you have any questions about this DMCA Policy, please contact us at erickotienokjv@gmail.com.

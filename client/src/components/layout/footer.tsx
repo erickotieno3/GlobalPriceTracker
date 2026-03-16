@@ -74,7 +74,7 @@ export default function Footer() {
               </a>
             </div>
             <p className="text-gray-400">
-              Email: <a href="mailto:info@hyrisecrown.com" className="hover:text-white transition">info@hyrisecrown.com</a>
+              Email: <a href="mailto:erickotienokjv@gmail.com" className="hover:text-white transition">erickotienokjv@gmail.com</a>
             </p>
           </div>
         </div>

@@ -66,7 +66,7 @@ This document provides a comprehensive guide to publishing the Tesco Price Compa
 
 3. **Contact Information**
    - Website: https://hyrisecrown.com
-   - Email: info@hyrisecrown.com
+   - Email: erickotienokjv@gmail.com
    - Phone (optional)
 
 ## Content Rating

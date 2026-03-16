@@ -137,6 +137,6 @@ By continuing to access or use our Service after those revisions become effectiv
 
 If you have any questions about these Terms, please contact us at:
 
-Email: legal@hyrisecrown.com  
+Email: erickotienokjv@gmail.com  
 Address: [Your Business Address]  
 Phone: [Your Business Phone Number]

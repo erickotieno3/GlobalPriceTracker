@@ -63,7 +63,7 @@ export async function sendVerificationCode(email: string, username?: string): Pr
   
   // Email content
   const mailOptions = {
-    from: process.env.EMAIL_FROM || 'Tesco Price Comparison <noreply@tesco-compare.com>',
+    from: process.env.EMAIL_FROM || 'Hyrise Crown Price Compare <erickotienokjv@gmail.com>',
     to: email,
     subject: 'Your Verification Code for Tesco Price Comparison',
     text: `Hello ${username || ''},\n\nYour verification code is: ${code}\n\nThis code will expire in 10 minutes.\n\nRegards,\nTesco Price Comparison Team`,

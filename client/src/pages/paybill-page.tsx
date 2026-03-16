@@ -52,7 +52,7 @@ export default function PaybillPage() {
           <h3 className="font-semibold text-blue-800 mb-2">Need Help?</h3>
           <p className="text-sm text-blue-700">
             If you need assistance with your payments or have questions about our E-Top-Up service, 
-            please contact customer support at support@tesco-compare.com or call +254 (0) 700 000 000.
+            please contact customer support at erickotienokjv@gmail.com or call +254 (0) 700 000 000.
           </p>
         </div>
       </div>
