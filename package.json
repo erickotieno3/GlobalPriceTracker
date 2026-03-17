@@ -13,7 +13,11 @@
     "auto:prices": "node scripts/auto-price-updater.mjs",
     "auto:commit": "node scripts/auto-commit-push.mjs",
     "auto:all": "npm run auto:blog && npm run auto:prices && npm run auto:commit",
-    "auto:deploy": "cd android-app && npm install && eas build --platform android --profile production && eas submit --platform android --latest"
+    "auto:deploy": "cd android-app && npm install && eas build --platform android --profile production && eas submit --platform android --latest",
+    "price:fetch": "node scripts/real-time-price-fetcher.mjs",
+    "price:notify": "node scripts/push-notification-service.mjs",
+    "price:workflow": "node scripts/enhanced-price-workflow.mjs",
+    "price:full": "npm run price:fetch && npm run price:notify && npm run auto:commit"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.37.0",

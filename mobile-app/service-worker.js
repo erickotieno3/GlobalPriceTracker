@@ -1,5 +1,5 @@
-// Service Worker for Tesco Price Comparison App
-const CACHE_NAME = 'tesco-price-comparison-v1';
+// Service Worker for Global Price Tracker
+const CACHE_NAME = 'global-price-tracker-v2';
 const OFFLINE_URL = 'offline.html';
 
 // Files to cache initially
@@ -10,14 +10,7 @@ const CACHE_ASSETS = [
   '/service-worker.js',
   '/offline.html',
   '/assets/icon-192x192.png',
-  '/assets/icon-512x512.png',
-  '/assets/tesco-logo.png',
-  '/assets/carrefour-logo.png',
-  '/assets/naivas-logo.png',
-  '/assets/walmart-logo.png',
-  '/assets/kenya-flag.png',
-  '/assets/product-sunlight.png',
-  '/assets/product-milk.png'
+  '/assets/icon-512x512.png'
 ];
 
 // Install event - cache assets
@@ -47,6 +40,133 @@ self.addEventListener('activate', event => {
     })
   );
   return self.clients.claim();
+});
+
+// Push notification event - when server sends a push notification
+self.addEventListener('push', event => {
+  console.log('📬 Push notification received:', event);
+
+  let notificationData = {
+    title: 'Global Price Tracker',
+    body: 'New price update available',
+    badge: '/assets/icon-192x192.png',
+    icon: '/assets/icon-192x192.png',
+    tag: 'price-notification',
+    requireInteraction: false
+  };
+
+  // Parse custom notification data if provided
+  if (event.data) {
+    try {
+      notificationData = { ...notificationData, ...event.data.json() };
+    } catch (error) {
+      console.log('Push data:', event.data.text());
+      notificationData.body = event.data.text();
+    }
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(notificationData.title, {
+      body: notificationData.body,
+      badge: notificationData.badge,
+      icon: notificationData.icon,
+      tag: notificationData.tag,
+      requireInteraction: notificationData.requireInteraction,
+      data: notificationData.data || {},
+      actions: [
+        {
+          action: 'open',
+          title: 'View',
+          icon: '/assets/icon-192x192.png'
+        },
+        {
+          action: 'close',
+          title: 'Dismiss',
+          icon: '/assets/icon-192x192.png'
+        }
+      ]
+    })
+  );
+});
+
+// Notification click event - handle user interaction with notification
+self.addEventListener('notificationclick', event => {
+  console.log('🔔 Notification clicked:', event.notification.tag);
+
+  event.notification.close();
+
+  const urlToOpen = event.notification.data?.url || '/';
+  const action = event.notification.data?.action;
+
+  if (action === 'view_product') {
+    event.waitUntil(
+      clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
+        // Check if app is already open
+        for (let i = 0; i < clients.length; i++) {
+          if (clients[i].url === urlToOpen && 'focus' in clients[i]) {
+            return clients[i].focus();
+          }
+        }
+        // Open new window if not found
+        if (clients.openWindow) {
+          return clients.openWindow(urlToOpen);
+        }
+      })
+    );
+  } else if (action === 'buy_now') {
+    event.waitUntil(
+      clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
+        for (let i = 0; i < clients.length; i++) {
+          if ('focus' in clients[i]) {
+            clients[i].focus();
+            clients[i].postMessage({
+              type: 'PRODUCT_AVAILABLE',
+              productId: event.notification.data?.productId
+            });
+            return;
+          }
+        }
+        if (clients.openWindow) {
+          return clients.openWindow(urlToOpen);
+        }
+      })
+    );
+  } else if (action === 'view_deals') {
+    event.waitUntil(
+      clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
+        for (let i = 0; i < clients.length; i++) {
+          if (clients[i].url.includes('/deals') || clients[i].url === '/') {
+            return clients[i].focus();
+          }
+        }
+        if (clients.openWindow) {
+          return clients.openWindow(urlToOpen);
+        }
+      })
+    );
+  } else {
+    event.waitUntil(
+      clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
+        if (clients.openWindow) {
+          return clients.openWindow(urlToOpen);
+        }
+      })
+    );
+  }
+});
+
+// Notification close event
+self.addEventListener('notificationclose', event => {
+  console.log('❌ Notification dismissed:', event.notification.tag);
+});
+
+// Message event - handle messages from clients
+self.addEventListener('message', event => {
+  console.log('📨 Message received in SW:', event.data);
+
+  if (event.data?.type === 'SHOW_NOTIFICATION') {
+    self.registration.showNotification(event.data.title, event.data.options);
+  }
 });
 
 // Fetch event - serve from cache or network

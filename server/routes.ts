@@ -27,6 +27,7 @@ import cookieParser from "cookie-parser";
 import { eq, desc } from "drizzle-orm";
 import { db } from "./db";
 import { stores, products, productPrices } from "@shared/schema";
+import pushNotificationRouter from "./push-notification-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Body parser middleware
@@ -947,6 +948,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Mini Paybill System with E-Top-Up functionality
   app.use("/api/paybill", paybillRouter);
+  
+  // Push notification routes for price alerts
+  app.use("/api/push-notifications", pushNotificationRouter);
+  app.use("/api/price-alerts", pushNotificationRouter);
+  app.use("/api/notifications", pushNotificationRouter);
   
   // Visual search direct routes
   app.post("/api/ai/visual-search", uploadProductImage, handleVisualSearch);
