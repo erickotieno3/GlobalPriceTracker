@@ -1,10 +1,10 @@
-# Privacy Policy for Tesco Price Comparison
+# Privacy Policy for Global Price Comparison
 
-**Last Updated: April 24, 2025**
+**Last Updated: March 17, 2026**
 
 ## Introduction
 
-Hyrise Crown ("we," "our," or "us") respects your privacy and is committed to protecting it through our compliance with this Privacy Policy. This policy describes the types of information we may collect from you or that you may provide when you use the Tesco Price Comparison platform (the "Service"), available as a website at hyrisecrown.com and as a mobile application, and our practices for collecting, using, maintaining, protecting, and disclosing that information.
+Global Price Comparison ("we," "our," or "us") respects your privacy and is committed to protecting it through our compliance with this Privacy Policy. This policy describes the types of information we may collect from you or that you may provide when you use the Global Price Comparison platform (the "Service"), available as a website at global-price-comparison.com and as a mobile application, and our practices for collecting, using, maintaining, protecting, and disclosing that information.
 
 ## Information We Collect
 
@@ -40,11 +40,22 @@ We use the information we collect to:
 - Detect, prevent, and address technical issues
 - Comply with legal obligations
 
+## Google OAuth Authentication
+
+We use Google OAuth 2.0 for user authentication. When you choose to sign in using your Google account:
+
+- Your email address and basic profile information are used to create or verify your account
+- You grant us permission to access your Google profile information
+- We do NOT have access to your Google password
+- You can revoke access at any time through your Google account settings
+- We comply with Google's API Services User Data Policy
+
 ## Sharing of Information
 
 We may share your personal information in the following situations:
 
 - **With Service Providers**: We may share your information with third-party vendors, service providers, and contractors who perform services on our behalf.
+- **With Google**: Required information for OAuth authentication and account verification
 - **For Analytics**: We use analytics providers such as Google Analytics to help us understand how users access and use the Service.
 - **Business Transfers**: If we are involved in a merger, acquisition, or sale of all or a portion of our assets, your information may be transferred as part of that transaction.
 - **For Legal Purposes**: We may disclose information if required to do so by law or in response to valid requests by public authorities.

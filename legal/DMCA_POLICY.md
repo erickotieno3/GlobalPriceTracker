@@ -1,10 +1,10 @@
-# DMCA Policy for Tesco Price Comparison
+# DMCA Policy for Global Price Comparison
 
-**Last Updated: April 24, 2025**
+**Last Updated: March 17, 2026**
 
 ## Digital Millennium Copyright Act Notice and Takedown Procedure
 
-Hyrise Crown respects the intellectual property rights of others and expects its users to do the same. In accordance with the Digital Millennium Copyright Act of 1998 ("DMCA"), Hyrise Crown will respond expeditiously to claims of copyright infringement that are reported to our designated copyright agent.
+Global Price Comparison respects the intellectual property rights of others and expects its users to do the same. In accordance with the Digital Millennium Copyright Act of 1998 ("DMCA"), Global Price Comparison will respond expeditiously to claims of copyright infringement that are reported to our designated copyright agent.
 
 ## Notification of Claimed Copyright Infringement
 

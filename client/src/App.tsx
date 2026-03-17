@@ -16,10 +16,13 @@ import LegalDocumentsPage from "./pages/legal/legal-documents";
 import AIAdminDashboard from "./pages/admin/ai-admin-dashboard";
 import GorillaLeadsDashboard from "./pages/gorillaleads-dashboard";
 import SpeechToTextPage from "@/pages/speech-to-text-page";
+import LoginPage from "./pages/login";
+import OAuthCallback from "./pages/auth/callback";
 
 import { useEffect, useState } from "react";
 import { getProductRecommendations } from "@/lib/ai";
 import { Sparkles, Loader2 } from "lucide-react";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 
 function HomePage() {
   const [recommendations, setRecommendations] = useState<any[]>([]);
@@ -43,7 +46,7 @@ function HomePage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl text-center">
-      <h1 className="text-4xl font-bold text-blue-600 mb-4">Tesco Price Comparison</h1>
+      <h1 className="text-4xl font-bold text-blue-600 mb-4">Global Price Comparison</h1>
       <p className="text-xl mb-2">Welcome to the Global E-commerce Price Comparison Platform</p>
       <p className="text-gray-600 mb-8">Compare prices across multiple stores and marketplaces worldwide</p>
       
@@ -151,16 +154,18 @@ function HomePage() {
 }
 
 function Header() {
+  const { user, logout } = useAuth();
+  
   return (
     <header className="bg-white shadow-sm">
       <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
           <Link href="/">
-            <span className="text-2xl font-bold text-blue-600 cursor-pointer">Tesco Compare</span>
+            <span className="text-2xl font-bold text-blue-600 cursor-pointer">Global Compare</span>
           </Link>
           
           <nav>
-            <ul className="flex space-x-6">
+            <ul className="flex space-x-6 items-center">
               <li>
                 <Link href="/">
                   <span className="hover:text-blue-600 cursor-pointer">Home</span>
@@ -231,6 +236,28 @@ function Header() {
                   <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded hover:bg-amber-200 cursor-pointer">Admin</span>
                 </Link>
               </li>
+              {user ? (
+                <li className="flex items-center gap-2">
+                  <img 
+                    src={user.picture} 
+                    alt={user.name} 
+                    title={user.name}
+                    style={{ borderRadius: '50%', width: '32px', height: '32px' }} 
+                  />
+                  <button 
+                    onClick={logout}
+                    className="bg-red-100 text-red-800 px-2 py-1 rounded hover:bg-red-200 cursor-pointer"
+                  >
+                    Logout
+                  </button>
+                </li>
+              ) : (
+                <li>
+                  <Link href="/login">
+                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded hover:bg-blue-200 cursor-pointer">Login</span>
+                  </Link>
+                </li>
+              )}
             </ul>
           </nav>
         </div>
@@ -305,7 +332,7 @@ function Footer() {
         </div>
         
         <div className="border-t border-gray-200 mt-8 pt-6 text-center text-gray-600">
-          <p>&copy; {new Date().getFullYear()} Tesco Price Comparison. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Global Price Comparison. All rights reserved.</p>
         </div>
       </div>
     </footer>
@@ -327,6 +354,16 @@ function NotFound() {
 }
 
 function App() {
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '319956223388-2cu53nbqjqumsukct0vnnnqotgg10cas.apps.googleusercontent.com';
+
+  return (
+    <AuthProvider clientId={clientId}>
+      <AppContent />
+    </AuthProvider>
+  );
+}
+
+function AppContent() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -334,6 +371,8 @@ function App() {
       <main className="flex-grow">
         <Switch>
           <Route path="/" component={HomePage} />
+          <Route path="/login" component={LoginPage} />
+          <Route path="/auth/callback" component={OAuthCallback} />
           <Route path="/marketplace-comparison" component={MarketplaceComparisonPage} />
           <Route path="/alphabetical-search" component={AlphabeticalSearchPage} />
           <Route path="/ai-assistant" component={AIAssistantPage} />

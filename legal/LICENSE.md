@@ -1,12 +1,12 @@
-# License Agreement for Tesco Price Comparison
+# License Agreement for Global Price Comparison
 
-**Effective Date: April 24, 2025**
+**Effective Date: March 17, 2026**
 
 ## Proprietary License
 
 THIS IS A PROPRIETARY SOFTWARE LICENSE AGREEMENT. THIS IS NOT AN OPEN SOURCE OR FREE SOFTWARE LICENSE.
 
-This license agreement ("License") is a legal agreement between you (either an individual or a single entity) and Hyrise Crown ("Licensor") for the Tesco Price Comparison software, which includes computer software, associated media, and online or electronic documentation ("Software").
+This license agreement ("License") is a legal agreement between you (either an individual or a single entity) and Global Price Comparison ("Licensor") for the Global Price Comparison software, which includes computer software, associated media, and online or electronic documentation ("Software").
 
 ## 1. Grant of License
 

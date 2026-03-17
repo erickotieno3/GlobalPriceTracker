@@ -1,6 +1,6 @@
-# Copyright Notice for Tesco Price Comparison
+# Copyright Notice for Global Price Comparison
 
-© 2025 Hyrise Crown. All Rights Reserved.
+© 2025-2026 Global Price Comparison. All Rights Reserved.
 
 ## Copyright Declaration
 

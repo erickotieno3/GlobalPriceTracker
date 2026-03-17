@@ -1,10 +1,10 @@
-# Terms of Service for Tesco Price Comparison
+# Terms of Service for Global Price Comparison
 
-**Last Updated: April 24, 2025**
+**Last Updated: March 17, 2026**
 
 ## 1. Introduction and Acceptance of Terms
 
-Welcome to the Tesco Price Comparison platform ("Service", "we", "us", "our"), operated by Hyrise Crown ("Company", "Owner"). By accessing or using our website at hyrisecrown.com or our mobile application, you agree to be bound by these Terms of Service ("Terms"). If you disagree with any part of these Terms, you may not access the Service.
+Welcome to the Global Price Comparison platform ("Service", "we", "us", "our"), operated by Global Price Comparison ("Company", "Owner"). By accessing or using our website at global-price-comparison.com or our mobile application, you agree to be bound by these Terms of Service ("Terms"). If you disagree with any part of these Terms, you may not access the Service.
 
 These Terms apply to all visitors, users, and others who access or use the Service. By accessing or using the Service, you agree to be bound by these Terms. If you disagree with any part of the Terms, then you may not access the Service.
 

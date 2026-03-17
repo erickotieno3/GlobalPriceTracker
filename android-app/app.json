@@ -25,8 +25,20 @@
           "data": [
             {
               "scheme": "https",
-              "host": "hyrisecrown.com",
+              "host": "global-price-comparison.com",
               "pathPrefix": "/"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        },
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "global-price-comparison.web.app",
+              "pathPrefix": "/auth/callback"
             }
           ],
           "category": ["BROWSABLE", "DEFAULT"]
@@ -36,7 +48,9 @@
         "INTERNET",
         "ACCESS_NETWORK_STATE",
         "RECORD_AUDIO",
-        "CAMERA"
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
       ]
     },
     "web": {
