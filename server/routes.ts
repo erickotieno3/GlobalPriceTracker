@@ -28,6 +28,9 @@ import { eq, desc } from "drizzle-orm";
 import { db } from "./db";
 import { stores, products, productPrices } from "@shared/schema";
 import pushNotificationRouter from "./push-notification-routes";
+import WebSocketNetworkServer from "./websocket-server";
+import UnlimitedRevisionSystem from "./unlimited-revisions";
+import syncRouter, { setSyncServices } from "./network-sync-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Body parser middleware
@@ -954,6 +957,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/price-alerts", pushNotificationRouter);
   app.use("/api/notifications", pushNotificationRouter);
   
+  // Network sync and revision routes
+  app.use("/api/sync", syncRouter);
+  
   // Visual search direct routes
   app.post("/api/ai/visual-search", uploadProductImage, handleVisualSearch);
   app.get("/api/ai/b2b-insights/:productId", getB2BInsights);
@@ -980,7 +986,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).send('Error loading admin 2FA page');
     }
   });
-
+Initialize Network Integration Systems
+  const wsNetworkServer = new WebSocketNetworkServer(httpServer);
+  setSyncServices(wsNetworkServer);
+  
+  // 
   const httpServer = createServer(app);
   
   // WebSocket server for real-time price updates
