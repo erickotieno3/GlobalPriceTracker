@@ -1,0 +1,81 @@
+name: Build & Deploy to Google Play
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'android-app/**'
+      - '.github/workflows/google-play-deploy.yml'
+  workflow_dispatch:
+    inputs:
+      submit:
+        description: 'Submit to Google Play?'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🛒 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: ✨ Setup Expo CLI
+        run: npm install -g eas-cli expo-cli
+
+      - name: 📥 Install Android app dependencies
+        run: |
+          cd android-app
+          npm install
+
+      - name: 🔑 Create Google Play service account
+        run: |
+          cd android-app
+          echo '${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}' > google-play-service-account.json
+          
+      - name: 🔐 Authenticate with EAS
+        run: |
+          npx eas login --non-interactive --username ${{ secrets.EAS_USERNAME }} --password ${{ secrets.EAS_PASSWORD }}
+        env:
+          EAS_NO_VCS: 1
+
+      - name: 🏗️ Build Android App Bundle for production
+        run: |
+          cd android-app
+          eas build --platform android --profile production --non-interactive --wait
+        env:
+          EAS_NO_VCS: 1
+
+      - name: 🚀 Submit to Google Play Store
+        if: github.event.inputs.submit != 'false' && github.event_name == 'push'
+        run: |
+          cd android-app
+          eas submit --platform android --latest --non-interactive
+        env:
+          EAS_NO_VCS: 1
+
+      - name: 📝 Post submission message
+        if: success()
+        run: |
+          echo "✅ Build and submission complete!"
+          echo "📊 Check your app in Google Play Console:"
+          echo "   https://play.google.com/console/u/0/developers/4701755398154754373/"
+          echo ""
+          echo "⏳ Your app may take time to appear. 🎉"
+
+      - name: ⚠️ Build failed
+        if: failure()
+        run: |
+          echo "❌ Build or submission failed. Check the logs above."
+          exit 1

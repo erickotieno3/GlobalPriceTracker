@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Hyrise Crown Price Compare",
-    "slug": "hyrise-crown-price-compare",
+    "name": "Global Price Comparison",
+    "slug": "global-price-comparison",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -12,7 +12,7 @@
       "backgroundColor": "#00539F"
     },
     "android": {
-      "package": "com.hyrisecrown.tescopricecomparison",
+      "package": "com.globalprice.comparison",
       "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
@@ -48,7 +48,7 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "hyrise-crown-price-compare"
+        "projectId": "global-price-comparison"
       }
     },
     "owner": "erickotienokjv"
