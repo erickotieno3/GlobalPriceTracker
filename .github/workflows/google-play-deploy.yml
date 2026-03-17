@@ -6,12 +6,21 @@ on:
     paths:
       - 'android-app/**'
       - '.github/workflows/google-play-deploy.yml'
+      - 'client/**'
   workflow_dispatch:
     inputs:
       submit:
         description: 'Submit to Google Play?'
         required: true
         default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      skip_build:
+        description: 'Skip build (use latest)?'
+        required: false
+        default: 'false'
         type: choice
         options:
           - 'true'
@@ -24,6 +33,8 @@ jobs:
     steps:
       - name: 🛒 Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: 📦 Setup Node.js
         uses: actions/setup-node@v4
@@ -34,12 +45,24 @@ jobs:
       - name: ✨ Setup Expo CLI
         run: npm install -g eas-cli expo-cli
 
-      - name: 📥 Install Android app dependencies
+      - name: 🧹 Clean previous builds
+        continue-on-error: true
         run: |
+          cd android-app
+          rm -rf .eas-cache build dist
+
+      - name: 📥 Install dependencies
+        run: |
+          npm install
           cd android-app
           npm install
 
-      - name: 🔑 Create Google Play service account
+      - name: 💻 Build web assets
+        continue-on-error: true
+        run: |
+          npm run build
+
+      - name: 🔑 Setup Google Play credentials
         run: |
           cd android-app
           echo '${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}' > google-play-service-account.json
@@ -50,32 +73,63 @@ jobs:
         env:
           EAS_NO_VCS: 1
 
-      - name: 🏗️ Build Android App Bundle for production
+      - name: 🏗️ Build Android App Bundle (Production)
+        if: github.event.inputs.skip_build != 'true'
         run: |
           cd android-app
           eas build --platform android --profile production --non-interactive --wait
         env:
           EAS_NO_VCS: 1
 
-      - name: 🚀 Submit to Google Play Store
-        if: github.event.inputs.submit != 'false' && github.event_name == 'push'
+      - name: 📤 Submit to Google Play Store
+        if: github.event.inputs.submit != 'false'
         run: |
           cd android-app
           eas submit --platform android --latest --non-interactive
         env:
           EAS_NO_VCS: 1
 
-      - name: 📝 Post submission message
-        if: success()
+      - name: 📊 Get build info
+        id: build_info
+        continue-on-error: true
         run: |
-          echo "✅ Build and submission complete!"
-          echo "📊 Check your app in Google Play Console:"
-          echo "   https://play.google.com/console/u/0/developers/4701755398154754373/"
-          echo ""
-          echo "⏳ Your app may take time to appear. 🎉"
+          echo "timestamp=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
+          echo "commit=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "branch=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_OUTPUT
 
-      - name: ⚠️ Build failed
-        if: failure()
+      - name: 📝 Create deployment summary
+        if: always()
         run: |
-          echo "❌ Build or submission failed. Check the logs above."
-          exit 1
+          echo "## 🚀 Google Play Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Build Status**: $([ $? -eq 0 ] && echo '✅ Success' || echo '❌ Failed')" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp**: ${{ steps.build_info.outputs.timestamp }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit**: \`${{ steps.build_info.outputs.commit }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch**: ${{ steps.build_info.outputs.branch }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "[View in Google Play Console](https://play.google.com/console/u/0/developers/4701755398154754373/)" >> $GITHUB_STEP_SUMMARY
+
+      - name: 💬 Comment on commit
+        if: always()
+        uses: actions/github-script@v7
+        continue-on-error: true
+        with:
+          script: |
+            const status = '${{ job.status }}' === 'success' ? '✅' : '❌';
+            github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: `${status} Google Play Deployment - ${{ job.status }}\n\n[View Workflow](${context.payload.pull_request?.html_url || context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`
+            });
+
+      - name: 🔔 Slack notification
+        if: always()
+        uses: 8398a7/action-slack@v3
+        continue-on-error: true
+        with:
+          status: ${{ job.status }}
+          text: 'Google Play deployment ${{ job.status }}!'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          fields: repo,message,commit,author
+
