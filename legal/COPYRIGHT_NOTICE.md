@@ -1,26 +1,26 @@
-# Copyright Notice for Global Price Comparison
+# Copyright Notice for Global Price Tracker
 
-© 2025-2026 Global Price Comparison. All Rights Reserved.
+© 2025-2026 Global Price Tracker. All Rights Reserved.
 
 ## Copyright Declaration
 
-All content included on the Tesco Price Comparison platform, including but not limited to text, graphics, logos, icons, images, audio clips, digital downloads, data compilations, and software, is the property of Hyrise Crown or its content suppliers and is protected by international copyright laws.
+All content included on the Global Price Tracker platform, including but not limited to text, graphics, logos, icons, images, audio clips, digital downloads, data compilations, and software, is the property of Global Price Tracker or its content suppliers and is protected by international copyright laws.
 
 ## Intellectual Property Rights
 
-The compilation of all content on this platform is the exclusive property of Hyrise Crown and is protected by international copyright laws. All software used on this platform is the property of Hyrise Crown or its software suppliers and is protected by international copyright laws.
+The compilation of all content on this platform is the exclusive property of Global Price Tracker and is protected by international copyright laws. All software used on this platform is the property of Global Price Tracker or its software suppliers and is protected by international copyright laws.
 
 ## Trademark Notice
 
-"Tesco Price Comparison," the Tesco Price Comparison logo, and all other Hyrise Crown-related marks depicted on this platform are registered and/or common law trademarks of Hyrise Crown. All other trademarks not owned by Hyrise Crown that appear on this platform are the property of their respective owners, who may or may not be affiliated with, connected to, or sponsored by Hyrise Crown.
+"Global Price Tracker," the Global Price Tracker logo, and all other Global Price Tracker-related marks depicted on this platform are registered and/or common law trademarks of Global Price Tracker. All other trademarks not owned by Global Price Tracker that appear on this platform are the property of their respective owners, who may or may not be affiliated with, connected to, or sponsored by Global Price Tracker.
 
 ## Proprietary Rights Notice
 
-The design, structure, selection, coordination, expression, look and feel, and arrangement of such content on the platform is owned exclusively by Hyrise Crown.
+The design, structure, selection, coordination, expression, look and feel, and arrangement of such content on the platform is owned exclusively by Global Price Tracker.
 
 ## Restricted Use
 
-No part of the Tesco Price Comparison platform may be reproduced, duplicated, copied, sold, resold, visited, distributed, or otherwise exploited for any commercial purpose without the express written consent of Hyrise Crown.
+No part of the Global Price Tracker platform may be reproduced, duplicated, copied, sold, resold, visited, distributed, or otherwise exploited for any commercial purpose without the express written consent of Global Price Tracker.
 
 ## Unauthorized Use
 
@@ -28,7 +28,7 @@ Any unauthorized use of the materials, content, or intellectual property appeari
 
 ## Enforcement of Rights
 
-Hyrise Crown will enforce its intellectual property rights to the fullest extent of the law, including seeking criminal prosecution where appropriate.
+Global Price Tracker will enforce its intellectual property rights to the fullest extent of the law, including seeking criminal prosecution where appropriate.
 
 ## Copyright Infringement Notification Procedure
 
@@ -49,6 +49,6 @@ All rights not expressly granted herein are reserved. Any use of materials beyon
 
 For matters regarding copyright or other intellectual property issues, please contact:
 
-Email: erickotienokjv@gmail.com  
+Email: legal@globalpricetrackerapp.com  
 Address: [Your Business Address]  
 Phone: [Your Business Phone Number]

@@ -5,7 +5,7 @@
 Your app now has **real-time supermarket price fetching** with **push notifications** for price drops and deals!
 
 ### Features at a Glance
-✅ **Real-Time Prices** - Fetches from Tesco, Sainsbury's, Asda, Walmart  
+✅ **Real-Time Prices** - Fetches from Tesco, Sainsbury's, Asda, Walmart, eBay UK, eBay US  
 ✅ **Smart Comparisons** - Shows cheapest vs most expensive across stores  
 ✅ **Price Alerts** - Users create alerts for specific products/prices  
 ✅ **Push Notifications** - Instant alerts when prices drop or deals found  

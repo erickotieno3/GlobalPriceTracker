@@ -1,10 +1,38 @@
-# Privacy Policy for Global Price Comparison
+# Privacy Policy for Global Price Tracker
 
-**Last Updated: March 17, 2026**
+**Last Updated: March 17, 2026**  
+**Effective Date: March 17, 2026**  
+**Version**: 2.0 (Updated for GDPR/CCPA/LGPD/Apple/Google Compliance)
 
-## Introduction
+## 🔐 About Us & This Policy
 
-Global Price Comparison ("we," "our," or "us") respects your privacy and is committed to protecting it through our compliance with this Privacy Policy. This policy describes the types of information we may collect from you or that you may provide when you use the Global Price Comparison platform (the "Service"), available as a website at global-price-comparison.com and as a mobile application, and our practices for collecting, using, maintaining, protecting, and disclosing that information.
+**Global Price Tracker** ("Company", "we", "us", "our") respects your privacy and complies with all applicable data protection laws including GDPR, CCPA, LGPD, and platform-specific requirements.
+
+### What This Policy Covers
+
+This Privacy Policy applies to:
+- **Website**: https://globalpricetrackerapp.com
+- **iOS App**: Global Price Tracker (Apple App Store)
+- **Android App**: Global Price Tracker (Google Play Store)
+- **Web Application**: All versions
+- **Related Services**: Price alerts, notifications, dashboards, API access
+
+### Who We Are
+
+- **Company Name**: Global Price Tracker
+- **Type**: Mobile Application & Web Service
+- **Purpose**: Real-time price comparison and price alert service
+- **Data Controller**: Global Price Tracker Legal Team
+- **Contact**: privacy@globalpricetrackerapp.com
+
+### Our Commitment
+
+We are committed to:
+- Collecting only necessary data
+- Protecting your information
+- Respecting your privacy rights
+- Being transparent about our practices
+- Complying with all applicable laws
 
 ## Information We Collect
 

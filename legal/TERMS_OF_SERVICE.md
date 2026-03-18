@@ -1,26 +1,36 @@
-# Terms of Service for Global Price Comparison
+# Terms of Service for Global Price Tracker
 
-**Last Updated: March 17, 2026**
+**Last Updated: March 17, 2026**  
+**Effective Date: March 17, 2026**  
+**Version**: 2.0 (Updated for App Store Compliance)
 
 ## 1. Introduction and Acceptance of Terms
 
-Welcome to the Global Price Comparison platform ("Service", "we", "us", "our"), operated by Global Price Comparison ("Company", "Owner"). By accessing or using our website at global-price-comparison.com or our mobile application, you agree to be bound by these Terms of Service ("Terms"). If you disagree with any part of these Terms, you may not access the Service.
+Welcome to Global Price Tracker (the "Service", "we", "us", "our"), a real-time price comparison and price alert application. By accessing or using our website at https://globalpricetrackerapp.com, iOS app (Apple App Store), Android app (Google Play Store), or web application, you agree to be bound by these Terms of Service ("Terms").
 
-These Terms apply to all visitors, users, and others who access or use the Service. By accessing or using the Service, you agree to be bound by these Terms. If you disagree with any part of the Terms, then you may not access the Service.
+### 1.1 Acceptance
+By accessing or using the Service, you:
+- Agree to be bound by these Terms
+- Are at least 13 years old (18 in some jurisdictions)
+- Have the authority to enter this agreement
+- Accept all terms and conditions
+
+If you disagree with any part of the Terms, you may not access the Service.
+
+---
 
 ## 2. Intellectual Property Rights and Ownership
 
 ### 2.1 Exclusive Ownership
-
-All rights, title, and interest in and to the Service, including all intellectual property rights, are and will remain the exclusive property of Hyrise Crown. The Service is protected by copyright, trademark, patent, and other laws of both the United States, European Union, United Kingdom, Kenya, and other countries. Our trademarks, service marks, logos, and trade names may not be used in connection with any product or service without the prior written consent of Hyrise Crown.
+All rights, title, and interest in and to the Service, including all intellectual property rights, are and will remain the exclusive property of Global Price Tracker. The Service is protected by copyright, trademark, patent, and other laws of the United States, European Union, United Kingdom, Kenya, and other countries.
 
 ### 2.2 Proprietary Code and Content
 
-The software, code, algorithms, database structures, organization, and content including text, graphics, images, logos, icons, and audio clips that are part of the Service are owned by Hyrise Crown and are protected by international copyright, trademark, patent, trade secret, and other intellectual property or proprietary rights laws.
+The software, code, algorithms, database structures, organization, and content including text, graphics, images, logos, icons, and audio clips that are part of the Service are owned by Global Price Tracker and are protected by international copyright, trademark, patent, trade secret, and other intellectual property or proprietary rights laws.
 
 ### 2.3 No Transfer of Rights
 
-Nothing contained in these Terms shall be construed as conferring by implication, estoppel, or otherwise any license or right to use any trademark, patent, or other proprietary right of Hyrise Crown or any third party.
+Nothing contained in these Terms shall be construed as conferring by implication, estoppel, or otherwise any license or right to use any trademark, patent, or other proprietary right of Global Price Tracker or any third party.
 
 ### 2.4 Restrictions
 
@@ -34,17 +44,17 @@ You are expressly prohibited from:
 
 ### 2.5 Limited License to Use
 
-Subject to these Terms, Hyrise Crown grants you a limited, non-exclusive, non-transferable, non-sublicensable license to access and use the Service solely for your personal, non-commercial purposes. This license does not include any resale or commercial use of the Service or its contents; any collection and use of any product listings, descriptions, or prices; any derivative use of the Service or its contents; any downloading or copying of account information for the benefit of another merchant; or any use of data mining, robots, or similar data gathering and extraction tools.
+Subject to these Terms, Global Price Tracker grants you a limited, non-exclusive, non-transferable, non-sublicensable license to access and use the Service solely for your personal, non-commercial purposes. This license does not include any resale or commercial use of the Service or its contents; any collection and use of any product listings, descriptions, or prices; any derivative use of the Service or its contents; any downloading or copying of account information for the benefit of another merchant; or any use of data mining, robots, or similar data gathering and extraction tools.
 
 ## 3. User Accounts and Security
 
 ### 3.1 Account Security
 
-You are responsible for safeguarding the password that you use to access the Service and for any activities or actions under your password. We encourage you to use "strong" passwords (passwords that use a combination of upper and lower case letters, numbers, and symbols) with your account. Hyrise Crown cannot and will not be liable for any loss or damage arising from your failure to comply with this section.
+You are responsible for safeguarding the password that you use to access the Service and for any activities or actions under your password. We encourage you to use "strong" passwords (passwords that use a combination of upper and lower case letters, numbers, and symbols) with your account. Global Price Tracker cannot and will not be liable for any loss or damage arising from your failure to comply with this section.
 
 ### 3.2 Security Breach Notification
 
-You must notify Hyrise Crown immediately of any breach of security or unauthorized use of your account. Hyrise Crown will not be liable for any losses caused by any unauthorized use of your account.
+You must notify Global Price Tracker immediately of any breach of security or unauthorized use of your account. Global Price Tracker will not be liable for any losses caused by any unauthorized use of your account.
 
 ### 3.3 Account Information
 
@@ -68,15 +78,15 @@ You agree not to use the Service:
 
 ### 5.1 User-Generated Content
 
-Any content you post, upload, share, store, or otherwise provide through the Service is your "User Content." By providing User Content to the Service, you grant Hyrise Crown a worldwide, non-exclusive, royalty-free license to use, copy, modify, create derivative works based upon, distribute, publicly display, and publicly perform your User Content for the sole purpose of operating and providing the Service.
+Any content you post, upload, share, store, or otherwise provide through the Service is your "User Content." By providing User Content to the Service, you grant Global Price Tracker a worldwide, non-exclusive, royalty-free license to use, copy, modify, create derivative works based upon, distribute, publicly display, and publicly perform your User Content for the sole purpose of operating and providing the Service.
 
 ### 5.2 Data Collection and Usage
 
-By using the Service, you agree that Hyrise Crown may collect and use technical data and related information, including but not limited to technical information about your device, system and application software, and peripherals, that is gathered periodically to facilitate the provision of software updates, product support, and other services to you (if any) related to the Service.
+By using the Service, you agree that Global Price Tracker may collect and use technical data and related information, including but not limited to technical information about your device, system and application software, and peripherals, that is gathered periodically to facilitate the provision of software updates, product support, and other services to you (if any) related to the Service.
 
 ## 6. DMCA Notice and Procedure
 
-Hyrise Crown respects the intellectual property of others and asks that users of our Service do the same. If you believe that your work has been copied in a way that constitutes copyright infringement, please provide Hyrise Crown's copyright agent with the following information:
+Global Price Tracker respects the intellectual property of others and asks that users of our Service do the same. If you believe that your work has been copied in a way that constitutes copyright infringement, please provide Global Price Tracker's copyright agent with the following information:
 
 - An electronic or physical signature of the person authorized to act on behalf of the owner of the copyright interest
 - A description of the copyrighted work that you claim has been infringed
@@ -89,7 +99,7 @@ Hyrise Crown respects the intellectual property of others and asks that users of
 
 ### 7.1 Third-Party Links
 
-The Service may contain links to third-party websites or services that are not owned or controlled by Hyrise Crown. Hyrise Crown has no control over, and assumes no responsibility for, the content, privacy policies, or practices of any third-party websites or services. You further acknowledge and agree that Hyrise Crown shall not be responsible or liable, directly or indirectly, for any damage or loss caused or alleged to be caused by or in connection with the use of or reliance on any such content, goods, or services available on or through any such websites or services.
+The Service may contain links to third-party websites or services that are not owned or controlled by Global Price Tracker. Global Price Tracker has no control over, and assumes no responsibility for, the content, privacy policies, or practices of any third-party websites or services. You further acknowledge and agree that Global Price Tracker shall not be responsible or liable, directly or indirectly, for any damage or loss caused or alleged to be caused by or in connection with the use of or reliance on any such content, goods, or services available on or through any such websites or services.
 
 ### 7.2 Affiliate Marketing Disclosure
 
@@ -97,9 +107,9 @@ Our Service contains affiliate marketing links, which means we may receive a com
 
 ## 8. Warranty Disclaimers
 
-THE SERVICE AND ALL INFORMATION CONTAINED THEREIN ARE PROVIDED ON AN "AS IS" BASIS WITHOUT ANY WARRANTIES OF ANY KIND. HYRISE CROWN, TO THE FULLEST EXTENT PERMITTED BY LAW, DISCLAIMS ALL WARRANTIES, WHETHER EXPRESS, IMPLIED, STATUTORY OR OTHERWISE, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY, NON-INFRINGEMENT OF THIRD PARTIES' RIGHTS, AND FITNESS FOR PARTICULAR PURPOSE.
+THE SERVICE AND ALL INFORMATION CONTAINED THEREIN ARE PROVIDED ON AN "AS IS" BASIS WITHOUT ANY WARRANTIES OF ANY KIND. GLOBAL PRICE TRACKER, TO THE FULLEST EXTENT PERMITTED BY LAW, DISCLAIMS ALL WARRANTIES, WHETHER EXPRESS, IMPLIED, STATUTORY OR OTHERWISE, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY, NON-INFRINGEMENT OF THIRD PARTIES' RIGHTS, AND FITNESS FOR PARTICULAR PURPOSE.
 
-Hyrise Crown makes no warranty that:
+Global Price Tracker makes no warranty that:
 - The Service will meet your requirements
 - The Service will be uninterrupted, timely, secure, or error-free
 - The results that may be obtained from the use of the Service will be accurate or reliable
@@ -107,11 +117,11 @@ Hyrise Crown makes no warranty that:
 
 ## 9. Limitation of Liability
 
-IN NO EVENT SHALL HYRISE CROWN, ITS DIRECTORS, EMPLOYEES, PARTNERS, AGENTS, SUPPLIERS, OR AFFILIATES, BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL OR PUNITIVE DAMAGES, INCLUDING WITHOUT LIMITATION, LOSS OF PROFITS, DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, RESULTING FROM (I) YOUR ACCESS TO OR USE OF OR INABILITY TO ACCESS OR USE THE SERVICE; (II) ANY CONDUCT OR CONTENT OF ANY THIRD PARTY ON THE SERVICE; (III) ANY CONTENT OBTAINED FROM THE SERVICE; AND (IV) UNAUTHORIZED ACCESS, USE OR ALTERATION OF YOUR TRANSMISSIONS OR CONTENT, WHETHER BASED ON WARRANTY, CONTRACT, TORT (INCLUDING NEGLIGENCE) OR ANY OTHER LEGAL THEORY, WHETHER OR NOT WE HAVE BEEN INFORMED OF THE POSSIBILITY OF SUCH DAMAGE.
+IN NO EVENT SHALL GLOBAL PRICE TRACKER, ITS DIRECTORS, EMPLOYEES, PARTNERS, AGENTS, SUPPLIERS, OR AFFILIATES, BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL OR PUNITIVE DAMAGES, INCLUDING WITHOUT LIMITATION, LOSS OF PROFITS, DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, RESULTING FROM (I) YOUR ACCESS TO OR USE OF OR INABILITY TO ACCESS OR USE THE SERVICE; (II) ANY CONDUCT OR CONTENT OF ANY THIRD PARTY ON THE SERVICE; (III) ANY CONTENT OBTAINED FROM THE SERVICE; AND (IV) UNAUTHORIZED ACCESS, USE OR ALTERATION OF YOUR TRANSMISSIONS OR CONTENT, WHETHER BASED ON WARRANTY, CONTRACT, TORT (INCLUDING NEGLIGENCE) OR ANY OTHER LEGAL THEORY, WHETHER OR NOT WE HAVE BEEN INFORMED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ## 10. Indemnification
 
-You agree to defend, indemnify, and hold harmless Hyrise Crown and its licensee and licensors, and their employees, contractors, agents, officers, and directors, from and against any and all claims, damages, obligations, losses, liabilities, costs or debt, and expenses (including but not limited to attorney's fees), resulting from or arising out of a) your use and access of the Service, by you or any person using your account; b) a breach of these Terms; or c) your violation of any rights of a third party.
+You agree to defend, indemnify, and hold harmless Global Price Tracker and its licensee and licensors, and their employees, contractors, agents, officers, and directors, from and against any and all claims, damages, obligations, losses, liabilities, costs or debt, and expenses (including but not limited to attorney's fees), resulting from or arising out of a) your use and access of the Service, by you or any person using your account; b) a breach of these Terms; or c) your violation of any rights of a third party.
 
 ## 11. Governing Law and Jurisdiction
 

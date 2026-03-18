@@ -95,6 +95,8 @@ Currently integrates with or mocks:
 - **Sainsbury's** (UK) - Premium dairy and household items
 - **Asda** (UK) - Value-range products
 - **Walmart** (USA) - American pricing
+- **eBay UK** (UK Marketplace) - Electronics, Accessories, Consumer Goods - *Publicly available API*
+- **eBay US** (USA Marketplace) - Gaming, Electronics, Audio, Computing - *Publicly available API*
 - **Extensible** - Easy to add more stores
 
 ### How It Works
@@ -450,10 +452,98 @@ Create `.env` file with:
 # Push Notifications (generate from Firebase Console or similar)
 VITE_VAPID_PUBLIC_KEY=BF...  # Public key for client-side subscription
 
+# eBay API (Optional - for real eBay data)
+EBAY_APP_ID=your_ebay_app_id  # Get free from https://developer.ebay.com/
+
 # Server-side (not in git)
 VAPID_PRIVATE_KEY=...
 VAPID_SUBJECT=...  # mailto:your@email.com
 ```
+
+### 1a. eBay API Integration (Optional)
+
+eBay provides **free, publicly available APIs** for price tracking and shopping:
+
+#### Option A: eBay Shopping API (Recommended for Price Tracking)
+- **Status**: Publicly available, free tier available
+- **Registration**: https://developer.ebay.com/
+- **Steps**:
+  1. Sign up for eBay Developer Account (free)
+  2. Navigate to **My Account → Keys & Tokens**
+  3. Copy your **App ID** (formerly called AppName)
+  4. Add to `.env`: `EBAY_APP_ID=your_app_id`
+  5. Works for basic price searches and product information
+  
+**Current Implementation**: Uses mock data. To enable real eBay API:
+- Set `EBAY_APP_ID` environment variable
+- Modify `fetchEbayUKData()` and `fetchEbayUSData()` in `scripts/real-time-price-fetcher.mjs`
+- Use endpoint: `https://svcs.ebay.com/services/search/FindingService/v1`
+- Example API call:
+```bash
+curl "https://svcs.ebay.com/services/search/FindingService/v1?
+  OPERATION-NAME=findItemsAdvanced&
+  SERVICE-VERSION=1.0.0&
+  SECURITY-APPNAME=YOUR_APP_ID&
+  RESPONSE-DATA-FORMAT=JSON&
+  REST-PAYLOAD&
+  keywords=laptop" \
+  -H "Accept: application/json"
+```
+
+#### Option B: eBay Browse API (Modern, OAuth Required)
+- **Status**: Public API, requires OAuth authentication
+- **Capabilities**: Full product browsing, ratings, detailed listings
+- **Setup**: More complex, but more comprehensive data
+- **Documentation**: https://developer.ebay.com/api-docs/buy/browse/overview.html
+
+#### Option C: eBay Commerce Catalog API (Product Reference)
+- **Status**: Public API for product information
+- **Use Case**: Product details, categories, specifications
+- **Documentation**: https://developer.ebay.com/api-docs/buy/catalog/overview.html
+
+#### Example Mock vs Real Data
+
+**Current Mock Data** (No API key required):
+```javascript
+{
+  id: 'ebay-uk-001',
+  name: 'iPhone 12 64GB',
+  price: 189.99,
+  store: 'eBay UK',
+  seller: 'Electronics Seller'
+}
+```
+
+**Real eBay Data** (With API key):
+```javascript
+{
+  id: 'ebay-uk-001',
+  itemId: '123456789',
+  title: 'iPhone 12 64GB Used - Great Condition',
+  price: 189.99,
+  currency: 'GBP',
+  store: 'eBay UK',
+  seller: 'Electronics Seller',
+  sellerFeedback: 98.5,
+  condition: 'Used',
+  shippingPrice: 0,
+  viewCount: 1250,
+  soldCount: 89
+}
+```
+
+#### Legal & Use Rights
+✅ **eBay API is free and legal to use for**:
+- Personal price monitoring
+- App development
+- Business analytics
+- Educational purposes
+
+⚠️ **Follow eBay Developer Terms**:
+- Comply with eBay's API Terms of Service
+- Don't scrape website (use official API only)
+- Respect rate limits (100 calls per session)
+- Include proper attribution if displaying results
 
 ### 2. Database Setup
 

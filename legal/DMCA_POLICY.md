@@ -1,10 +1,10 @@
-# DMCA Policy for Global Price Comparison
+# DMCA Policy for Global Price Tracker
 
 **Last Updated: March 17, 2026**
 
 ## Digital Millennium Copyright Act Notice and Takedown Procedure
 
-Global Price Comparison respects the intellectual property rights of others and expects its users to do the same. In accordance with the Digital Millennium Copyright Act of 1998 ("DMCA"), Global Price Comparison will respond expeditiously to claims of copyright infringement that are reported to our designated copyright agent.
+Global Price Tracker respects the intellectual property rights of others and expects its users to do the same. In accordance with the Digital Millennium Copyright Act of 1998 ("DMCA"), Global Price Tracker will respond expeditiously to claims of copyright infringement that are reported to our designated copyright agent.
 
 ## Notification of Claimed Copyright Infringement
 
@@ -20,8 +20,8 @@ If you believe that your copyrighted work has been copied in a way that constitu
 The above information must be submitted to our designated copyright agent as follows:
 
 **Designated Copyright Agent:**
-- Name: Copyright Agent, Hyrise Crown
-- Email: erickotienokjv@gmail.com
+- Name: Copyright Agent, Global Price Tracker
+- Email: legal@globalpricetrackerapp.com
 - Address: [Your Business Address]
 - Phone: [Your Business Phone Number]
 
@@ -38,16 +38,16 @@ If you believe that your content that was removed (or to which access was disabl
 3. **A statement that you have a good faith belief that the content was removed or disabled as a result of mistake or a misidentification of the content**
 4. **Your name, address, telephone number, and email address, and a statement that you consent to the jurisdiction of the federal court in [Appropriate Jurisdiction] and a statement that you will accept service of process from the person who provided notification of the alleged infringement**
 
-If a counter-notification is received by our copyright agent, Hyrise Crown may send a copy of the counter-notification to the original complaining party informing that person that it may replace the removed content or cease disabling it in 10 business days. Unless the copyright owner files an action seeking a court order against the content provider, member or user, the removed content may be replaced, or access to it restored, in 10 to 14 business days or more after receipt of the counter-notice, at Hyrise Crown's sole discretion.
+If a counter-notification is received by our copyright agent, Global Price Tracker may send a copy of the counter-notification to the original complaining party informing that person that it may replace the removed content or cease disabling it in 10 business days. Unless the copyright owner files an action seeking a court order against the content provider, member or user, the removed content may be replaced, or access to it restored, in 10 to 14 business days or more after receipt of the counter-notice, at Global Price Tracker's sole discretion.
 
 ## Repeat Infringers
 
-It is Hyrise Crown's policy to terminate the user accounts of repeat infringers. Hyrise Crown reserves the right to decide, in its sole discretion, whether a user account holder is a repeat infringer. Hyrise Crown may also, at its sole discretion, limit access to the Service and/or terminate the user accounts of any users who infringe any intellectual property rights of others, whether or not there is any repeat infringement.
+It is Global Price Tracker's policy to terminate the user accounts of repeat infringers. Global Price Tracker reserves the right to decide, in its sole discretion, whether a user account holder is a repeat infringer. Global Price Tracker may also, at its sole discretion, limit access to the Service and/or terminate the user accounts of any users who infringe any intellectual property rights of others, whether or not there is any repeat infringement.
 
 ## Changes to This Policy
 
-Hyrise Crown reserves the right to update or modify this DMCA Policy at any time without prior notice. Your continued use of the platform following any changes indicates your acceptance of the new DMCA Policy.
+Global Price Tracker reserves the right to update or modify this DMCA Policy at any time without prior notice. Your continued use of the platform following any changes indicates your acceptance of the new DMCA Policy.
 
 ## Questions
 
-If you have any questions about this DMCA Policy, please contact us at erickotienokjv@gmail.com.
+If you have any questions about this DMCA Policy, please contact us at legal@globalpricetrackerapp.com.

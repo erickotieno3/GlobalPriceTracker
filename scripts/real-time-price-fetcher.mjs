@@ -70,6 +70,24 @@ const STORE_CONFIGS = {
     apiEndpoint: 'https://api.jumia.com',
     hasRealApi: false,
     mockUrl: null
+  },
+  ebayUK: {
+    name: 'eBay UK',
+    country: 'UK',
+    apiEndpoint: 'https://svcs.ebay.com/services/search/FindingService/v1',
+    hasRealApi: true, // eBay Shopping API is publicly available (requires free AppID)
+    globalId: 'EBAY-GB',
+    buyerUrl: 'https://www.ebay.co.uk',
+    mockUrl: null
+  },
+  ebayUS: {
+    name: 'eBay US',
+    country: 'USA',
+    apiEndpoint: 'https://svcs.ebay.com/services/search/FindingService/v1',
+    hasRealApi: true, // eBay Shopping API is publicly available (requires free AppID)
+    globalId: 'EBAY-US',
+    buyerUrl: 'https://www.ebay.com',
+    mockUrl: null
   }
 };
 
@@ -357,10 +375,196 @@ class RealTimePriceFetcher {
   }
 
   /**
+   * Fetch from eBay UK (Note: Requires EBAY_APP_ID env variable for real API)
+   * For free AppID, register at: https://developer.ebay.com/
+   */
+  async fetchEbayUKData() {
+    console.log('📦 Fetching eBay UK prices...');
+    try {
+      const appId = process.env.EBAY_APP_ID || 'demo'; // Demo AppID for testing
+      
+      // Mock eBay data - in production, use eBay Finding API:
+      // GET https://svcs.ebay.com/services/search/FindingService/v1?
+      //   OPERATION-NAME=findItemsAdvanced&
+      //   SERVICE-VERSION=1.0.0&
+      //   SECURITY-APPNAME=[YOUR_APP_ID]&
+      //   RESPONSE-DATA-FORMAT=JSON&
+      //   REST-PAYLOAD&
+      //   keywords=product_name
+      
+      const mockProducts = [
+        {
+          id: 'ebay-uk-001',
+          name: 'iPhone 12 64GB',
+          category: 'Electronics',
+          price: 189.99,
+          store: 'eBay UK',
+          seller: 'Electronics Seller',
+          condition: 'Used',
+          shippingPrice: 0,
+          image: 'https://via.placeholder.com/200?text=iPhone',
+          url: 'https://www.ebay.co.uk/itm/...',
+          soldCount: 1250
+        },
+        {
+          id: 'ebay-uk-002',
+          name: 'MacBook Pro 13" M1',
+          category: 'Electronics',
+          price: 849.00,
+          store: 'eBay UK',
+          seller: 'Tech Zone',
+          condition: 'Like New',
+          shippingPrice: 0,
+          image: 'https://via.placeholder.com/200?text=MacBook',
+          url: 'https://www.ebay.co.uk/itm/...',
+          soldCount: 89
+        },
+        {
+          id: 'ebay-uk-003',
+          name: 'USB-C Cable 2m',
+          category: 'Accessories',
+          price: 4.99,
+          store: 'eBay UK',
+          seller: 'Cable Store',
+          condition: 'New',
+          shippingPrice: 1.50,
+          image: 'https://via.placeholder.com/200?text=Cable',
+          url: 'https://www.ebay.co.uk/itm/...',
+          soldCount: 5420
+        },
+        {
+          id: 'ebay-uk-004',
+          name: 'Wireless Bluetooth Headphones',
+          category: 'Audio',
+          price: 24.99,
+          store: 'eBay UK',
+          seller: 'Audio Plus',
+          condition: 'New',
+          shippingPrice: 2.00,
+          image: 'https://via.placeholder.com/200?text=Headphones',
+          url: 'https://www.ebay.co.uk/itm/...',
+          soldCount: 789
+        },
+        {
+          id: 'ebay-uk-005',
+          name: '4K Webcam',
+          category: 'Electronics',
+          price: 59.99,
+          store: 'eBay UK',
+          seller: 'Video Tech',
+          condition: 'New',
+          shippingPrice: 0,
+          image: 'https://via.placeholder.com/200?text=Webcam',
+          url: 'https://www.ebay.co.uk/itm/...',
+          soldCount: 342
+        }
+      ];
+
+      return mockProducts.map(p => ({
+        ...p,
+        lastUpdated: new Date().toISOString(),
+        stock: Math.floor(Math.random() * 50) + 1
+      }));
+    } catch (error) {
+      console.error('❌ eBay UK fetch error:', error.message);
+      return [];
+    }
+  }
+
+  /**
+   * Fetch from eBay US (Note: Requires EBAY_APP_ID env variable for real API)
+   * For free AppID, register at: https://developer.ebay.com/
+   */
+  async fetchEbayUSData() {
+    console.log('📦 Fetching eBay US prices...');
+    try {
+      const appId = process.env.EBAY_APP_ID || 'demo'; // Demo AppID for testing
+      
+      // Mock eBay data - similar structure to eBay UK
+      const mockProducts = [
+        {
+          id: 'ebay-us-001',
+          name: 'PS5 Console',
+          category: 'Gaming',
+          price: 499.00,
+          store: 'eBay US',
+          seller: 'Gaming Store USA',
+          condition: 'New',
+          shippingPrice: 0,
+          image: 'https://via.placeholder.com/200?text=PS5',
+          url: 'https://www.ebay.com/itm/...',
+          soldCount: 2150
+        },
+        {
+          id: 'ebay-us-002',
+          name: 'Xbox Series X',
+          category: 'Gaming',
+          price: 499.00,
+          store: 'eBay US',
+          seller: 'Game World',
+          condition: 'New',
+          shippingPrice: 0,
+          image: 'https://via.placeholder.com/200?text=Xbox',
+          url: 'https://www.ebay.com/itm/...',
+          soldCount: 1876
+        },
+        {
+          id: 'ebay-us-003',
+          name: 'iPad Air 5',
+          category: 'Electronics',
+          price: 549.00,
+          store: 'eBay US',
+          seller: 'Apple Reseller',
+          condition: 'New',
+          shippingPrice: 0,
+          image: 'https://via.placeholder.com/200?text=iPad',
+          url: 'https://www.ebay.com/itm/...',
+          soldCount: 542
+        },
+        {
+          id: 'ebay-us-004',
+          name: 'NVIDIA RTX 4070',
+          category: 'Computing',
+          price: 599.99,
+          store: 'eBay US',
+          seller: 'Tech Warehouse',
+          condition: 'New',
+          shippingPrice: 15.00,
+          image: 'https://via.placeholder.com/200?text=GPU',
+          url: 'https://www.ebay.com/itm/...',
+          soldCount: 234
+        },
+        {
+          id: 'ebay-us-005',
+          name: 'Sony WH-1000XM5 Headphones',
+          category: 'Audio',
+          price: 349.99,
+          store: 'eBay US',
+          seller: 'Audio Specialist',
+          condition: 'New',
+          shippingPrice: 0,
+          image: 'https://via.placeholder.com/200?text=Headphones',
+          url: 'https://www.ebay.com/itm/...',
+          soldCount: 876
+        }
+      ];
+
+      return mockProducts.map(p => ({
+        ...p,
+        lastUpdated: new Date().toISOString(),
+        stock: Math.floor(Math.random() * 75) + 1
+      }));
+    } catch (error) {
+      console.error('❌ eBay US fetch error:', error.message);
+      return [];
+    }
+  }
+
+  /**
    * Fetch from all stores
    */
   async fetchAllStoreData() {
-    console.log('\n🌐 Fetching real-time prices from major chains...\n');
+    console.log('\n🌐 Fetching real-time prices from major chains and marketplaces...\n');
     
     const allProducts = [];
     
@@ -369,6 +573,8 @@ class RealTimePriceFetcher {
     allProducts.push(...await this.fetchSainsburysData());
     allProducts.push(...await this.fetchAsdaData());
     allProducts.push(...await this.fetchWalmartData());
+    allProducts.push(...await this.fetchEbayUKData());
+    allProducts.push(...await this.fetchEbayUSData());
 
     return allProducts;
   }
