@@ -10,6 +10,7 @@
     "build-and-submit": "eas build --platform android --profile production && eas submit --platform android --latest"
   },
   "dependencies": {
+    "eas-cli": "^18.4.0",
     "expo": "~51.0.0",
     "expo-router": "~3.5.0",
     "expo-status-bar": "~1.12.1",
